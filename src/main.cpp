@@ -22,10 +22,3 @@ int main(int ac, char **av)
     }
     return 0;
 }
-
-// int main()
-// {
-//     Client client(42);
-//     std::cout << "Client fd: " << client.getFd() << std::endl;
-//     return 0;
-// }

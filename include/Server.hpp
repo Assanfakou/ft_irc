@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <map>
+#include <fcntl.h>
 #include "Client.hpp"
 
 class Server
@@ -27,16 +28,16 @@ class Server
         ~Server();
 
         void start();
-        void printPollFds();//for debugging
-        void printClients();//for debugging
-
+        Client *getClient(int clientFd);
+        void sendMessageToClient(int clientFd, const std::string &message);
+        void removeClient(int clientFd);
+        
     private: //helpers
         void createSocket();
         void setupSocket();
         void runPollLoop();
         void acceptClient();
-        void receiveClientMessage(int clientFd);
-        void removeClient(int clientFd);
+        bool receiveClientMessage(int clientFd);
         void processClientBuffer(Client &client);
 };
 
