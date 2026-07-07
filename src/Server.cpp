@@ -9,7 +9,8 @@ Server::~Server()
 {
     for(size_t i = 0; i < _pollfds.size(); i++)
         close(_pollfds[i].fd);
-    std::cout << "Server shutting down..." << std::endl;
+    _clients.clear();//not strictly necessary, but good practice to clear the map of clients
+    _pollfds.clear();//not strictly necessary, but good practice to clear the vector of pollfds
 }
 
 void Server::start()
@@ -19,64 +20,24 @@ void Server::start()
     runPollLoop();
 }
 
+Client *Server::getClient(int clientFd)
+{
+    std::map<int, Client>::iterator it = _clients.find(clientFd);
+    if (it == _clients.end())
+        return NULL;
+    return &(it->second);
+}
+
 void Server::createSocket()
 {
     _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 
     if (_serverSocket == -1)
         throw std::runtime_error("Failed to create socket");
+    if (fcntl(_serverSocket, F_SETFL, O_NONBLOCK) == -1)
+        throw std::runtime_error("Failed to set server socket to non-blocking mode"); // throwing an exception here will terminate the program, which is appropriate since we can't proceed without a non-blocking server socket.
     std::cout << "Server socket created: " << _serverSocket << std::endl;
 }
-/*
-** setupSocket()
-**
-** Prepares the server socket to accept incoming client connections.
-** This function must be called after the socket fd has been created (in the constructor),
-** and before the main poll() loop starts. It performs three steps:
-**
-** -----------------------------------------------------------------------
-** STEP 1 — setsockopt(SO_REUSEADDR) "Configure a socket option inside the kernel"
-** -----------------------------------------------------------------------
-** By default, after a server crashes or is killed, the OS keeps the port in a
-** TIME_WAIT state for ~60 seconds, refusing any new bind() on the same port.
-** SO_REUSEADDR tells the kernel to allow reuse of that port immediately.
-** Without this, restarting the server during development would give:
-**   "bind failed: Address already in use"
-**
-**   _serverSocket : the fd created by socket() in the constructor
-**   SOL_SOCKET    : we're setting an option at the socket level => SOL_SOCKET → general socket, IPPROTO_TCP → TCP options, IPPROTO_IP → IP options 
-**   SO_REUSEADDR  : the specific option — allow port reuse
-**   &opt (= 1)    : enables the option
-**
-** -----------------------------------------------------------------------
-** STEP 2 — bind() "Attach socket → IP + PORT"
-** -----------------------------------------------------------------------
-** Associates the socket with a local address and port so clients know
-** where to connect. We fill a sockaddr_in struct:
-**
-**   sin_family      = AF_INET        → IPv4
-**   sin_port        = htons(_port)   → port in network byte order (big-endian)
-**   sin_addr.s_addr = INADDR_ANY     → accept connections on any network interface
-**                                      (localhost, LAN, etc.)
-**
-** htons() is critical: x86 CPUs are little-endian, but the network protocol
-** expects big-endian. Forgetting htons() causes clients to connect to a
-** completely wrong port with no obvious error.
-**
-** -----------------------------------------------------------------------
-** STEP 3 — listen()
-** -----------------------------------------------------------------------
-** Marks the socket as passive — it will now accept incoming connections
-** instead of being used to connect outward.
-**
-** The second argument (128) is the backlog: the maximum number of pending
-** connections the kernel will queue while our server is busy in poll().
-** If the queue is full, new connection attempts are silently dropped.
-** 128 is a common safe value for IRC servers at this scale.
-**
-** After listen() returns, the socket is ready. The actual acceptance of
-** individual clients happens later in the poll() loop via accept().
-*/
 
 void Server::setupSocket()
 {
@@ -110,6 +71,7 @@ void Server::setupSocket()
 void Server::removeClient(int clientFd)
 {
     close(clientFd);// free the kernel resource
+    _clients.erase(clientFd);// remove the client from the map
     for (size_t i = 0; i < _pollfds.size(); i++)
     {
         if (_pollfds[i].fd == clientFd)
@@ -119,29 +81,8 @@ void Server::removeClient(int clientFd)
         }
     }
     std::cout << "Client disconnected fd= " << clientFd << std::endl;
-    printPollFds();//debug
 }
 
-void Server::receiveClientMessage(int clientFd)
-{
-    char buffer[1024];
-    int bytesReceived = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
-
-    if (bytesReceived <= 0)
-    {
-        removeClient(clientFd);
-        return;
-    }
-
-    std::map<int, Client>::iterator it = _clients.find(clientFd);
-    
-    if (it == _clients.end())
-        return;
-    it->second.getBuffer().append(buffer, bytesReceived); // Append the received message to the client's buffer
-
-    Client &client = it->second;
-    processClientBuffer(client);
-}
 
 void Server::processClientBuffer(Client &client)
 {
@@ -150,20 +91,50 @@ void Server::processClientBuffer(Client &client)
     while ((pos = client.getBuffer().find("\r\n")) != std::string::npos)
     {
         std::string command = client.getBuffer().substr(0, pos);
-        std::cout << "Complete command: [" << command << "]" << std::endl;
+        // TODO:
+        // Pass the command to a command handler function to process it
         client.getBuffer().erase(0, pos + 2);
-    }
-    std::cout << "Current buffer: [" << client.getBuffer() << "]" << std::endl;   
+    }  
 }
 
+bool Server::receiveClientMessage(int clientFd)
+{
+    char buffer[1024];
+    int bytesReceived = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
+
+    if (bytesReceived == 0)
+    {
+        removeClient(clientFd);
+        return false; // The client no longer exists.
+    }
+    if (bytesReceived == -1)
+    {
+        std::cout << "recv() failed for client fd= " << clientFd << std::endl;
+        removeClient(clientFd);
+        return false;// The client no longer exists.
+    }
+
+    std::map<int, Client>::iterator it = _clients.find(clientFd);
+
+    if (it == _clients.end())
+    {
+        std::cerr << "Error: Client with fd " << clientFd << " not found in _clients map." << std::endl;
+        return true; // The client is still connected, but we couldn't find it in the map.
+    }
+    it->second.getBuffer().append(buffer, bytesReceived);
+
+    Client &client = it->second;
+    processClientBuffer(client);
+    return true;// The client is still connected.
+}
 void Server::runPollLoop()
 {
     std::cout << "Server is running..." << std::endl;
-
+    
     while (true)
     {
         int ret = poll(_pollfds.data(), _pollfds.size(), -1);
-        if (ret < 0)
+        if (ret == -1)
             throw std::runtime_error("poll failed");
         for (size_t i = 0; i < _pollfds.size(); ++i)
         {
@@ -172,7 +143,10 @@ void Server::runPollLoop()
                 if (_pollfds[i].fd == _serverSocket)
                     acceptClient();
                 else
-                    receiveClientMessage(_pollfds[i].fd);
+                {
+                    if (!receiveClientMessage(_pollfds[i].fd))
+                        i--; // Decrement i to recheck the current index after removing a client
+                }
             }
         }
     }
@@ -185,46 +159,30 @@ void Server::acceptClient()
 
     int clientFd = accept(_serverSocket, (sockaddr *)&clientAddr, &clientLen);
 
-    if (clientFd < 0)
+    if (clientFd == -1)
         throw std::runtime_error("accept failed");
+
+    if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1)
+    {
+        close(clientFd); // Close the client socket if we can't set it to non-blocking mode
+        std::cerr << "Failed to set client socket to non-blocking mode" << std::endl; // ignore the client if we can't set it to non-blocking mode
+        return;
+    }
 
     _clients.insert(std::make_pair(clientFd, Client(clientFd)));//store the client in the map with its fd as the key
     
     // Add the client socket to the pollfd vector to monitor for incoming messages
     pollfd clientPollFd;
-    clientPollFd.fd = clientFd;//4
+    clientPollFd.fd = clientFd;
     clientPollFd.events = POLLIN;
-    clientPollFd.revents = 0; // Initialize revents
+    clientPollFd.revents = 0;
     _pollfds.push_back(clientPollFd);
 
     std::cout << "Client connected fd= " << clientFd << std::endl;
-    printPollFds();//debug
-    printClients();//debug
 }
 
-void Server::printPollFds()
+void Server::sendMessageToClient(int clientFd, const std::string &message)
 {
-    std::cout << "\n_pollfds: [ ";
-    for (size_t i = 0; i < _pollfds.size(); i++)
-    {
-        std::cout << _pollfds[i].fd;
-        if (i != _pollfds.size() - 1)
-            std::cout << ", ";
-    }
-    std::cout << " ]" << std::endl;
+    if (send(clientFd, message.c_str(), message.size(), 0) == -1)
+        std::cerr << "Failed to send message to client " << clientFd << std::endl;
 }
-
-void Server::printClients()
-{
-    std::cout << "\n_clients:\n";
-    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-    {
-        std::cout << "Key(fd): " << it->first << " -> Client fd: " << it->second.getFd() << std::endl;
-    }
-    std::cout << std::endl;
-}
-
-
-
-
-
