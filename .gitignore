@@ -38,6 +38,10 @@
 *.exe
 *.out
 *.app
+client
+server
+test
+run
 
 # Build directories
 build/
@@ -67,3 +71,4 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+# 
