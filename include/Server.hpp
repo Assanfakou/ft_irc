@@ -1,6 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include <cstdlib> // i added this for std::atoi 
 #include <iostream>
 #include <vector>
 #include <poll.h>
