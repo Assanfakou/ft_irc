@@ -2,6 +2,7 @@
 
 int main(int ac , char **av)
 {
+    (void) ac;
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0)
