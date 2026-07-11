@@ -83,11 +83,12 @@ void Server::removeClient(int clientFd)
     std::cout << "Client disconnected fd= " << clientFd << std::endl;
 }
 
-
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
-
+    pos = client.getBuffer().find("\r\n");
+    std::cout << "length: " << pos << std::endl;
+    std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;
     while ((pos = client.getBuffer().find("\r\n")) != std::string::npos)
     {
         std::string command = client.getBuffer().substr(0, pos);
