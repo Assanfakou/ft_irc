@@ -2,6 +2,8 @@
 #define CLIENT_HPP
 
 #include <iostream>
+#include "colors.h"
+#include <string>
 
 class Client
 {
@@ -25,6 +27,7 @@ class Client
         const std::string &getUsername() const;
         const std::string &getHostname() const;
         const std::string &getRealname() const;
+        std::string getPrefix() const;
         bool isRegistered() const;
 
         // Setters

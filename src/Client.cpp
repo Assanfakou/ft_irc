@@ -64,3 +64,8 @@ void Client::setRegistered(bool isRegistered)
 {
     _isRegistered = isRegistered;
 }
+std::string Client::getPrefix() const
+{
+    return _nickname + "!" + _username + "@" + _hostname;
+    // result: "alice!alice@192.168.1.5"
+}
