@@ -15,6 +15,9 @@
 #include <fcntl.h>
 #include "Client.hpp"
 
+
+class Message;
+
 class Server
 {
     private:
@@ -40,6 +43,11 @@ class Server
         void acceptClient();
         bool receiveClientMessage(int clientFd);
         void processClientBuffer(Client &client);
+
+        // creadted by Assan
+        void despatchMessage(Client &client, const Message &message);
+    public:
+        Client *getClientByNickname(const std::string &nickname);
 };
 
 #endif

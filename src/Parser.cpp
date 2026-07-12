@@ -46,6 +46,7 @@ void Parser::parseParameters(Message &msg, const std::string &line, size_t &i)
     }
 }
 
+
 std::string Parser::toUpper(const std::string &str)
 {
     std::string upperStr;
