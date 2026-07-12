@@ -1,5 +1,5 @@
 #include "../include/Server.hpp"
-#include "../include/Parser.hpp"
+#include "../include/MessageParser.hpp"
 
 Server::Server(int port, const std::string &password)
     : _port(port), _password(password), _serverSocket(-1)
@@ -99,12 +99,9 @@ void Server::processClientBuffer(Client &client)
     // std::cout << client.getPrefix() << "\n";
     std::cout << "length: " << pos << std::endl;
     // std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;
-    Parse parser;
-    Message msg = parser.parse(client.getBuffer().substr(0, pos));
-    std::cout << "Command: " << msg.command << std::endl;
-    std::cout << RED << msg.params.size() << " parameters received." << std::endl << RESET;
-    for (size_t i = 0; i < msg.params.size(); ++i)
-        std::cout << "Param " << i << ": " << msg.params[i] << std::endl;
+    MessageParser parser;
+    parser.parseMessage(client.getBuffer().substr(0, pos));
+    parser.printMessage();
     client.getBuffer().erase(0, pos + 2); // Remove
 }
 
