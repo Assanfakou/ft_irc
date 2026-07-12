@@ -86,6 +86,10 @@ void Server::removeClient(int clientFd)
 /* 
 ** here we should add the prefix with the line to specify who send the message 
 ** to any user using client.getPrefix()
+** No I think we don't because we already have every client has it's fd so we don't need the prefix
+** BUt in a normal irc server when the clients sends a message to the client the server parse it and 
+** add that prefix at the first of the message or line : put in you head: it looks like that
+**         >> :nick!user@host  ---- line ----<<
 */
 
 void Server::processClientBuffer(Client &client)
