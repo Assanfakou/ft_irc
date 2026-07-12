@@ -1,7 +1,7 @@
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = src/Client.cpp src/main.cpp src/Server.cpp src/Message.cpp src/Parser.cpp
+SRC = src/Client.cpp src/main.cpp src/Server.cpp src/Message.cpp src/Parser.cpp src/commands/privmsg.cpp
 
 SRCC = src/mync.cpp
 NAME = server

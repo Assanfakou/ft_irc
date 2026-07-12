@@ -26,6 +26,11 @@ const std::vector<std::string> &Message::getParams() const
     return params;
 }
 
+const std::string &Message::getParameter(size_t index) const
+{
+    return params.at(index);
+}
+
 void Message::setPrefix(const std::string &p)
 {
     prefix = p;

@@ -1,5 +1,6 @@
 #include "../include/Server.hpp"
 #include "../include/Parser.hpp"
+#include "commands/commands.hpp"
 
 Server::Server(int port, const std::string &password)
     : _port(port), _password(password), _serverSocket(-1)
@@ -69,6 +70,7 @@ void Server::setupSocket()
     _pollfds.push_back(serverPollFd);
 }
 
+
 void Server::removeClient(int clientFd)
 {
     close(clientFd);// free the kernel resource
@@ -92,11 +94,34 @@ void Server::removeClient(int clientFd)
 **         >> :nick!user@host  ---- line ----<<
 */
 
+/*
+------------------------------- i'm working here----------------------------------------- 
+*/
+
+void Server::despatchMessage(Client &client, const Message &msg)
+{
+    if (msg.getCommand() == "PRIVMSG")
+          privmsg(*this, client, msg);
+    else if (msg.getCommand() == "NICK")
+    {
+        client.setNickname(msg.getParameter(0));
+    }
+}
+
+Client *Server::getClientByNickname(const std::string &nickname)
+{
+    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+    {
+        if (it->second.getNickname() == nickname)
+            return &(it->second);
+    }
+    return NULL;
+}
+
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
     client.setUsername("Username");
-    client.setNickname("nickname");
     client.setHostname("linux");
  
     pos = client.getBuffer().find("\n");
@@ -105,8 +130,8 @@ void Server::processClientBuffer(Client &client)
     // std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;
     Parser parser;
     Message mesg = parser.parse(client.getBuffer().substr(0, pos));
+    despatchMessage(client, mesg);
 
-    mesg.printMessage();
     client.getBuffer().erase(0, pos + 2); // Remove
 }
 
