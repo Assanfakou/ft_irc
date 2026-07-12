@@ -1,4 +1,5 @@
 #include "../include/Server.hpp"
+#include "../include/Parser.hpp"
 
 Server::Server(int port, const std::string &password)
     : _port(port), _password(password), _serverSocket(-1)
@@ -82,20 +83,29 @@ void Server::removeClient(int clientFd)
     }
     std::cout << "Client disconnected fd= " << clientFd << std::endl;
 }
+/* 
+** here we should add the prefix with the line to specify who send the message 
+** to any user using client.getPrefix()
+*/
 
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
-    pos = client.getBuffer().find("\r\n");
+    client.setUsername("Username");
+    client.setNickname("nickname");
+    client.setHostname("linux");
+ 
+    pos = client.getBuffer().find("\n");
+    // std::cout << client.getPrefix() << "\n";
     std::cout << "length: " << pos << std::endl;
-    std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;
-    while ((pos = client.getBuffer().find("\r\n")) != std::string::npos)
-    {
-        std::string command = client.getBuffer().substr(0, pos);
-        // TODO:
-        // Pass the command to a command handler function to process it
-        client.getBuffer().erase(0, pos + 2);
-    }  
+    // std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;
+    Parse parser;
+    Message msg = parser.parse(client.getBuffer().substr(0, pos));
+    std::cout << "Command: " << msg.command << std::endl;
+    std::cout << RED << msg.params.size() << " parameters received." << std::endl << RESET;
+    for (size_t i = 0; i < msg.params.size(); ++i)
+        std::cout << "Param " << i << ": " << msg.params[i] << std::endl;
+    client.getBuffer().erase(0, pos + 2); // Remove
 }
 
 bool Server::receiveClientMessage(int clientFd)
@@ -122,6 +132,7 @@ bool Server::receiveClientMessage(int clientFd)
         std::cerr << "Error: Client with fd " << clientFd << " not found in _clients map." << std::endl;
         return true; // The client is still connected, but we couldn't find it in the map.
     }
+    buffer[bytesReceived] = '\n'; // Null-terminate the received data
     it->second.getBuffer().append(buffer, bytesReceived);
 
     Client &client = it->second;

@@ -3,7 +3,7 @@
 #include "msg.hpp"
 
 
-class Parser
+class Parse
 {
     public:
         Message parse(const std::string& line);
