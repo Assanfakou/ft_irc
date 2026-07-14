@@ -110,6 +110,11 @@ void Server::despatchMessage(Client &client, const Message &msg)
 
 Client *Server::getClientByNickname(const std::string &nickname)
 {
+    if (nickname.find(',') != std::string::npos)
+    {
+        std::cout << nickname << " multipple users\n";
+        return NULL;
+    }
     for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
     {
         if (it->second.getNickname() == nickname)
