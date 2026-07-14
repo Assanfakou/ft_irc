@@ -1,6 +1,6 @@
 #include "../include/Client.hpp"
 
-Client::Client(int fd) : _fd(fd), _isRegistered(false), _passAccepted(false)
+Client::Client(int fd) : _fd(fd), _isRegistered(false)
 {
 }
 
@@ -39,12 +39,6 @@ bool Client::isRegistered() const
     return (_isRegistered);
 }
 
-//rida
-bool Client::hasPassAccepted() const
-{
-    return _passAccepted;
-}
-
 // Setters
 void Client::setNickname(const std::string &nickname)
 {
@@ -69,10 +63,4 @@ void Client::setRealname(const std::string &realname)
 void Client::setRegistered(bool isRegistered)
 {
     _isRegistered = isRegistered;
-}
-
-//rida
-void Client::setPassAccepted(bool passAccepted)
-{
-    _passAccepted = passAccepted;
 }

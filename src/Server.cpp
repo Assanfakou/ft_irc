@@ -84,18 +84,6 @@ void Server::removeClient(int clientFd)
 }
 
 
-//rida
-
-void Server::tryRegister(Client &client)
-{
-    if (client.hasPassAccepted() && !client.getNickname().empty() && !client.getUsername().empty())
-    {
-        client.setRegistered(true);
-        std::cout << "Client registered!" << std::endl;
-    }
-}
-
-//rida (i only add my own code here , the function created by anass)
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
@@ -103,61 +91,11 @@ void Server::processClientBuffer(Client &client)
     while ((pos = client.getBuffer().find("\r\n")) != std::string::npos)
     {
         std::string command = client.getBuffer().substr(0, pos);
-        //rida
-        std::string password = getPassword(command);
-        std::string nickname = getNickname(command);
-        std::string username = getUsername(command);
-        std::string channelName = getJoin(command);
-        std::string leaveChannel = getPart(command);
-        Kickinfo kick_info = getKickInfo(command);
-        Inviteinfo invite_info = getInviteInfo(command);
-        Topicinfo topic_info = getTopicInfo(command);
-        Modeinfo mode_info = getModeInfo(command);
-
-        if (!password.empty())
-        {
-            if (_password == password)
-            {
-                client.setPassAccepted(true);
-                std::cout << "Password Accepted" << std::endl;
-                tryRegister(client);
-            }
-            else
-                std::cout << "Wrong Password" << std::endl;
-        }
-        if (!nickname.empty())
-        {
-            client.setNickname(nickname);
-            std::cout << "Nickname saved: " << client.getNickname() << std::endl;
-            tryRegister(client);
-        }
-        if (!username.empty())
-        {
-            client.setUsername(username);
-            std::cout << "Username saved: " << client.getUsername() << std::endl;
-            tryRegister(client);
-        }
-        if (client.isRegistered())
-        {
-            if (!channelName.empty())
-                check_Channels_and_addMember_to_Channel(channelName, client);
-            if (!leaveChannel.empty())
-                clientLeaveChannel(leaveChannel, client);
-            if (!kick_info.channel.empty() && !kick_info.nickname.empty())
-                compare_nickname_and_kickClient(kick_info.channel, kick_info.nickname, client);
-            if (!invite_info.channel.empty() && !invite_info.nickname.empty())
-                compare_nickname_and_inviteClient(invite_info.channel, invite_info.nickname, client);
-            if (!topic_info.channel.empty())
-                showTopic(topic_info, client);
-            if (!mode_info.channel.empty() && !mode_info.mode.empty())
-                setMode(mode_info, client);
-        }
-
-        //
+        // TODO:
+        // Pass the command to a command handler function to process it
         client.getBuffer().erase(0, pos + 2);
-    }
+    }  
 }
-
 
 bool Server::receiveClientMessage(int clientFd)
 {
