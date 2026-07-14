@@ -11,23 +11,21 @@
 
 void privmsg(Server &server, Client &sender, const Message &msg)
 {
+    Reply reply;
     if (msg.getParams().empty())
     {
-        std::string errorMessage = ":Server 461 " + sender.getNickname() + " : ERR_NEEDMOREPARAMS\r\n";
-        server.sendMessageToClient(sender.getFd(), errorMessage);
+        server.sendMessageToClient(sender.getFd(), reply.needMoreParams(sender));
         return;
     }
     std::string receiver = msg.getParameter(0);
     if (receiver.empty())
     {
-        std::string errorMessage = ":Server 401 : ERR_NOSUCHNICK\r\n";
-        server.sendMessageToClient(sender.getFd(), errorMessage);
+        server.sendMessageToClient(sender.getFd(), reply.noSuchNick(sender));
         return;
     }
     if (msg.getParams().size() < 2)
     {
-        std::string errorMessage = ":Server 412 : ERR_NOTEXTTOSEND\r\n";
-        server.sendMessageToClient(sender.getFd(), errorMessage);
+        server.sendMessageToClient(sender.getFd(), reply.noTextToSend(sender));
         return;
     }
     std::string message = msg.getParameter(1);
@@ -39,25 +37,23 @@ void privmsg(Server &server, Client &sender, const Message &msg)
             Client *receiverClient = *it;
             if (receiverClient->getFd() == sender.getFd())
             {
-                std::string errorMessage = ":Server 404 : ERR_CANTSENDTOSELF\r\n";
-                server.sendMessageToClient(sender.getFd(), errorMessage);
-                continue;;
+                server.sendMessageToClient(sender.getFd(), reply.cantSendToSelf(sender));
+                continue;
             }
-            std::string fullMessage = ":" + sender.getPrefix() + " PRIVMSG " + receiverClient->getNickname() + " :" + message + "\r\n";
-            server.sendMessageToClient(receiverClient->getFd(), fullMessage);
+            server.sendMessageToClient(receiverClient->getFd(), reply.generateMEssage(sender, msg));
         }
         return ;
     }
     else
     {
-            std::string errorMessage = ":Server 401 : ERR_NOSUCHNICK\r\n";
-            server.sendMessageToClient(sender.getFd(), errorMessage);
+            server.sendMessageToClient(sender.getFd(), reply.noSuchNick(sender));
             return ;
     }
 }
 
 void notice(Server &server, Client &sender, const Message &msg)
 {
+    Reply reply;
     if (msg.getParams().empty())
         return;
     std::string receiver = msg.getParameter(0);
@@ -74,8 +70,7 @@ void notice(Server &server, Client &sender, const Message &msg)
             Client *receiverClient = *it;
             if (receiverClient->getFd() == sender.getFd())
                 continue;;
-            std::string fullMessage = ":" + sender.getPrefix() + " NOTICE " + receiverClient->getNickname() + " :" + message + "\r\n";
-            server.sendMessageToClient(receiverClient->getFd(), fullMessage);
+            server.sendMessageToClient(receiverClient->getFd(), reply.generateMEssage(sender, msg));
         }
         return ;
     }
@@ -84,10 +79,10 @@ void notice(Server &server, Client &sender, const Message &msg)
 }
 void whois(Server &server, Client &sender, const Message &msg)
 {
+    Reply reply;
     if (msg.getParams().empty())
     {
-        std::string errorMessage = ":Server 461 " + sender.getNickname() + " : ERR_NEEDMOREPARAMS\r\n";
-        server.sendMessageToClient(sender.getFd(), errorMessage);
+        server.sendMessageToClient(sender.getFd(), reply.needMoreParams(sender));
         return;
     }
     std::string targetNickname = msg.getParameter(0);
