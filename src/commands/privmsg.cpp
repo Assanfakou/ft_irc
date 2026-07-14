@@ -2,37 +2,47 @@
 
 void privmsg(Server &server, Client &sender, const Message &msg)
 {
-    (void) sender;  
-    std::string reciever = msg.getParameter(0);
+    if (msg.getParams().empty())
+    {
+        std::string errorMessage = ":Server 411 " + sender.getNickname() + " " + msg.getParameter(0) + ": ERR_NORECIPIENT\r\n";
+        server.sendMessageToClient(sender.getFd(), errorMessage);
+        return;
+    }
+    std::string receiver = msg.getParameter(0);
+    if (receiver.empty())
+    {
+        std::string errorMessage = ":Server 401 : ERR_NOSUCHNICK\r\n";
+        server.sendMessageToClient(sender.getFd(), errorMessage);
+        return;
+    }
     if (msg.getParams().size() < 2)
     {
-        if (server.getClientByNickname(msg.getParameter(0)))
-        {
-            std::string errorMessage = ":server 400 : No text to send\r\n";
-            server.sendMessageToClient(sender.getFd(), errorMessage);
-            return ;
-        }
-        else
-        {
-            std::string errorMessage = ":Server 401 " + sender.getNickname() + " " + msg.getParameter(0) + ": No nick/chanel\r\n";
-            server.sendMessageToClient(sender.getFd(), errorMessage);
-            return ;
-        }
+        std::string errorMessage = ":Server 412 : ERR_NOTEXTTOSEND\r\n";
+        server.sendMessageToClient(sender.getFd(), errorMessage);
+        return;
     }
     std::string message = msg.getParameter(1);
-    Client *receiverClient = server.getClientByNickname(reciever);
-    if (receiverClient)
-    { 
-        std::string fullMessage = ":" + sender.getPrefix() + " PRIVMSG " + reciever + " :" + message + "\r\n";
-        server.sendMessageToClient(receiverClient->getFd(), fullMessage);
-        std::cout << Blue << "Message sent to " << reciever << ": " << message << RESET;
+    std::vector<Client *> receiverClients = server.getClientsByNickname(receiver);
+    if (!receiverClients.empty())
+    {
+        for (std::vector<Client *>::iterator it = receiverClients.begin(); it != receiverClients.end(); ++it)
+        {
+            Client *receiverClient = *it;
+            if (receiverClient->getFd() == sender.getFd())
+            {
+                std::string errorMessage = ":Server 404 : ERR_CANTSENDTOSELF\r\n";
+                server.sendMessageToClient(sender.getFd(), errorMessage);
+                continue;;
+            }
+            std::string fullMessage = ":" + sender.getPrefix() + " PRIVMSG " + receiverClient->getNickname() + " :" + message + "\r\n";
+            server.sendMessageToClient(receiverClient->getFd(), fullMessage);
+        }
         return ;
     }
     else
     {
-            std::string errorMessage = ":server 401 : No Reciver\r\n";
+            std::string errorMessage = ":Server 401 : ERR_NOSUCHNICK\r\n";
             server.sendMessageToClient(sender.getFd(), errorMessage);
             return ;
     }
-    std::cout << Blue << "Everything is good\n" << RESET;
 }

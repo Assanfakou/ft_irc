@@ -108,16 +108,40 @@ void Server::despatchMessage(Client &client, const Message &msg)
     }
 }
 
-Client *Server::getClientByNickname(const std::string &nickname)
+std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
 {
-    if (nickname.find(',') != std::string::npos)
+    std::vector<Client *> clients;
+    size_t start = 0;
+    size_t end = nicknames.find(',');
+
+    while (end != std::string::npos)
     {
-        std::cout << nickname << " multipple users\n";
+        std::string nickname = nicknames.substr(start, end - start);
+        Client *client = getClientByNickname(nickname);
+        if (client)
+            clients.push_back(client);
+        start = end + 1;
+        end = nicknames.find(',', start);
+    }
+
+    // Handle the last nickname (or the only one if there were no commas)
+    std::string nickname = nicknames.substr(start);
+    Client *client = getClientByNickname(nickname);
+    if (client)
+        clients.push_back(client);
+
+    return clients;
+}
+Client *Server::getClientByNickname(const std::string &nicknames)
+{
+    if (nicknames.find(',') != std::string::npos)
+    {
+        std::cout << nicknames << " multiple users\n";
         return NULL;
     }
     for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
     {
-        if (it->second.getNickname() == nickname)
+        if (it->second.getNickname() == nicknames)
             return &(it->second);
     }
     return NULL;
