@@ -48,6 +48,7 @@ class Server
         void despatchMessage(Client &client, const Message &message);
     public:
         Client *getClientByNickname(const std::string &nickname);
+        std::vector<Client *> getClientsByNickname(const std::string &nicknames);
 };
 
 #endif
