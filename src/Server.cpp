@@ -102,10 +102,10 @@ void Server::despatchMessage(Client &client, const Message &msg)
 {
     if (msg.getCommand() == "PRIVMSG")
           privmsg(*this, client, msg);
+    else if (msg.getCommand() == "NOTICE")
+        notice(*this, client, msg);
     else if (msg.getCommand() == "NICK")
-    {
         client.setNickname(msg.getParameter(0));
-    }
 }
 
 std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
@@ -123,8 +123,7 @@ std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
         start = end + 1;
         end = nicknames.find(',', start);
     }
-
-    // Handle the last nickname (or the only one if there were no commas)
+    /* hendle the last nickname and the only one that exists */
     std::string nickname = nicknames.substr(start);
     Client *client = getClientByNickname(nickname);
     if (client)
@@ -134,11 +133,6 @@ std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
 }
 Client *Server::getClientByNickname(const std::string &nicknames)
 {
-    if (nicknames.find(',') != std::string::npos)
-    {
-        std::cout << nicknames << " multiple users\n";
-        return NULL;
-    }
     for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
     {
         if (it->second.getNickname() == nicknames)
