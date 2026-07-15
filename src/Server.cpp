@@ -106,6 +106,23 @@ void Server::despatchMessage(Client &client, const Message &msg)
         notice(*this, client, msg);
     else if (msg.getCommand() == "NICK")
         client.setNickname(msg.getParameter(0));
+    else if (msg.getCommand() == "USER")
+        client.setUsername(msg.getParameter(0));
+    else if (msg.getCommand() == "HOST")
+        client.setHostname(msg.getParameter(0));
+    else if (msg.getCommand() == "QUIT")
+        this->removeClient(client.getFd());
+    else if (msg.getCommand() == "PING")
+        this->sendMessageToClient(client.getFd(), "PONG\r\n");
+    else if (msg.getCommand() == "WHO")
+        who(*this, client, msg);
+    // else if (msg.getCommand() == "WHO")
+        // who(*this, client, msg);
+    // else
+    // {
+    //     Reply reply;
+    //     this->sendMessageToClient(client.getFd(), reply.unknownCommand(client));
+    // }
 }
 
 std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
@@ -131,6 +148,7 @@ std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
 
     return clients;
 }
+
 Client *Server::getClientByNickname(const std::string &nicknames)
 {
     for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
@@ -144,10 +162,8 @@ Client *Server::getClientByNickname(const std::string &nicknames)
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
-    client.setUsername("Username");
-    client.setHostname("linux");
  
-    pos = client.getBuffer().find("\n");
+    pos = client.getBuffer().find("\r\n");
     // std::cout << client.getPrefix() << "\n";
     std::cout << "length: " << pos << std::endl;
     // std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;

@@ -48,3 +48,24 @@ std::string Reply::welcomeMessage(const Client &client)
     std::string message = ":" + client.getPrefix() + " 001 : Welcome to the IRC server!\r\n";
     return message;
 }
+
+std::string Reply::whoStartMessage(const Client &client)
+{
+    std::string message = ":" + client.getPrefix() + " 314 : RPL_WHOSPCR\r\n";
+    return message;
+}
+
+std::string Reply::whoEndMessage(const Client &client)
+{
+    std::string message = ":" + client.getPrefix() + " 315 : RPL_ENDOFWHO\r\n";
+    return message;
+}
+
+std::string Reply::whoMessage(const Client &client)
+{
+    std::string message = ":Server 311 : " + client.getNickname() 
+    + " " + client.getUsername() + " " 
+    + client.getHostname() + " " 
+    + client.getRealname() + "\r\n" ;
+    return message;
+}

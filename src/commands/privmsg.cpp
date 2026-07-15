@@ -51,6 +51,14 @@ void privmsg(Server &server, Client &sender, const Message &msg)
     }
 }
 
+/*
+**
+** Notice command implementation **
+** Server &server: The server instance
+** Client &sender: The client who sent the NOTICE command
+** const Message &msg: The parsed message containing the command and parameters
+**
+*/
 void notice(Server &server, Client &sender, const Message &msg)
 {
     Reply reply;
@@ -69,7 +77,7 @@ void notice(Server &server, Client &sender, const Message &msg)
         {
             Client *receiverClient = *it;
             if (receiverClient->getFd() == sender.getFd())
-                continue;;
+                continue;
             server.sendMessageToClient(receiverClient->getFd(), reply.generateMEssage(sender, msg));
         }
         return ;
@@ -77,19 +85,29 @@ void notice(Server &server, Client &sender, const Message &msg)
     else
         return;
 }
-void whois(Server &server, Client &sender, const Message &msg)
+
+/*
+** Command	            Expected behavior
+** WHO	                461 ERR_NEEDMOREPARAMS
+** WHO Unknown	        315 RPL_ENDOFWHO
+** WHO #channel	        Return channel members
+** WHO #unknown	        315 RPL_ENDOFWHO
+*/
+
+void who(Server &server, Client &sender, const Message &msg)
 {
     Reply reply;
     if (msg.getParams().empty())
     {
+        server.sendMessageToClient(sender.getFd(), reply.whoStartMessage(sender));
         server.sendMessageToClient(sender.getFd(), reply.needMoreParams(sender));
+        server.sendMessageToClient(sender.getFd(), reply.whoEndMessage(sender));
         return;
     }
     std::string targetNickname = msg.getParameter(0);
     if (!targetNickname.empty())
     {
-        Client *receiverClient = server.getClientByNickname(targetNickname);
-        std::string messageToSend = ":" + sender.getPrefix() + " WHO ";
-        server.sendMessageToClient(receiverClient->getFd(), messageToSend);
+        Client *targetClient = server.getClientByNickname(targetNickname);
+        server.sendMessageToClient(sender.getFd(), reply.whoMessage(*targetClient));
     }
 }
