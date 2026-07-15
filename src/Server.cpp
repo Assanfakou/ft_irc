@@ -105,11 +105,10 @@ void Server::removeClient(int clientFd)
 
 void Server::listAllUsers(Client &sender)
 {
-    Reply reply;
     for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
     {
         Client target = it->second;
-        this->sendMessageToClient(sender.getFd(), reply.whoMessage(*this,target));
+        this->sendMessageToClient(sender.getFd(), whoMessage(*this,target));
     }
 }
 

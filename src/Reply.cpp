@@ -1,8 +1,6 @@
 #include "../include/Reply.hpp"
 
-Reply::Reply() {}
-
-std::string Reply::generateMEssage(const Client &client, const Message &msg)
+std::string generateMEssage(const Client &client, const Message &msg)
 {
     std::string message = IRC_BLUE + ":" + client.getPrefix() + " " + msg.getCommand();
     for (size_t i = 0; i < msg.getParams().size(); ++i)
@@ -13,52 +11,52 @@ std::string Reply::generateMEssage(const Client &client, const Message &msg)
     return message;
 }
 
-std::string Reply::noTextToSend(const Server &server)
+std::string noTextToSend(const Server &server)
 {
     return IRC_RED + server.getServerName() + " 412 : ERR_NOTEXTTOSEND\r\n" + IRC_RESET;
 }
 
-std::string Reply::noSuchNick(const Server &server)
+std::string noSuchNick(const Server &server)
 {
     return IRC_RED + server.getServerName() + " 401 : ERR_NOSUCHNICK\r\n" + IRC_RESET;
 }
 
-std::string Reply::needMoreParams(const Server &server)
+std::string needMoreParams(const Server &server)
 {
     return IRC_RED + server.getServerName() + " 461 : ERR_NEEDMOREPARAMS\r\n" + IRC_RESET;
 }
 
-std::string Reply::cantSendToSelf(const Server &server)
+std::string cantSendToSelf(const Server &server)
 {
     return IRC_RED + server.getServerName() + " 404 : ERR_CANTSENDTOSELF\r\n" + IRC_RESET;
 }
 
-std::string Reply::unknownCommand(const Server &server)
+std::string unknownCommand(const Server &server)
 {
     return IRC_RED + server.getServerName() + " 421 : ERR_UNKNOWNCOMMAND\r\n" + IRC_RESET;
 }
 
-std::string Reply::welcomeMessage(const Server &server)
+std::string welcomeMessage(const Server &server)
 {
     return IRC_GREEN + ":" + server.getServerName() + " 001 : Welcome to the IRC server!\r\n" + IRC_RESET;
 }
 
-std::string Reply::whoStartMessage(const Server &server)
+std::string whoStartMessage(const Server &server)
 {
     return IRC_CYAN + ":" + server.getServerName() + " 314 : RPL_WHOSPCR\r\n" + IRC_RESET;
 }
 
-std::string Reply::whoEndMessage(const Server &server)
+std::string whoEndMessage(const Server &server)
 {
     return IRC_CYAN + ":" + server.getServerName() + " 315 : RPL_ENDOFWHO\r\n" + IRC_RESET;
 }
 
-std::string Reply::whoIsEndMessage(const Server &server)
+std::string whoIsEndMessage(const Server &server)
 {
     return IRC_RED + ":" + server.getServerName() + " 318 : RPL_ENDOFWHOIS\r\n" + IRC_RESET;
 }
 
-std::string Reply::whoMessage(const Server &server,const Client &client)
+std::string whoMessage(const Server &server,const Client &client)
 {
     std::string message = IRC_BLUE + ":" +  server.getServerName() + " 311 : " + client.getNickname() 
     + " " + client.getUsername() + " " 
