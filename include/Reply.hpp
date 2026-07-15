@@ -21,4 +21,10 @@ class Reply
         std::string cantSendToSelf(const Client &client);
         std::string unknownCommand(const Client &client);
         std::string welcomeMessage(const Client &client);
+        
+        /* who messages */
+        std::string whoStartMessage(const Client &client);
+        std::string whoEndMessage(const Client &client);
+        std::string whoMessage(const Client &client);
+
 };
