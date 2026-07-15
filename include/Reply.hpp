@@ -27,4 +27,7 @@ class Reply
         std::string whoEndMessage();
         std::string whoMessage(const Client &client);
 
+        /* WhoIs message */
+        std::string whoIsMessage();
+        std::string whoIsEndMessage();
 };

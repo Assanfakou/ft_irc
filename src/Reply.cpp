@@ -53,6 +53,11 @@ std::string Reply::whoEndMessage()
     return ":Server 315 : RPL_ENDOFWHO\r\n";
 }
 
+std::string Reply::whoIsEndMessage()
+{
+    return ":Server 318 : RPL_ENDOFWHOIS\r\n";
+}
+
 std::string Reply::whoMessage(const Client &client)
 {
     std::string message = ":Server 311 : " + client.getNickname() 

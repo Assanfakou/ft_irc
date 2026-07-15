@@ -1,6 +1,6 @@
 #include "../include/Client.hpp"
 
-Client::Client(int fd) : _fd(fd), _isRegistered(false)
+Client::Client(int fd) : _fd(fd), _nickname("unkonu"), _username("unkonu"), _hostname("unkonu"), _realname("unkonu"), _isRegistered(false)
 {
 }
 
