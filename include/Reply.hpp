@@ -15,19 +15,19 @@ class Reply
 
         std::string generateMEssage(const Client &client, const Message &msg);
 
-        std::string noTextToSend();
-        std::string noSuchNick();
-        std::string needMoreParams();
-        std::string cantSendToSelf();
-        std::string unknownCommand();
-        std::string welcomeMessage();
+        std::string noTextToSend(const Server &server);
+        std::string noSuchNick(const Server &server);
+        std::string needMoreParams(const Server &server);
+        std::string cantSendToSelf(const Server &server);
+        std::string unknownCommand(const Server &server);
+        std::string welcomeMessage(const Server &server);
         
         /* who messages */
-        std::string whoStartMessage();
-        std::string whoEndMessage();
-        std::string whoMessage(const Client &client);
+        std::string whoStartMessage(const Server &server);
+        std::string whoEndMessage(const Server &server);
+        std::string whoMessage(const Server &server, const Client &client);
 
         /* WhoIs message */
-        std::string whoIsMessage();
-        std::string whoIsEndMessage();
+        std::string whoIsMessage(const Client &client);
+        std::string whoIsEndMessage(const Server &server);
 };

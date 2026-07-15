@@ -5,6 +5,12 @@
 Server::Server(int port, const std::string &password)
     : _port(port), _password(password), _serverSocket(-1)
 {
+    char hostname[HOST_NAME_MAX + 1];
+    int result = gethostname(hostname, sizeof(hostname));
+    if (result ==0)
+        serverName = hostname;
+    else
+        serverName = "Server";
 }
 
 Server::~Server()
@@ -70,7 +76,6 @@ void Server::setupSocket()
     _pollfds.push_back(serverPollFd);
 }
 
-
 void Server::removeClient(int clientFd)
 {
     close(clientFd);// free the kernel resource
@@ -104,7 +109,7 @@ void Server::listAllUsers(Client &sender)
     for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
     {
         Client target = it->second;
-        this->sendMessageToClient(sender.getFd(), reply.whoMessage(target));
+        this->sendMessageToClient(sender.getFd(), reply.whoMessage(*this,target));
     }
 }
 
@@ -161,7 +166,6 @@ std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
     Client *client = getClientByNickname(nickname);
     if (client)
         clients.push_back(client);
-
     return clients;
 }
 
@@ -179,15 +183,16 @@ void Server::processClientBuffer(Client &client)
 {
     size_t pos;
  
-    pos = client.getBuffer().find("\r\n");
-    // std::cout << client.getPrefix() << "\n";
-    std::cout << "buffer: [" << client.getBuffer().substr(0, pos) << "]" << " length: [" << pos << "]" << std::endl;
-    // std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;
-    Parser parser;
-    Message mesg = parser.parse(client.getBuffer().substr(0, pos));
-    despatchMessage(client, mesg);
-
-    client.getBuffer().erase(0, pos + 2); // Remove
+    while ((pos = client.getBuffer().find("\r\n")) != std::string::npos)
+    {
+        // std::cout << client.getPrefix() << "\n";
+        std::cout << "buffer: [" << client.getBuffer().substr(0, pos) << "]" << " length: [" << pos << "]" << std::endl;
+        // std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;
+        Parser parser;
+        Message mesg = parser.parse(client.getBuffer().substr(0, pos));
+        despatchMessage(client, mesg);
+        client.getBuffer().erase();
+    }
 }
 
 bool Server::receiveClientMessage(int clientFd)
@@ -279,4 +284,8 @@ void Server::sendMessageToClient(int clientFd, const std::string &message)
 {
     if (send(clientFd, message.c_str(), message.size(), 0) == -1)
         std::cerr << "Failed to send message to client " << clientFd << std::endl;
+}
+std::string Server::getServerName() const
+{
+    return serverName;
 }

@@ -14,13 +14,14 @@
 #include <map>
 #include <fcntl.h>
 #include "Client.hpp"
-
+#include <climits>
 
 class Message;
 
 class Server
 {
     private:
+        std::string serverName;
         int _port;
         std::string _password;
         int _serverSocket;
@@ -50,6 +51,8 @@ class Server
         Client *getClientByNickname(const std::string &nickname);
         std::vector<Client *> getClientsByNickname(const std::string &nicknames);
         void listAllUsers(Client &sender);
+
+        std::string getServerName() const;
 };
 
 #endif

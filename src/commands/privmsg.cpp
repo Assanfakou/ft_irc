@@ -14,18 +14,18 @@ void privmsg(Server &server, Client &sender, const Message &msg)
     Reply reply;
     if (msg.getParams().empty())
     {
-        server.sendMessageToClient(sender.getFd(), reply.needMoreParams());
+        server.sendMessageToClient(sender.getFd(), reply.needMoreParams(server));
         return;
     }
     std::string receiver = msg.getParameter(0);
     if (receiver.empty())
     {
-        server.sendMessageToClient(sender.getFd(), reply.noSuchNick());
+        server.sendMessageToClient(sender.getFd(), reply.noSuchNick(server));
         return;
     }
     if (msg.getParams().size() < 2)
     {
-        server.sendMessageToClient(sender.getFd(), reply.noTextToSend());
+        server.sendMessageToClient(sender.getFd(), reply.noTextToSend(server));
         return;
     }
     std::string message = msg.getParameter(1);
@@ -37,7 +37,7 @@ void privmsg(Server &server, Client &sender, const Message &msg)
             Client *receiverClient = *it;
             if (receiverClient->getFd() == sender.getFd())
             {
-                server.sendMessageToClient(sender.getFd(), reply.cantSendToSelf());
+                server.sendMessageToClient(sender.getFd(), reply.cantSendToSelf(server));
                 continue;
             }
             server.sendMessageToClient(receiverClient->getFd(), reply.generateMEssage(sender, msg));
@@ -46,7 +46,7 @@ void privmsg(Server &server, Client &sender, const Message &msg)
     }
     else
     {
-        server.sendMessageToClient(sender.getFd(), reply.noSuchNick());
+        server.sendMessageToClient(sender.getFd(), reply.noSuchNick(server));
         return;
     }
 }
@@ -99,29 +99,29 @@ void who(Server &server, Client &sender, const Message &msg)
     Reply reply;
     if (msg.getParams().empty())
     {
-        server.sendMessageToClient(sender.getFd(), reply.whoStartMessage());
-        server.sendMessageToClient(sender.getFd(), reply.needMoreParams());
-        server.sendMessageToClient(sender.getFd(), reply.whoEndMessage());
+        server.sendMessageToClient(sender.getFd(), reply.whoStartMessage(server));
+        server.sendMessageToClient(sender.getFd(), reply.needMoreParams(server));
+        server.sendMessageToClient(sender.getFd(), reply.whoEndMessage(server));
         return;
     }
     if (msg.getParameter(0) == "*")
     {
-        server.sendMessageToClient(sender.getFd(), reply.whoStartMessage());
+        server.sendMessageToClient(sender.getFd(), reply.whoStartMessage(server));
         server.listAllUsers(sender);
-        server.sendMessageToClient(sender.getFd(), reply.whoEndMessage());
+        server.sendMessageToClient(sender.getFd(), reply.whoEndMessage(server));
         return ;
     }
     std::string targetNickname = msg.getParameter(0);
     if (!targetNickname.empty())
     {
         Client *targetClient = server.getClientByNickname(targetNickname);
-        server.sendMessageToClient(sender.getFd(), reply.whoStartMessage());
+        server.sendMessageToClient(sender.getFd(), reply.whoStartMessage(server));
         if (!targetClient)
-            server.sendMessageToClient(sender.getFd(), reply.whoEndMessage());
+            server.sendMessageToClient(sender.getFd(), reply.whoEndMessage(server));
         else
         {
-            server.sendMessageToClient(sender.getFd(), reply.whoMessage(*targetClient));
-            server.sendMessageToClient(sender.getFd(), reply.whoEndMessage());
+            server.sendMessageToClient(sender.getFd(), reply.whoMessage(server, *targetClient));
+            server.sendMessageToClient(sender.getFd(), reply.whoEndMessage(server));
         }
     }
 }
@@ -131,17 +131,17 @@ void whoIs(Server &server, Client &sender, const Message &msg)
     Reply reply;
     if (msg.getParams().empty())
     {
-        server.sendMessageToClient(sender.getFd(), reply.needMoreParams());
-        server.sendMessageToClient(sender.getFd(), reply.whoIsEndMessage());
+        server.sendMessageToClient(sender.getFd(), reply.needMoreParams(server));
+        server.sendMessageToClient(sender.getFd(), reply.whoIsEndMessage(server));
         return;
     }
     Client *target = server.getClientByNickname(msg.getParameter(0));
     if (!target)
     {
-        server.sendMessageToClient(sender.getFd(), reply.noSuchNick());
-        server.sendMessageToClient(sender.getFd(), reply.whoEndMessage());
+        server.sendMessageToClient(sender.getFd(), reply.noSuchNick(server));
+        server.sendMessageToClient(sender.getFd(), reply.whoIsEndMessage(server));
         return ;
     }
     else
-        server.sendMessageToClient(sender.getFd(), reply.whoMessage(*target));
+        server.sendMessageToClient(sender.getFd(), reply.whoMessage(server, *target));
 }
