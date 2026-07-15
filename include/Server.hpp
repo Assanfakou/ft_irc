@@ -49,6 +49,7 @@ class Server
     public:
         Client *getClientByNickname(const std::string &nickname);
         std::vector<Client *> getClientsByNickname(const std::string &nicknames);
+        void listAllUsers(Client &sender);
 };
 
 #endif

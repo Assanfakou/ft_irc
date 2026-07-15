@@ -98,6 +98,16 @@ void Server::removeClient(int clientFd)
 ------------------------------- i'm working here----------------------------------------- 
 */
 
+void Server::listAllUsers(Client &sender)
+{
+    Reply reply;
+    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        Client target = it->second;
+        this->sendMessageToClient(sender.getFd(), reply.whoMessage(target));
+    }
+}
+
 void Server::despatchMessage(Client &client, const Message &msg)
 {
     if (msg.getCommand() == "PRIVMSG")
@@ -124,7 +134,13 @@ void Server::despatchMessage(Client &client, const Message &msg)
     //     this->sendMessageToClient(client.getFd(), reply.unknownCommand(client));
     // }
 }
-
+/*
+**
+** getCLients_by_nickname**
+**
+** arg& nicknames : is a string of nicknames of separated by comma
+** 
+*/
 std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
 {
     std::vector<Client *> clients;
@@ -165,7 +181,7 @@ void Server::processClientBuffer(Client &client)
  
     pos = client.getBuffer().find("\r\n");
     // std::cout << client.getPrefix() << "\n";
-    std::cout << "length: " << pos << std::endl;
+    std::cout << "buffer: [" << client.getBuffer().substr(0, pos) << "]" << " length: [" << pos << "]" << std::endl;
     // std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;
     Parser parser;
     Message mesg = parser.parse(client.getBuffer().substr(0, pos));

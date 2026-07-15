@@ -13,52 +13,44 @@ std::string Reply::generateMEssage(const Client &client, const Message &msg)
     return message;
 }
 
-std::string Reply::noTextToSend(const Client &client)
+std::string Reply::noTextToSend()
 {
-    std::string message = ":" + client.getPrefix() + " 412 : ERR_NOTEXTTOSEND\r\n";
-    return message;
+    return ":Server 412 : ERR_NOTEXTTOSEND\r\n";
 }
 
-std::string Reply::noSuchNick(const Client &client)
+std::string Reply::noSuchNick()
 {
-    std::string message = ":" + client.getPrefix() + " 401 : ERR_NOSUCHNICK\r\n";
-    return message;
+    return ":Server 401 : ERR_NOSUCHNICK\r\n";
 }
 
-std::string Reply::needMoreParams(const Client &client)
+std::string Reply::needMoreParams()
 {
-    std::string message = ":" + client.getPrefix() + " 461 : ERR_NEEDMOREPARAMS\r\n";
-    return message;
+    return ":Server 461 : ERR_NEEDMOREPARAMS\r\n";
 }
 
-std::string Reply::cantSendToSelf(const Client &client)
+std::string Reply::cantSendToSelf()
 {
-    std::string message = ":" + client.getPrefix() + " 404 : ERR_CANTSENDTOSELF\r\n";
-    return message;
+    return ":Server 404 : ERR_CANTSENDTOSELF\r\n";
 }
 
-std::string Reply::unknownCommand(const Client &client)
+std::string Reply::unknownCommand()
 {
-    std::string message = ":" + client.getPrefix() + " 421 : ERR_UNKNOWNCOMMAND\r\n";
-    return message;
+    return ":Server 421 : ERR_UNKNOWNCOMMAND\r\n";
 }
 
-std::string Reply::welcomeMessage(const Client &client)
+std::string Reply::welcomeMessage()
 {
-    std::string message = ":" + client.getPrefix() + " 001 : Welcome to the IRC server!\r\n";
-    return message;
+    return ":Server 001 : Welcome to the IRC server!\r\n";
 }
 
-std::string Reply::whoStartMessage(const Client &client)
+std::string Reply::whoStartMessage()
 {
-    std::string message = ":" + client.getPrefix() + " 314 : RPL_WHOSPCR\r\n";
-    return message;
+    return ":Server 314 : RPL_WHOSPCR\r\n";
 }
 
-std::string Reply::whoEndMessage(const Client &client)
+std::string Reply::whoEndMessage()
 {
-    std::string message = ":" + client.getPrefix() + " 315 : RPL_ENDOFWHO\r\n";
-    return message;
+    return ":Server 315 : RPL_ENDOFWHO\r\n";
 }
 
 std::string Reply::whoMessage(const Client &client)
