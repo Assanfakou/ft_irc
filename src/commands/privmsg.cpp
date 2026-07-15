@@ -117,9 +117,31 @@ void who(Server &server, Client &sender, const Message &msg)
         Client *targetClient = server.getClientByNickname(targetNickname);
         server.sendMessageToClient(sender.getFd(), reply.whoStartMessage());
         if (!targetClient)
-            server.sendMessageToClient(sender.getFd(), reply.noSuchNick());
+            server.sendMessageToClient(sender.getFd(), reply.whoEndMessage());
         else
+        {
             server.sendMessageToClient(sender.getFd(), reply.whoMessage(*targetClient));
-        server.sendMessageToClient(sender.getFd(), reply.whoEndMessage());
+            server.sendMessageToClient(sender.getFd(), reply.whoEndMessage());
+        }
     }
+}
+
+void whoIs(Server &server, Client &sender, const Message &msg)
+{
+    Reply reply;
+    if (msg.getParams().empty())
+    {
+        server.sendMessageToClient(sender.getFd(), reply.needMoreParams());
+        server.sendMessageToClient(sender.getFd(), reply.whoIsEndMessage());
+        return;
+    }
+    Client *target = server.getClientByNickname(msg.getParameter(0));
+    if (!target)
+    {
+        server.sendMessageToClient(sender.getFd(), reply.noSuchNick());
+        server.sendMessageToClient(sender.getFd(), reply.whoEndMessage());
+        return ;
+    }
+    else
+        server.sendMessageToClient(sender.getFd(), reply.whoMessage(*target));
 }

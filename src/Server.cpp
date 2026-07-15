@@ -126,8 +126,8 @@ void Server::despatchMessage(Client &client, const Message &msg)
         this->sendMessageToClient(client.getFd(), "PONG\r\n");
     else if (msg.getCommand() == "WHO")
         who(*this, client, msg);
-    // else if (msg.getCommand() == "WHO")
-        // who(*this, client, msg);
+    else if (msg.getCommand() == "WHOIS")
+        whoIs(*this, client, msg);
     // else
     // {
     //     Reply reply;
