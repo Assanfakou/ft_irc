@@ -4,13 +4,10 @@ Message::Message() : prefix(""), command(""), params() {}
 
 void Message::printMessage() const
 {
-    std::cout << Blue << "Command -> " << RED << command << "\n"
-              << RESET;
-    std::cout << Blue << "Parameter size ->> " << RED << params.size() << "\n"
-              << RESET;
+    std::cout << "Command -> " << command << "\n";
+    std::cout << "Parameter size ->> " << params.size() << "\n";
     for (size_t i = 0; i < params.size(); i++)
-        std::cout << Blue << "Param[" << i << "] ->> " << RED << params[i] << "\n"
-                  << RESET;
+        std::cout << "Param[" << i << "] ->> " << params[i] << "\n";
 }
 
 const std::string &Message::getPrefix() const
