@@ -43,6 +43,7 @@ server
 src/server
 test
 run
+file
 
 # Build directories
 build/
