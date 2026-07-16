@@ -24,3 +24,4 @@ std::string whoMessage(const Server &server, const Client &client);
 /* WhoIs message */
 std::string whoIsMessage(const Client &client);
 std::string whoIsEndMessage(const Server &server);
+std::string unknownCommand(const Server &server);
