@@ -130,13 +130,11 @@ void Server::despatchMessage(Client &client, const Message &msg)
         this->sendMessageToClient(client.getFd(), "PONG\r\n");
     else if (msg.getCommand() == "WHO")
         who(*this, client, msg);
-    else if (msg.getCommand() == "WHOIS")
-        whoIs(*this, client, msg);
-    // else
-    // {
-    //     Reply reply;
-    //     this->sendMessageToClient(client.getFd(), reply.unknownCommand(client));
-    // }
+    else
+    {
+        this->sendMessageToClient(client.getFd(), unknownCommand(*this));
+        return ;
+    }
 }
 /*
 **
@@ -225,6 +223,7 @@ bool Server::receiveClientMessage(int clientFd)
     processClientBuffer(client);
     return true;// The client is still connected.
 }
+
 void Server::runPollLoop()
 {
     std::cout << "Server is running..." << std::endl;
@@ -284,6 +283,7 @@ void Server::sendMessageToClient(int clientFd, const std::string &message)
     if (send(clientFd, message.c_str(), message.size(), 0) == -1)
         std::cerr << "Failed to send message to client " << clientFd << std::endl;
 }
+
 std::string Server::getServerName() const
 {
     return serverName;

@@ -122,22 +122,3 @@ void who(Server &server, Client &sender, const Message &msg)
         }
     }
 }
-
-void whoIs(Server &server, Client &sender, const Message &msg)
-{
-    if (msg.getParams().empty())
-    {
-        server.sendMessageToClient(sender.getFd(), needMoreParams(server));
-        server.sendMessageToClient(sender.getFd(), whoIsEndMessage(server));
-        return;
-    }
-    Client *target = server.getClientByNickname(msg.getParameter(0));
-    if (!target)
-    {
-        server.sendMessageToClient(sender.getFd(), noSuchNick(server));
-        server.sendMessageToClient(sender.getFd(), whoIsEndMessage(server));
-        return ;
-    }
-    else
-        server.sendMessageToClient(sender.getFd(), whoMessage(server, *target));
-}

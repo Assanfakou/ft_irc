@@ -2,10 +2,10 @@
 
 std::string generateMEssage(const Client &client, const Message &msg)
 {
-    std::string message = IRC_BLUE + ":" + client.getPrefix() + " " + msg.getCommand();
+    std::string message = IRC_BLUE + ":" + client.getPrefix() + " " + msg.getCommand() + " :";
     for (size_t i = 0; i < msg.getParams().size(); ++i)
     {
-        message += " " + msg.getParameter(i);
+        message += msg.getParameter(i) + " ";
     }
     message += "\r\n" + IRC_RESET;
     return message;
@@ -28,7 +28,7 @@ std::string needMoreParams(const Server &server)
 
 std::string cantSendToSelf(const Server &server)
 {
-    return IRC_RED + server.getServerName() + " 404 : ERR_CANTSENDTOSELF\r\n" + IRC_RESET;
+    return IRC_RED + server.getServerName() + " 666 : ERR_CANTSENDTOSELF\r\n" + IRC_RESET;
 }
 
 std::string unknownCommand(const Server &server)
