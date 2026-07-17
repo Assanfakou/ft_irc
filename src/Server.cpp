@@ -1,6 +1,6 @@
 #include "../include/Server.hpp"
 #include "../include/Parser.hpp"
-#include "commands/commands.hpp"
+#include "../include/commands.hpp"
 
 Server::Server(int port, const std::string &password)
     : _port(port), _password(password), _serverSocket(-1)
@@ -119,21 +119,27 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "NOTICE")
         notice(*this, client, msg);
     else if (msg.getCommand() == "NICK")
-        client.setNickname(msg.getParameter(0));
+        nickHandler(client, *this, msg.getParameter(0));
     else if (msg.getCommand() == "USER")
-        client.setUsername(msg.getParameter(0));
+        userHandler(*this, client, msg);
+    else if (msg.getCommand() == "PASS")
+        passHandler(*this, client, msg.getParameter(0));
     else if (msg.getCommand() == "HOST")
         client.setHostname(msg.getParameter(0));
     else if (msg.getCommand() == "QUIT")
         this->removeClient(client.getFd());
     else if (msg.getCommand() == "PING")
-        this->sendMessageToClient(client.getFd(), "PONG\r\n");
+        this->sendMessageToClient(client.getFd(), this->getServerName() + "PONG" + " :" + msg.getParameter(0) + "\r\n" );
     else if (msg.getCommand() == "WHO")
         who(*this, client, msg);
+    else if (msg.getCommand() == "PART")
+        clientLeaveChannel(msg.getParameter(0), client);
+    else if (msg.getCommand() == "JOIN")
+        check_Channels_and_addMember_to_Channel(msg.getParameter(0), client);
     else
     {
         this->sendMessageToClient(client.getFd(), unknownCommand(*this));
-        return ;
+        return;
     }
 }
 /*
@@ -176,6 +182,18 @@ Client *Server::getClientByNickname(const std::string &nicknames)
     return NULL;
 }
 
+//rida
+
+void Server::tryRegister(Client &client)
+{
+    if (client.hasPassAccepted() && !client.getNickname().empty() && !client.getUsername().empty())
+    {
+        client.setRegistered(true);
+        std::cout << "Client registered!" << std::endl;
+    }
+}
+
+//rida (i only add my own code here , the function created by anass)
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
@@ -189,8 +207,64 @@ void Server::processClientBuffer(Client &client)
         Message mesg = parser.parse(client.getBuffer().substr(0, pos));
         despatchMessage(client, mesg);
         client.getBuffer().erase();
+// =======
+//         std::string command = client.getBuffer().substr(0, pos);
+//         //rida
+//         std::string password = getPassword(command);
+//         std::string nickname = getNickname(command);
+        // std::string username = getUsername(command);
+//         std::string channelName = getJoin(command);
+//         std::string leaveChannel = getPart(command);
+//         Kickinfo kick_info = getKickInfo(command);
+        // Inviteinfo invite_info = getInviteInfo(command);
+//         Topicinfo topic_info = getTopicInfo(command);
+//         Modeinfo mode_info = getModeInfo(command);
+
+//         if (!password.empty())
+//         {
+//             if (_password == password)
+//             {
+//                 client.setPassAccepted(true);
+//                 std::cout << "Password Accepted" << std::endl;
+//                 tryRegister(client);
+//             }
+//             else
+//                 std::cout << "Wrong Password" << std::endl;
+//         }
+//         if (!nickname.empty())
+//         {
+//             client.setNickname(nickname);
+//             std::cout << "Nickname saved: " << client.getNickname() << std::endl;
+//             tryRegister(client);
+//         }
+//         if (!username.empty())
+//         {
+//             client.setUsername(username);
+//             std::cout << "Username saved: " << client.getUsername() << std::endl;
+//             tryRegister(client);
+//         }
+//         if (client.isRegistered())
+//         {
+//             if (!channelName.empty())
+//                 check_Channels_and_addMember_to_Channel(channelName, client);
+//             if (!leaveChannel.empty())
+//                 clientLeaveChannel(leaveChannel, client);
+//             if (!kick_info.channel.empty() && !kick_info.nickname.empty())
+//                 compare_nickname_and_kickClient(kick_info.channel, kick_info.nickname, client);
+//             if (!invite_info.channel.empty() && !invite_info.nickname.empty())
+//                 compare_nickname_and_inviteClient(invite_info.channel, invite_info.nickname, client);
+//             if (!topic_info.channel.empty())
+//                 showTopic(topic_info, client);
+//             if (!mode_info.channel.empty() && !mode_info.mode.empty())
+//                 setMode(mode_info, client);
+//         }
+
+//         //
+//         client.getBuffer().erase(0, pos + 2);
+// >>>>>>> rida
     }
 }
+
 
 bool Server::receiveClientMessage(int clientFd)
 {

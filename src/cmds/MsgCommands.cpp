@@ -1,4 +1,4 @@
-#include "commands.hpp"
+#include "../../include/commands.hpp"
 /*
 ** Privmsg command implementation here 
 **

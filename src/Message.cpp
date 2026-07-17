@@ -25,7 +25,11 @@ const std::vector<std::string> &Message::getParams() const
 
 const std::string &Message::getParameter(size_t index) const
 {
-    return params.at(index);
+    static const std::string chew;
+    if (index < params.size())
+        return params.at(index);
+    else
+       return chew;
 }
 
 void Message::setPrefix(const std::string &p)

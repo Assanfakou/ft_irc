@@ -1,8 +1,6 @@
 #include "../include/Client.hpp"
 
-Client::Client(int fd) : _fd(fd), _nickname("unkonu"), _username("unkonu"), _hostname("unkonu"), _realname("unkonu"), _isRegistered(false)
-{
-}
+Client::Client(int fd) : _fd(fd), _isRegistered(false), _passAccepted(false), _nickname("unkonu"), _username("unkonu"), _hostname("unkonu"), _realname("unkonu") {}
 
 // Getters
 int Client::getFd() const
@@ -39,6 +37,12 @@ bool Client::isRegistered() const
     return (_isRegistered);
 }
 
+//rida
+bool Client::hasPassAccepted() const
+{
+    return _passAccepted;
+}
+
 // Setters
 void Client::setNickname(const std::string &nickname)
 {
@@ -64,7 +68,14 @@ void Client::setRegistered(bool isRegistered)
 {
     _isRegistered = isRegistered;
 }
+
 std::string Client::getPrefix() const
 {
     return _nickname + "!" + _username + "@" + _hostname;
+}
+
+//rida
+void Client::setPassAccepted(bool passAccepted)
+{
+    _passAccepted = passAccepted;
 }
