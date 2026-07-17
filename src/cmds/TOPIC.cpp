@@ -1,5 +1,4 @@
 #include "../../include/Server.hpp"
-#include "../../include/Reply.hpp"
 
 Topicinfo Server::getTopicInfo(std::string command)
 {
@@ -28,6 +27,7 @@ Topicinfo Server::getTopicInfo(std::string command)
 
 void Server::showTopic(const Message &msg, Client &client)
 {
+
     std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
 
     if (it == _channels.end())

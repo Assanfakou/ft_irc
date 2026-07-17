@@ -1,4 +1,4 @@
-#include "../include/Reply.hpp"
+#include "../include/Server.hpp"
 
 std::string generateMEssage(const Client &client, const Message &msg)
 {
@@ -63,4 +63,14 @@ std::string whoMessage(const Server &server,const Client &client)
     + client.getHostname() + " " 
     + client.getRealname() + "\r\n" + IRC_RESET;
     return message;
+}
+
+std::string clientNotRegestred(const Server &server)
+{
+    return IRC_RED + ":" + server.getServerName() + " 451 : ERR_NOTREGISTERED\r\n" + IRC_RESET;
+}
+
+std::string passwordAccepted(const Server &server)
+{
+    return IRC_BROWN + ":" + server.getServerName() + " Password Accepted\r\n" + IRC_RESET;
 }

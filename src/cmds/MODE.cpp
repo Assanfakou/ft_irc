@@ -1,5 +1,4 @@
 #include "../../include/Server.hpp"
-#include "../../include/Message.hpp"
 
 Modeinfo Server::getModeInfo(std::string command)
 {
@@ -27,6 +26,12 @@ Modeinfo Server::getModeInfo(std::string command)
 
 void Server::setMode(const Message &msg, Client &client)
 {
+    if (!client.hasPassAccepted())
+    {
+        sendMessageToClient(client.getFd(), clientNotRegestred(*this));
+        removeClient(client.getFd());
+        return ;
+    }
     const std::string &chanelName = msg.getParameter(0).substr(1);
     std::cout << "chanel name " << chanelName << std::endl;
     std::map<std::string, Channel>::iterator it = _channels.find(chanelName);

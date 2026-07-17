@@ -40,6 +40,13 @@ void Server::addMemberTo_Channel(std::string channelName, Client &client)
 
 void Server::check_Channels_and_addMember_to_Channel(std::string channelName, Client &client)
 {
+    if (!client.hasPassAccepted())
+    {
+        sendMessageToClient(client.getFd(), ":server 451 " + client.getNickname()
+        + " :You have not registered\r\n");
+        removeClient(client.getFd());
+        return ;
+    }
     if (_channels.find(channelName) == _channels.end()) //if we reach the end and we don't get the name of channel
     {
         if (!channelName.empty())

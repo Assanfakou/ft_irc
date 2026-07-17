@@ -1,6 +1,4 @@
 #include "../../include/Server.hpp"
-#include "../../include/Message.hpp"
-#include "../../include/Reply.hpp"
 
 std::string Server::getUsername(std::string command)
 {

@@ -1,8 +1,8 @@
+#include "Server.hpp"
+
 #pragma once
 
-#include "Message.hpp"
-
-
+class Message;
 class Parser
 {
     public:

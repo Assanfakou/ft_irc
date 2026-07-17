@@ -1,6 +1,4 @@
 #include "../include/Server.hpp"
-#include "../include/Parser.hpp"
-#include "../include/commands.hpp"
 
 Server::Server(int port, const std::string &password)
     : _port(port), _password(password), _serverSocket(-1)

@@ -1,5 +1,4 @@
 #include "../../include/Server.hpp"
-#include "../../include/Reply.hpp"
 
 std::string Server::getNickname(std::string command)
 {
