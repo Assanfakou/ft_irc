@@ -65,8 +65,8 @@ class Server
         ~Server();
 
         void start();
-        Client *getClient(int clientFd);
-        void sendMessageToClient(int clientFd, const std::string &message);
+        Client *getClient(int clientFd); void sendMessageToClient(int clientFd, const std::string &message);
+        void Server::breadcastToChanel(const Channel &chanel, const Client &client, const std::string &msg);
         void removeClient(int clientFd);
         //rida
         const std::string &getPassword()const;

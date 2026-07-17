@@ -32,6 +32,8 @@ class Channel
         void addOperator(int fd);
         void removeOperator(int fd);
         bool isOperator(int fd);
+        const std::vector<int> &getMembers() const;
+
 };
 
 #endif
