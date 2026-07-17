@@ -308,6 +308,16 @@ void Server::sendMessageToClient(int clientFd, const std::string &message)
         std::cerr << "Failed to send message to client " << clientFd << std::endl;
 }
 
+void Server::breadcastToChanel(const Channel &channel, const Client& sender, const std::string &msg)
+{
+   std::vector<int>::iterator it = channel.getMembers().begin();
+   for (; it != channel.getMembers().end(); it++)
+   {
+        if (*it != sender.getFd())
+            sendMessageToClient(*it, msg);
+   }
+}
+
 std::string Server::getServerName() const
 {
     return serverName;
