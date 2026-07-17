@@ -24,7 +24,7 @@ Kickinfo Server::getKickInfo(std::string command)
     return info;
 }
 
-void Server::compare_nickname_and_kickClient(std::string &channelName, std::string &nickname, Client &client)
+void Server::compare_nickname_and_kickClient(const std::string &channelName, const std::string &nickname, Client &client)
 {
     std::map<int, Client>::iterator it;
     for (it = _clients.begin(); it != _clients.end(); ++it)

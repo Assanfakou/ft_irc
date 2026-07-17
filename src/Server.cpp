@@ -120,6 +120,8 @@ void Server::despatchMessage(Client &client, const Message &msg)
         notice(*this, client, msg);
     else if (msg.getCommand() == "NICK")
         nickHandler(client, *this, msg.getParameter(0));
+    else if (msg.getCommand() == "KICK")
+        compare_nickname_and_kickClient(msg.getParameter(0), msg.getParameter(1), client);
     else if (msg.getCommand() == "USER")
         userHandler(*this, client, msg);
     else if (msg.getCommand() == "PASS")
@@ -136,6 +138,12 @@ void Server::despatchMessage(Client &client, const Message &msg)
         clientLeaveChannel(msg.getParameter(0), client);
     else if (msg.getCommand() == "JOIN")
         check_Channels_and_addMember_to_Channel(msg.getParameter(0), client);
+    else if (msg.getCommand() == "INVITE")
+        compare_nickname_and_inviteClient(msg.getParameter(0), msg.getParameter(1), client);
+    else if (msg.getCommand() == "TOPIC")
+        showTopic(msg, client);
+    else if (msg.getCommand() == "MODE")
+        setMode(msg, client);
     else
     {
         this->sendMessageToClient(client.getFd(), unknownCommand(*this));
@@ -206,65 +214,9 @@ void Server::processClientBuffer(Client &client)
         Parser parser;
         Message mesg = parser.parse(client.getBuffer().substr(0, pos));
         despatchMessage(client, mesg);
-        client.getBuffer().erase();
-// =======
-//         std::string command = client.getBuffer().substr(0, pos);
-//         //rida
-//         std::string password = getPassword(command);
-//         std::string nickname = getNickname(command);
-        // std::string username = getUsername(command);
-//         std::string channelName = getJoin(command);
-//         std::string leaveChannel = getPart(command);
-//         Kickinfo kick_info = getKickInfo(command);
-        // Inviteinfo invite_info = getInviteInfo(command);
-//         Topicinfo topic_info = getTopicInfo(command);
-//         Modeinfo mode_info = getModeInfo(command);
-
-//         if (!password.empty())
-//         {
-//             if (_password == password)
-//             {
-//                 client.setPassAccepted(true);
-//                 std::cout << "Password Accepted" << std::endl;
-//                 tryRegister(client);
-//             }
-//             else
-//                 std::cout << "Wrong Password" << std::endl;
-//         }
-//         if (!nickname.empty())
-//         {
-//             client.setNickname(nickname);
-//             std::cout << "Nickname saved: " << client.getNickname() << std::endl;
-//             tryRegister(client);
-//         }
-//         if (!username.empty())
-//         {
-//             client.setUsername(username);
-//             std::cout << "Username saved: " << client.getUsername() << std::endl;
-//             tryRegister(client);
-//         }
-//         if (client.isRegistered())
-//         {
-//             if (!channelName.empty())
-//                 check_Channels_and_addMember_to_Channel(channelName, client);
-//             if (!leaveChannel.empty())
-//                 clientLeaveChannel(leaveChannel, client);
-//             if (!kick_info.channel.empty() && !kick_info.nickname.empty())
-//                 compare_nickname_and_kickClient(kick_info.channel, kick_info.nickname, client);
-//             if (!invite_info.channel.empty() && !invite_info.nickname.empty())
-//                 compare_nickname_and_inviteClient(invite_info.channel, invite_info.nickname, client);
-//             if (!topic_info.channel.empty())
-//                 showTopic(topic_info, client);
-//             if (!mode_info.channel.empty() && !mode_info.mode.empty())
-//                 setMode(mode_info, client);
-//         }
-
-//         //
-//         client.getBuffer().erase(0, pos + 2);
-// >>>>>>> rida
+        client.getBuffer().erase(0, pos + 2);
     }
 }
-
 
 bool Server::receiveClientMessage(int clientFd)
 {

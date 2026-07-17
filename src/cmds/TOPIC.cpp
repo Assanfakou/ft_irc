@@ -1,4 +1,5 @@
 #include "../../include/Server.hpp"
+#include "../../include/Reply.hpp"
 
 Topicinfo Server::getTopicInfo(std::string command)
 {
@@ -25,9 +26,9 @@ Topicinfo Server::getTopicInfo(std::string command)
 }
 
 
-void Server::showTopic(Topicinfo topic_info, Client &client)
+void Server::showTopic(const Message &msg, Client &client)
 {
-    std::map<std::string, Channel>::iterator it = _channels.find(topic_info.channel);
+    std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
 
     if (it == _channels.end())
     {
@@ -35,7 +36,7 @@ void Server::showTopic(Topicinfo topic_info, Client &client)
         return;
     }
 
-    if (!topic_info.topic.empty())
+    if (!msg.getParameter(1).empty())
     {
         if (it->second.isTopicRestricted())
         {
@@ -44,9 +45,9 @@ void Server::showTopic(Topicinfo topic_info, Client &client)
         }
         if (it->second.isOperator(client.getFd()))
         {
-            it->second.setTopic(topic_info.topic);
+            it->second.setTopic(msg.getParameter(1));
             std::cout << "Topic set to: "
-                      << topic_info.channel
+                      << msg.getParameter(1)
                       << " "
                       << it->second.getTopic()
                       << std::endl;
@@ -55,7 +56,7 @@ void Server::showTopic(Topicinfo topic_info, Client &client)
     else
     {
         std::cout << "Topic of "
-                  << topic_info.channel
+                  << msg.getParameter(0)
                   << ": "
                   << it->second.getTopic()
                   << std::endl;
