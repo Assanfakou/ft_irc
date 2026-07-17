@@ -74,3 +74,7 @@ std::string passwordAccepted(const Server &server)
 {
     return IRC_BROWN + ":" + server.getServerName() + " Password Accepted\r\n" + IRC_RESET;
 }
+std::string pong(const Server &server, const Message &msg)
+{
+    return IRC_BLUE + ":" + server.getServerName() + " :" + msg.getParameter(0) + "\r\n";
+}
