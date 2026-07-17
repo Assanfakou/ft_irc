@@ -1,4 +1,4 @@
-#include "../../include/commands.hpp"
+#include "../../include/Server.hpp"
 /*
 ** Privmsg command implementation here 
 **
@@ -11,6 +11,12 @@
 
 void privmsg(Server &server, Client &sender, const Message &msg)
 {
+    if (!sender.hasPassAccepted())
+    {
+        server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
+        server.removeClient(sender.getFd());
+        return ;
+    }
     if (msg.getParams().empty())
     {
         server.sendMessageToClient(sender.getFd(), needMoreParams(server));
@@ -60,6 +66,12 @@ void privmsg(Server &server, Client &sender, const Message &msg)
 */
 void notice(Server &server, Client &sender, const Message &msg)
 {
+    if (!sender.hasPassAccepted())
+    {
+        server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
+        server.removeClient(sender.getFd());
+        return ;
+    }
     if (msg.getParams().empty())
         return;
     std::string receiver = msg.getParameter(0);
@@ -94,6 +106,12 @@ void notice(Server &server, Client &sender, const Message &msg)
 
 void who(Server &server, Client &sender, const Message &msg)
 {
+    if (!sender.hasPassAccepted())
+    {
+        server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
+        server.removeClient(sender.getFd());
+        return ;
+    }
     if (msg.getParams().empty())
     {
         server.sendMessageToClient(sender.getFd(), whoStartMessage(server));

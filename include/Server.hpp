@@ -12,12 +12,16 @@
 #include <unistd.h>
 #include <cstring>
 #include <map>
-#include <fcntl.h>
-#include "Client.hpp"
 #include <climits>
-#include "Channel.hpp"
+#include <fcntl.h>
 
-class Message;
+#include "Client.hpp"
+#include "Message.hpp"
+#include "Parser.hpp"
+#include "Channel.hpp"
+#include "Reply.hpp"
+#include "commands.hpp"
+
 struct Kickinfo
 {   
     std::string channel;

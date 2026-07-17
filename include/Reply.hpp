@@ -1,11 +1,10 @@
 #pragma once
 
 #include <iostream>
-#include "Client.hpp"
-#include "Message.hpp"
 
 class Client;
 class Message;
+class Server;
 
 std::string generateMEssage(const Client &client, const Message &msg);
 
@@ -25,3 +24,7 @@ std::string whoMessage(const Server &server, const Client &client);
 std::string whoIsMessage(const Client &client);
 std::string whoIsEndMessage(const Server &server);
 std::string unknownCommand(const Server &server);
+
+
+std::string clientNotRegestred(const Server &server);
+std::string passwordAccepted(const Server &server);

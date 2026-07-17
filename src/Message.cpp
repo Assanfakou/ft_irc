@@ -1,4 +1,4 @@
-#include "../include/Message.hpp"
+#include "../include/Server.hpp"
 
 Message::Message() : prefix(""), command(""), params() {}
 
