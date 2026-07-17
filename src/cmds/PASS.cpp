@@ -13,6 +13,7 @@ void passHandler(Server &server, Client &client, const std::string &password)
         {
             client.setPassAccepted(true);
             server.sendMessageToClient(client.getFd(), passwordAccepted(server));
+            server.sendMessageToClient(client.getFd(), welcomeMessage(server));
             server.tryRegister(client);
             return;
         }

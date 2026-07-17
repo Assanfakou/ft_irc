@@ -129,7 +129,7 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "QUIT")
         this->removeClient(client.getFd());
     else if (msg.getCommand() == "PING")
-        this->sendMessageToClient(client.getFd(), this->getServerName() + "PONG" + " :" + msg.getParameter(0) + "\r\n" );
+        this->sendMessageToClient(client.getFd(), pong(*this, msg));
     else if (msg.getCommand() == "WHO")
         who(*this, client, msg);
     else if (msg.getCommand() == "PART")
