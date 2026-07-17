@@ -40,7 +40,7 @@ struct Modeinfo
 {
     std::string channel;
     std::string mode;
-    std::string Operator;  
+    std::string Operator;
 };
 
 class Server
@@ -73,15 +73,15 @@ class Server
         std::string getPart(std::string command);
         void addMemberTo_Channel(std::string channelName, Client &client);
         void check_Channels_and_addMember_to_Channel(std::string channelName, Client &client);
-        void compare_nickname_and_kickClient(std::string &channelName, std::string &nickname, Client &client);
-        void compare_nickname_and_inviteClient(std::string &channelName, std::string &nickname, Client &client);
+        void compare_nickname_and_kickClient(const std::string &channelName, const std::string &nickname, Client &client);
+        void compare_nickname_and_inviteClient(const std::string &channelName, const std::string &nickname, Client &client);
         void clientLeaveChannel(std::string channelName, Client &client);
         Kickinfo    getKickInfo(std::string command);
         Inviteinfo  getInviteInfo(std::string command);
         Topicinfo   getTopicInfo(std::string command);
-        void        showTopic(Topicinfo topic_info, Client &client);
+        void        showTopic(const Message &msg, Client &client);
         Modeinfo    getModeInfo(std::string command);
-        void setMode(Modeinfo mode_info, Client &client);
+        void setMode(const Message &msg, Client &client);
 
     private:
         void createSocket();

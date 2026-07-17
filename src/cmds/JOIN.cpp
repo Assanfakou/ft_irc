@@ -11,7 +11,12 @@ std::string Server::getJoin(std::string command)
     }
     return "";
 }
-
+/*
+**
+** join takes multiple arguments like getting multipple channels separated by commas and 
+** and keys separated with commas also, plus when you trying to make a chanel don't maket it with the #
+**
+*/
 void Server::addMemberTo_Channel(std::string channelName, Client &client)
 {
     std::map<std::string, Channel>::iterator it = _channels.find(channelName); //now point to channel object (we can get the first elemnt or second (map))

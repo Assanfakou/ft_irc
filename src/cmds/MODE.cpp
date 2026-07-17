@@ -1,5 +1,5 @@
 #include "../../include/Server.hpp"
-
+#include "../../include/Message.hpp"
 
 Modeinfo Server::getModeInfo(std::string command)
 {
@@ -25,10 +25,12 @@ Modeinfo Server::getModeInfo(std::string command)
     return info;
 }
 
-void Server::setMode(Modeinfo mode_info, Client &client)
+void Server::setMode(const Message &msg, Client &client)
 {
-    std::map<std::string, Channel>::iterator it = _channels.find(mode_info.channel);
-    
+    const std::string &chanelName = msg.getParameter(0).substr(1);
+    std::cout << "chanel name " << chanelName << std::endl;
+    std::map<std::string, Channel>::iterator it = _channels.find(chanelName);
+
     if (it == _channels.end())
     {
         std::cout << "Channel not found" << std::endl;
@@ -39,36 +41,36 @@ void Server::setMode(Modeinfo mode_info, Client &client)
         std::cout << "You don't have permission to change channel modes." << std::endl;
         return;
     }
-    for (size_t i = 0; i < mode_info.mode.size(); i++)
-    {
-        if (mode_info.mode[i] == ' ')
-        {
-            mode_info.Operator = mode_info.mode.substr(i + 1);
-            mode_info.mode = mode_info.mode.substr(0, i);
-            break;
-        }
-    }
-    if (mode_info.mode == "+i")
+    // for (size_t i = 0; i < msg.getParameter(1).size(); i++)
+    // {
+    //     if (msg.getParameter(1)[i] == ' ')
+    //     {
+    //         mode_info.Operator = msg.getParameter(1).substr(i + 1);
+    //         msg.getParameter(1) = mode_info.mode.substr(0, i);
+    //         break;
+    //     }
+    // }
+    if (msg.getParameter(1) == "+i")
         it->second.setInviteOnly(true);
-    if (mode_info.mode == "-i")
+    if (msg.getParameter(1) == "-i")
         it->second.setInviteOnly(false);
-    if (mode_info.mode == "+t")
+    if (msg.getParameter(1) == "+t")
         it->second.setTopicRestricted(true);
-    if (mode_info.mode == "-t")
+    if (msg.getParameter(1) == "-t")
         it->second.setTopicRestricted(false);
 
     std::map<int, Client>::iterator it2;
 
     for (it2 = _clients.begin(); it2 != _clients.end(); ++it2)
     {
-        if (it2->second.getNickname() == mode_info.Operator)
+        if (it2->second.getNickname() == msg.getParameter(2))
         {
             int targetFd = it2->second.getFd();
             if (it->second.isMember(targetFd))
             {
-                if (mode_info.mode == "+o")
+                if (msg.getParameter(1) == "+o")
                     it->second.addOperator(targetFd);
-                if (mode_info.mode == "-o")
+                if (msg.getParameter(1) == "-o")
                     it->second.removeOperator(targetFd);
             }
         }

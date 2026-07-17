@@ -1,4 +1,5 @@
 #include "../../include/Server.hpp"
+#include "../../include/Reply.hpp"
 
 Inviteinfo Server::getInviteInfo(std::string command)
 {
@@ -21,11 +22,22 @@ Inviteinfo Server::getInviteInfo(std::string command)
     }
     return info;
 }
-
-void Server::compare_nickname_and_inviteClient(std::string &channelName, std::string &nickname, Client &client)
+/*
+**
+** invite function takes arguments 1} - nickName, then  2} - chaneslName
+** with the error messages should be sent to the target or the sender in case 
+** of errors. << later >>
+**
+*/
+void Server::compare_nickname_and_inviteClient(const std::string &channelName, const std::string &nickname, Client &client)
 {
     std::map<int, Client>::iterator it;
 
+    if (channelName.empty() || nickname.empty())
+    {
+        sendMessageToClient(client.getFd(), needMoreParams(*this));
+        return ;
+    }
     for (it = _clients.begin(); it != _clients.end(); ++it)
     {
         if (it->second.getNickname() == nickname)
