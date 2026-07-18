@@ -19,15 +19,24 @@ std::string Server::getNickname(std::string command)
 
 void nickHandler(Client &client, Server &server, const std::string nickName)
 {
-        if (!nickName.empty())
+    if (!nickName.empty())
+    {
+        Client *fakeClient = server.getClientByNickname(nickName);
+        if (!fakeClient)
         {
             client.setNickname(nickName);
-            server. sendMessageToClient(client.getFd(), "Nickname saved: " + client.getNickname() + "\r\n");
+            server.sendMessageToClient(client.getFd(), IRC_BLUE + "YOU'RE KNOWN AS : " + client.getNickname() + "\r\n" + IRC_RESET);
             server.tryRegister(client);
         }
         else
         {
-            server.sendMessageToClient(client.getFd(), needMoreParams(server));
+            server.sendMessageToClient(client.getFd(), IRC_RED + "this nickName is taken \r\n" + IRC_RESET);
             return ;
         }
+    }
+    else
+    {
+        server.sendMessageToClient(client.getFd(), needMoreParams(server));
+        return;
+    }
 }
