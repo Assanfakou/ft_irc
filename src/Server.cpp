@@ -107,7 +107,7 @@ void Server::processClientBuffer(Client &client)
         std::string password = getPassword(command);
         std::string nickname = getNickname(command);
         std::string username = getUsername(command);
-        std::string channelName = getJoin(command);
+        JoinInfo join_info = getJoin(command);
         std::string leaveChannel = getPart(command);
         Kickinfo kick_info = getKickInfo(command);
         Inviteinfo invite_info = getInviteInfo(command);
@@ -139,8 +139,10 @@ void Server::processClientBuffer(Client &client)
         }
         if (client.isRegistered())
         {
-            if (!channelName.empty())
-                check_Channels_and_addMember_to_Channel(channelName, client);
+            if (!mode_info.channel.empty() && !mode_info.mode.empty())
+                setMode(mode_info, client);
+            if (!join_info.channel.empty())
+                check_Channels_and_addMember_to_Channel(join_info, client);
             if (!leaveChannel.empty())
                 clientLeaveChannel(leaveChannel, client);
             if (!kick_info.channel.empty() && !kick_info.nickname.empty())
@@ -149,8 +151,6 @@ void Server::processClientBuffer(Client &client)
                 compare_nickname_and_inviteClient(invite_info.channel, invite_info.nickname, client);
             if (!topic_info.channel.empty())
                 showTopic(topic_info, client);
-            if (!mode_info.channel.empty() && !mode_info.mode.empty())
-                setMode(mode_info, client);
         }
 
         //

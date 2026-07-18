@@ -1,7 +1,7 @@
 #include "../include/Channel.hpp"
 
 Channel::Channel(const std::string &name): _name(name), _inviteOnly(false), 
-    _topicRestricted(false)
+    _topicRestricted(false), passwordEnabled(false), _userLimitEnabled(false)
 {
 
 }
@@ -95,3 +95,50 @@ bool Channel::isOperator(int fd)
     return false;
 }
 
+void Channel::setPasswordEnabled(bool value)
+{
+    passwordEnabled = value;
+}
+
+bool Channel::isPasswordEnabled() const
+{
+    return passwordEnabled;
+}
+
+void Channel::setPassword(std::string value)
+{
+    _channelPassword = value;
+}
+
+std::string Channel::getPassword() const
+{
+    return _channelPassword;
+}
+
+void Channel::setUserLimitEnabled(bool value)
+{
+    _userLimitEnabled = value;
+}
+
+
+bool Channel::isUserLimitEnabled() const
+{
+    return _userLimitEnabled;
+}
+
+void Channel::setUserLimit(int value)
+{
+    _userLimit = value;
+}
+
+
+int Channel::getUserLimit() const
+{
+    return _userLimit;
+}
+
+
+int Channel::getMemberCount() const
+{
+    return _members.size();
+}
