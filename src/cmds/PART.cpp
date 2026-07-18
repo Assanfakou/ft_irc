@@ -28,10 +28,9 @@ void Channel::leaveChannel(std::string channelName, int fd)
 
 void Server::clientLeaveChannel(std::string channelName, Client &client)
 {
-    if (!client.hasPassAccepted())
+    if (!client.hasPassAccepted() && !client.isRegistered())
     {
         sendMessageToClient(client.getFd(), clientNotRegestred(*this));
-        removeClient(client.getFd());
         return ;
     }
     std::map<std::string, Channel>::iterator it = _channels.find(channelName); 

@@ -26,10 +26,9 @@ Modeinfo Server::getModeInfo(std::string command)
 
 void Server::setMode(const Message &msg, Client &client)
 {
-    if (!client.hasPassAccepted())
+    if (!client.hasPassAccepted() && !client.isRegistered())
     {
         sendMessageToClient(client.getFd(), clientNotRegestred(*this));
-        removeClient(client.getFd());
         return ;
     }
     const std::string &chanelName = msg.getParameter(0).substr(1);

@@ -30,10 +30,9 @@ Inviteinfo Server::getInviteInfo(std::string command)
 */
 void Server::compare_nickname_and_inviteClient(const std::string &channelName, const std::string &nickname, Client &client)
 {
-    if (!client.hasPassAccepted())
+    if (!client.hasPassAccepted() && !client.isRegistered())
     {
         sendMessageToClient(client.getFd(), clientNotRegestred(*this));
-        removeClient(client.getFd());
         return ;
     }
     std::map<int, Client>::iterator it;

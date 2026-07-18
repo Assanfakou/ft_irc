@@ -26,10 +26,9 @@ Kickinfo Server::getKickInfo(std::string command)
 
 void Server::compare_nickname_and_kickClient(const std::string &channelName, const std::string &nickname, Client &client)
 {
-    if (!client.hasPassAccepted())
+    if (!client.hasPassAccepted() && !client.isRegistered())
     {
         sendMessageToClient(client.getFd(), clientNotRegestred(*this));
-        removeClient(client.getFd());
         return ;
     }
     std::map<int, Client>::iterator it;
