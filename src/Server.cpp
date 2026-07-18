@@ -308,17 +308,28 @@ void Server::sendMessageToClient(int clientFd, const std::string &message)
         std::cerr << "Failed to send message to client " << clientFd << std::endl;
 }
 
-void Server::breadcastToChanel(const Channel &channel, const Client& sender, const std::string &msg)
+void Server::broadcastToChanel(Channel &channel, const Client& sender, const std::string &msg)
 {
-   std::vector<int>::iterator it = channel.getMembers().begin();
-   for (; it != channel.getMembers().end(); it++)
-   {
+    std::vector<int> &members = channel.getMembers();
+    std::vector<int>::iterator it = members.begin();
+
+    for (; it != members.end(); it++)
+    {
         if (*it != sender.getFd())
             sendMessageToClient(*it, msg);
-   }
+    }
 }
 
 std::string Server::getServerName() const
 {
     return serverName;
+}
+
+Channel *Server::getChanel(const std::string &chanNeame)
+{
+    std::map<std::string, Channel>::iterator it = _channels.find(chanNeame);
+
+    if (it != _channels.end())
+        return &it->second;
+    return NULL;
 }

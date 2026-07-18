@@ -13,27 +13,27 @@ std::string generateMEssage(const Client &client, const Message &msg)
 
 std::string noTextToSend(const Server &server)
 {
-    return IRC_RED + server.getServerName() + " 412 : ERR_NOTEXTTOSEND\r\n" + IRC_RESET;
+    return IRC_RED + ":" + server.getServerName() + " 412 : ERR_NOTEXTTOSEND\r\n" + IRC_RESET;
 }
 
 std::string noSuchNick(const Server &server)
 {
-    return IRC_RED + server.getServerName() + " 401 : ERR_NOSUCHNICK\r\n" + IRC_RESET;
+    return IRC_RED + ":" + server.getServerName() + " 401 : ERR_NOSUCHNICK\r\n" + IRC_RESET;
 }
 
 std::string needMoreParams(const Server &server)
 {
-    return IRC_RED + server.getServerName() + " 461 : ERR_NEEDMOREPARAMS\r\n" + IRC_RESET;
+    return IRC_RED + ":" + server.getServerName() + " 461 : ERR_NEEDMOREPARAMS\r\n" + IRC_RESET;
 }
 
 std::string cantSendToSelf(const Server &server)
 {
-    return IRC_RED + server.getServerName() + " 666 : ERR_CANTSENDTOSELF\r\n" + IRC_RESET;
+    return IRC_RED + ":" + server.getServerName() + " 666 : ERR_CANTSENDTOSELF\r\n" + IRC_RESET;
 }
 
 std::string unknownCommand(const Server &server)
 {
-    return IRC_RED + server.getServerName() + " 421 : ERR_UNKNOWNCOMMAND\r\n" + IRC_RESET;
+    return IRC_RED + ":" + server.getServerName() + " 421 : ERR_UNKNOWNCOMMAND\r\n" + IRC_RESET;
 }
 
 std::string welcomeMessage(const Server &server)
@@ -77,4 +77,8 @@ std::string passwordAccepted(const Server &server)
 std::string pong(const Server &server, const Message &msg)
 {
     return IRC_BLUE + ":" + server.getServerName() + " :" + msg.getParameter(0) + "\r\n";
+}
+std::string wrongPassword(const Server &server)
+{
+    return IRC_RED + ":" + server.getServerName() + "  Wrong Password\r\n" + IRC_RESET;
 }

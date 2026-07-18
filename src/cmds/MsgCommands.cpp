@@ -11,10 +11,9 @@
 
 void privmsg(Server &server, Client &sender, const Message &msg)
 {
-    if (!sender.hasPassAccepted())
+    if (!sender.hasPassAccepted() && !sender.isRegistered())
     {
         server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
-        server.removeClient(sender.getFd());
         return ;
     }
     if (msg.getParams().empty())
@@ -33,7 +32,13 @@ void privmsg(Server &server, Client &sender, const Message &msg)
         server.sendMessageToClient(sender.getFd(), noTextToSend(server));
         return;
     }
-    std::string message = msg.getParameter(1);
+    if (receiver[0] == '#')
+    {
+        // i should skip the # character
+        Channel *channel = server.getChanel(receiver);
+        server.broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
+        return ;
+    }
     std::vector<Client *> receiverClients = server.getClientsByNickname(receiver);
     if (!receiverClients.empty())
     {
@@ -66,10 +71,9 @@ void privmsg(Server &server, Client &sender, const Message &msg)
 */
 void notice(Server &server, Client &sender, const Message &msg)
 {
-    if (!sender.hasPassAccepted())
+    if (!sender.hasPassAccepted() && !sender.isRegistered())
     {
         server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
-        server.removeClient(sender.getFd());
         return ;
     }
     if (msg.getParams().empty())
@@ -79,7 +83,13 @@ void notice(Server &server, Client &sender, const Message &msg)
         return;
     if (msg.getParams().size() < 2)
         return;
-    std::string message = msg.getParameter(1);
+    if (receiver[0] == '#')
+    {
+        // i should skip the # character
+        Channel *channel = server.getChanel(receiver);
+        server.broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
+        return ;
+    }
     std::vector<Client *> receiverClients = server.getClientsByNickname(receiver);
     if (!receiverClients.empty())
     {
@@ -106,10 +116,9 @@ void notice(Server &server, Client &sender, const Message &msg)
 
 void who(Server &server, Client &sender, const Message &msg)
 {
-    if (!sender.hasPassAccepted())
+    if (!sender.hasPassAccepted() && !sender.isRegistered())
     {
         server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
-        server.removeClient(sender.getFd());
         return ;
     }
     if (msg.getParams().empty())

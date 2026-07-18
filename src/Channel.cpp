@@ -95,7 +95,7 @@ bool Channel::isOperator(int fd)
     return false;
 }
 
-const std::vector<int> &Channel::getMembers() const
+std::vector<int> &Channel::getMembers()
 {
     return _members;
 }
