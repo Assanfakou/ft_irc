@@ -29,3 +29,5 @@ std::string unknownCommand(const Server &server);
 std::string clientNotRegestred(const Server &server);
 std::string passwordAccepted(const Server &server);
 std::string pong(const Server &Server, const Message &msg);
+std::string startMessage(const Server &server, const Message msg);
+std::string EndMessage(const Server &server, const Message msg);

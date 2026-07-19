@@ -14,6 +14,8 @@
 #include <map>
 #include <climits>
 #include <fcntl.h>
+#include <string>
+#include <sstream>
 
 #include "Client.hpp"
 #include "Message.hpp"
@@ -106,7 +108,7 @@ class Server
         std::string getServerName() const;
         Channel *getChanel(const std::string &cnanNeame);
         std::map<std::string, Channel> *getChannels();
-        void listChanels(Client &client);
+        void listChanels(const Client &client, const Message &msg);
 };
 
 #endif

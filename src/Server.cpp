@@ -143,7 +143,7 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "MODE")
         setMode(msg, client);
     else if (msg.getCommand() == "LIST")
-        listChanels(client);
+        listChanels(client, msg);
     else
     {
         this->sendMessageToClient(client.getFd(), unknownCommand(*this));
@@ -202,6 +202,7 @@ void Server::tryRegister(Client &client)
 }
 
 //rida (i only add my own code here , the function created by anass)
+
 /*
 **
 ** the buffer shouldn't be use after quiting the user, there will be leaks 
@@ -222,7 +223,6 @@ void Server::processClientBuffer(Client &client)
         Parser parser;
         Message mesg = parser.parse(client.getBuffer().substr(0, pos));
         despatchMessage(client, mesg);
-        client.getBuffer().erase(0, pos + 2);
     }
 }
 
@@ -283,16 +283,6 @@ void Server::runPollLoop()
     }
 }
 
-void Server::listChanels(Client &client)
-{
-    (void) client;
-    std::map<std::string, Channel>::iterator it = _channels.begin();
-    std::string chanNames;
-    for (; it != _channels.end(); ++it)
-        chanNames += it->first + ": " + it->second.getTopic() + "\r\n";
-    std::cout << "chanelels : " << chanNames + "\r\n";
-    sendMessageToClient(client.getFd(), chanNames);
-}
 
 void Server::acceptClient()
 {
@@ -326,7 +316,7 @@ void Server::acceptClient()
 void Server::sendMessageToClient(int clientFd, const std::string &message)
 {
     if (send(clientFd, message.c_str(), message.size(), 0) == -1)
-        std::cerr << "Failed to send message to client " << clientFd << std::endl;
+        std::cerr << "Failed to send message to client " << clientFd << "\n";
 }
 
 void Server::broadcastToChanel(Channel &channel, const Client& sender, const std::string &msg)

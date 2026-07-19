@@ -12,6 +12,7 @@ std::string &Client::getBuffer()
 {
     return (_buffer);
 }
+
 const std::string &Client::getNickname() const
 {
     return (_nickname);
