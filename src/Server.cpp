@@ -223,6 +223,7 @@ void Server::processClientBuffer(Client &client)
         Parser parser;
         Message mesg = parser.parse(client.getBuffer().substr(0, pos));
         despatchMessage(client, mesg);
+        client.getBuffer().erase(0, pos + 2);
     }
 }
 
@@ -282,7 +283,6 @@ void Server::runPollLoop()
         }
     }
 }
-
 
 void Server::acceptClient()
 {
@@ -348,4 +348,28 @@ Channel *Server::getChanel(const std::string &chanNeame)
 std::map<std::string, Channel> *Server::getChannels()
 {
     return &_channels;
+}
+
+std::string Server::getChanelUsers(const std::string &channelName)
+{
+    Channel &itchan = _channels.find(channelName)->second;
+    std::vector<int> vecInt = itchan.getMembers();
+    std::map<int, Client> &clients = getClients();
+    std::string names;
+
+    for (size_t i = 0; i < vecInt.size(); i++)
+    {
+        std::map<int, Client>::iterator iter = clients.find(vecInt[i]);
+        if (iter != clients.end())
+        {
+            Client &client = iter->second;
+            names += client.getNickname() + " ";
+        }
+    }
+    return names;
+}
+
+std::map<int, Client> &Server::getClients()
+{
+    return _clients;
 }

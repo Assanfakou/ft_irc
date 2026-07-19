@@ -92,3 +92,37 @@ std::string wrongPassword(const Server &server)
 {
     return IRC_RED + ":" + server.getServerName() + "  Wrong Password\r\n" + IRC_RESET;
 }
+
+std::string joinChannel(const Server &server, const Client &sender, std::string &chanelName)
+{
+    (void) server;
+    return IRC_BLUE + ":" + sender.getPrefix() + " JOIN " + chanelName + "\r\n" + IRC_RESET;
+}
+std::string topicWhenJoin(const Server &server, const Client &client, const Channel &channel)
+{
+    std::string topic;
+
+    if (channel.getTopic().empty())
+        topic = "Topic is Not set";
+    else
+        topic = channel.getTopic();
+    return IRC_BLUE + ":" + server.getServerName() + " 332 RPL_TOPIC " + client.getNickname() + " "
+    + channel.getName() + " :" + topic + "\r\n" + IRC_RESET; 
+}
+   
+//RPL_NAMREPLY
+std::string namesWhenJoin(Server &server, const Client &client, const Channel &channel)
+{
+    return IRC_BLUE + ":" + server.getServerName() + " 353 RPL_NAMREPLY " + client.getNickname() + " = " + channel.getName() + " : " + server.getChanelUsers(channel.getName()) 
+    + "\r\n" + IRC_RESET + endOfNamesList(server, client, channel);
+}
+
+std::string endOfNamesList(Server &server, const Client &client, const Channel &channel)
+{
+    return IRC_BLUE + ";" + server.getServerName() + " 366 RPL_ENDOFNAMES " + client.getNickname()
+    + " " + channel.getName() + " :End of /Names list\r\n" + IRC_RESET;
+}
+std::string notValidChanelName(Server &server)
+{
+    return IRC_RED + ";" + server.getServerName() + " This is not a valid name for channel Name \r\n" + IRC_RESET;
+}
