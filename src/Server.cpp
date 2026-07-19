@@ -142,6 +142,8 @@ void Server::despatchMessage(Client &client, const Message &msg)
         showTopic(msg, client);
     else if (msg.getCommand() == "MODE")
         setMode(msg, client);
+    else if (msg.getCommand() == "LIST")
+        listChanels(client);
     else
     {
         this->sendMessageToClient(client.getFd(), unknownCommand(*this));
@@ -200,6 +202,14 @@ void Server::tryRegister(Client &client)
 }
 
 //rida (i only add my own code here , the function created by anass)
+/*
+**
+** the buffer shouldn't be use after quiting the user, there will be leaks 
+** solve : the despatch should re turn if the client is quited or not
+** so it can remove the client here ; || we can copy the buffer and use it as a copy
+**
+*/
+
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
@@ -273,6 +283,17 @@ void Server::runPollLoop()
     }
 }
 
+void Server::listChanels(Client &client)
+{
+    (void) client;
+    std::map<std::string, Channel>::iterator it = _channels.begin();
+    std::string chanNames;
+    for (; it != _channels.end(); ++it)
+        chanNames += it->first + ": " + it->second.getTopic() + "\r\n";
+    std::cout << "chanelels : " << chanNames + "\r\n";
+    sendMessageToClient(client.getFd(), chanNames);
+}
+
 void Server::acceptClient()
 {
     sockaddr_in clientAddr;
@@ -332,4 +353,9 @@ Channel *Server::getChanel(const std::string &chanNeame)
     if (it != _channels.end())
         return &it->second;
     return NULL;
+}
+
+std::map<std::string, Channel> *Server::getChannels()
+{
+    return &_channels;
 }
