@@ -41,6 +41,16 @@ std::string welcomeMessage(const Server &server)
     return IRC_GREEN + ":" + server.getServerName() + " 001 : Welcome to the IRC server!\r\n" + IRC_RESET;
 }
 
+std::string startMessage(const Server &server, const Message msg)
+{
+    return IRC_GREEN + ":" + server.getServerName() + msg.getCommand() + " RPL_START \r\n";
+}
+
+std::string EndMessage(const Server &server, const Message msg)
+{
+    return ":" + server.getServerName() + msg.getCommand() + " RPL_END \r\n" + IRC_RESET;
+}
+
 std::string whoStartMessage(const Server &server)
 {
     return IRC_CYAN + ":" + server.getServerName() + " 314 : RPL_WHOSPCR\r\n" + IRC_RESET;
@@ -76,7 +86,7 @@ std::string passwordAccepted(const Server &server)
 }
 std::string pong(const Server &server, const Message &msg)
 {
-    return IRC_BLUE + ":" + server.getServerName() + " :" + msg.getParameter(0) + "\r\n";
+    return IRC_BLUE + ":" + server.getServerName() + " PONG :" + msg.getParameter(0) + "\r\n";
 }
 std::string wrongPassword(const Server &server)
 {
