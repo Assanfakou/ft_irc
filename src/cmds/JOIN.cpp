@@ -36,13 +36,24 @@ void Server::addMemberTo_Channel(std::string channelName, Client &client)
     }
     it->second.addMember(fd);
     std::cout << "Client added to channel: " << channelName << std::endl;
+    Channel *reciever = getChanel(channelName);
+    sendMessageToClient(client.getFd(), joinChannel(*this, client, channelName));
+    sendMessageToClient(client.getFd(), topicWhenJoin(*this, client, *reciever));
+    sendMessageToClient(client.getFd(), namesWhenJoin(*this, client, *reciever));
+    broadcastToChanel(*reciever, client, joinChannel(*this, client, channelName));
 }
+
 
 void Server::check_Channels_and_addMember_to_Channel(std::string channelName, Client &client)
 {
     if (!client.hasPassAccepted() && !client.isRegistered())
     {
         sendMessageToClient(client.getFd(), clientNotRegestred(*this));
+        return ;
+    }
+    if (channelName[0] != '#')
+    {
+        sendMessageToClient(client.getFd(), notValidChanelName(*this));
         return ;
     }
     if (_channels.find(channelName) == _channels.end()) //if we reach the end and we don't get the name of channel

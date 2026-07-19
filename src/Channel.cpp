@@ -99,3 +99,8 @@ std::vector<int> &Channel::getMembers()
 {
     return _members;
 }
+
+const std::string &Channel::getName() const
+{
+    return _name;
+}

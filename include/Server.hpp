@@ -109,6 +109,8 @@ class Server
         Channel *getChanel(const std::string &cnanNeame);
         std::map<std::string, Channel> *getChannels();
         void listChanels(const Client &client, const Message &msg);
+        std::map<int, Client> &getClients();
+        std::string getChanelUsers(const std::string &channelName);
 };
 
 #endif
