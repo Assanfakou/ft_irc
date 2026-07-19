@@ -105,6 +105,8 @@ class Server
 
         std::string getServerName() const;
         Channel *getChanel(const std::string &cnanNeame);
+        std::map<std::string, Channel> *getChannels();
+        void listChanels(Client &client);
 };
 
 #endif
