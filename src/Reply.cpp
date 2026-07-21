@@ -93,7 +93,7 @@ std::string wrongPassword(const Server &server)
     return IRC_RED + ":" + server.getServerName() + "  Wrong Password\r\n" + IRC_RESET;
 }
 
-std::string joinChannel(const Server &server, const Client &sender, std::string &chanelName)
+std::string joinChannel(const Server &server, const Client &sender, const std::string &chanelName)
 {
     (void) server;
     return ":" + sender.getPrefix() + " JOIN " + chanelName + "\r\n";

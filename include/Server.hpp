@@ -29,40 +29,6 @@
 #include "Channel.hpp"
 
 
-struct JoinInfo
-{
-    std::string channel;
-    std::string Password;
-};
-
-struct Kickinfo
-{   
-    std::string channel;
-    std::string nickname;
-};
-
-struct Inviteinfo
-{
-    std::string channel;
-    std::string nickname;
-};
-
-struct Topicinfo
-{
-    std::string channel;
-    std::string topic;
-};
-
-struct Modeinfo
-{
-    std::string channel;
-    std::string mode;
-    std::string Operator;
-    std::string Secret;
-    std::string userLimit;
-};
-
-
 class Server
 {
     private:
@@ -90,18 +56,13 @@ class Server
         std::string getNickname(std::string command);
         std::string getUsername(std::string command);
         void tryRegister(Client &client);
-        JoinInfo getJoin(std::string command);
         std::string getPart(std::string command);
         void addMemberTo_Channel(const Message &msg, Client &client);
         void check_Channels_and_addMember_to_Channel(const Message &msg, Client &client);
         void compare_nickname_and_kickClient(const std::string &channelName, const std::string &nickname, Client &client);
         void compare_nickname_and_inviteClient(const std::string &channelName, const std::string &nickname, Client &client);
         void clientLeaveChannel(std::string channelName, Client &client);
-        Kickinfo    getKickInfo(std::string command);
-        Inviteinfo  getInviteInfo(std::string command);
-        Topicinfo   getTopicInfo(std::string command);
         void        showTopic(const Message &msg, Client &client);
-        Modeinfo    getModeInfo(std::string command);
         void setMode(const Message &msg, Client &client);
 
     private:

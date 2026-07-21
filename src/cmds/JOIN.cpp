@@ -1,36 +1,8 @@
 #include "../../include/Server.hpp"
 
-JoinInfo Server::getJoin(std::string command)
-{
-    JoinInfo info;
-
-    if (command.size() >= 4 && command.substr(0, 4) == "JOIN")
-    {
-        if (command.size() <= 5)
-            return info;
-
-        std::string value = command.substr(5);
-
-        for (size_t i = 0; i < value.size(); i++)
-        {
-            if (value[i] == ' ')
-            {
-                info.channel = value.substr(0, i);
-                info.Password = value.substr(i + 1);
-                return info;
-            }
-        }
-
-        // No password provided
-        info.channel = value;
-    }
-
-    return info;
-}
-
 void Server::addMemberTo_Channel(const Message &msg, Client &client)
 {
-    std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(1)); //now point to channel object (we can get the first elemnt or second (map))
+    std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0)); //now point to channel object (we can get the first elemnt or second (map))
     int fd = client.getFd();
     if (it->second.isMember(fd))
     {
@@ -47,7 +19,7 @@ void Server::addMemberTo_Channel(const Message &msg, Client &client)
     }
     if (it->second.isPasswordEnabled())
     {
-        if (msg.getParameter(2) == it->second.getPassword())
+        if (msg.getParameter(1) == it->second.getPassword())
             std::cout << "Password Accepted" << std::endl;
         else
         {
@@ -65,20 +37,36 @@ void Server::addMemberTo_Channel(const Message &msg, Client &client)
     }
 
     it->second.addMember(fd);
-    std::cout << "Client added to channel: " << msg.getParameter(1) << std::endl;
+    std::cout << "Client added to channel: " << msg.getParameter(0) << std::endl;
+    Channel *reciever = getChanel(msg.getParameter(0));
+    sendMessageToClient(client.getFd(), joinChannel(*this, client, msg.getParameter(0)));
+    sendMessageToClient(client.getFd(), topicWhenJoin(*this, client, *reciever));
+    sendMessageToClient(client.getFd(), namesWhenJoin(*this, client, *reciever));
+    broadcastToChanel(*reciever, client, joinChannel(*this, client, msg.getParameter(0)));
+
 }
 
 void Server::check_Channels_and_addMember_to_Channel(const Message &msg, Client &client)
 {
-    if (_channels.find(msg.getParameter(1)) == _channels.end()) //if we reach the end and we don't get the name of channel
+    if (!client.hasPassAccepted() && !client.isRegistered())
     {
-        if (!msg.getParameter(1).empty())
+        sendMessageToClient(client.getFd(), clientNotRegestred(*this));
+        return ;
+    }
+    if (msg.getParameter(0)[0] != '#')
+    {
+        sendMessageToClient(client.getFd(), notValidChanelName(*this));
+        return ;
+    }
+    if (_channels.find(msg.getParameter(0)) == _channels.end()) //if we reach the end and we don't get the name of channel
+    {
+        if (!msg.getParameter(0).empty())
         {
-            _channels.insert(std::make_pair(msg.getParameter(1), Channel(msg.getParameter(1)))); //pass name and creates a Channel object using constructor
-            std::cout << "Channel created: " << msg.getParameter(1) << std::endl;
+            _channels.insert(std::make_pair(msg.getParameter(0), Channel(msg.getParameter(0)))); //pass name and creates a Channel object using constructor
+            std::cout << "Channel created: " << msg.getParameter(0) << std::endl;
             
             addMemberTo_Channel(msg, client);
-            std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(1));
+            std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
             if (it != _channels.end())
                 it->second.addOperator(client.getFd());
         }
