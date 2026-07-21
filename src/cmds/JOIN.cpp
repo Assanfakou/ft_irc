@@ -42,6 +42,7 @@ void Server::addMemberTo_Channel(const Message &msg, Client &client)
     sendMessageToClient(client.getFd(), joinChannel(*this, client, msg.getParameter(0)));
     sendMessageToClient(client.getFd(), topicWhenJoin(*this, client, *reciever));
     sendMessageToClient(client.getFd(), namesWhenJoin(*this, client, *reciever));
+    sendMessageToClient(client.getFd(), endOfNamesList(*this, client, *reciever));
     broadcastToChanel(*reciever, client, joinChannel(*this, client, msg.getParameter(0)));
 
 }

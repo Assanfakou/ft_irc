@@ -19,6 +19,7 @@ void Server::setMode(const Message &msg, Client &client)
         return ;
     }
     std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
+    std::cout << "channel Name here : " << msg.getParameter(0) << std::endl;
     
     if (it == _channels.end())
     {
@@ -70,7 +71,7 @@ void Server::setMode(const Message &msg, Client &client)
         std::cout << "The limit of channel has been removed successfully." << std::endl;
     }
 
-    std::map<int, Client>::iterator it2;
+    std::map<int, Client>::iterator it2;/
 
     for (it2 = _clients.begin(); it2 != _clients.end(); it2++)
     {
