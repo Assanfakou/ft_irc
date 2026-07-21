@@ -14,6 +14,10 @@ class Channel
         bool _inviteOnly;
         bool _topicRestricted;
         std::vector<int> _operators;
+        bool passwordEnabled;
+        std::string _channelPassword;
+        bool _userLimitEnabled;
+        int _userLimit;
 
     public:
         Channel(const std::string &name);
@@ -33,6 +37,15 @@ class Channel
         void removeOperator(int fd);
         bool isOperator(int fd);
         std::vector<int> &getMembers();
+        void setPasswordEnabled(bool value);
+        bool isPasswordEnabled() const;
+        void setPassword(std::string value);
+        std::string getPassword() const;
+        void setUserLimitEnabled(bool value);
+        bool isUserLimitEnabled() const;
+        void setUserLimit(int value);
+        int getUserLimit() const;
+        int getMemberCount() const;
 
 };
 

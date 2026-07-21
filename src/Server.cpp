@@ -211,6 +211,18 @@ void Server::tryRegister(Client &client)
 **
 */
 
+//rida
+
+void Server::tryRegister(Client &client)
+{
+    if (client.hasPassAccepted() && !client.getNickname().empty() && !client.getUsername().empty())
+    {
+        client.setRegistered(true);
+        std::cout << "Client registered!" << std::endl;
+    }
+}
+
+//rida (i only add my own code here , the function created by anass)
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
@@ -226,6 +238,7 @@ void Server::processClientBuffer(Client &client)
         client.getBuffer().erase(0, pos + 2);
     }
 }
+
 
 bool Server::receiveClientMessage(int clientFd)
 {
