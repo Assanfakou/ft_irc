@@ -135,7 +135,7 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "PART")
         clientLeaveChannel(msg.getParameter(0), client);
     else if (msg.getCommand() == "JOIN")
-        check_Channels_and_addMember_to_Channel(msg.getParameter(0), client);
+        check_Channels_and_addMember_to_Channel(msg, client);
     else if (msg.getCommand() == "INVITE")
         compare_nickname_and_inviteClient(msg.getParameter(0), msg.getParameter(1), client);
     else if (msg.getCommand() == "TOPIC")
@@ -211,18 +211,6 @@ void Server::tryRegister(Client &client)
 **
 */
 
-//rida
-
-void Server::tryRegister(Client &client)
-{
-    if (client.hasPassAccepted() && !client.getNickname().empty() && !client.getUsername().empty())
-    {
-        client.setRegistered(true);
-        std::cout << "Client registered!" << std::endl;
-    }
-}
-
-//rida (i only add my own code here , the function created by anass)
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
