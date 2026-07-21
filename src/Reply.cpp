@@ -96,33 +96,36 @@ std::string wrongPassword(const Server &server)
 std::string joinChannel(const Server &server, const Client &sender, std::string &chanelName)
 {
     (void) server;
-    return IRC_BLUE + ":" + sender.getPrefix() + " JOIN " + chanelName + "\r\n" + IRC_RESET;
+    return ":" + sender.getPrefix() + " JOIN " + chanelName + "\r\n";
 }
 std::string topicWhenJoin(const Server &server, const Client &client, const Channel &channel)
 {
     std::string topic;
 
     if (channel.getTopic().empty())
-        topic = "Topic is Not set";
+    {
+        topic = "No Topic is set";
+        return ":" + server.getServerName() + " 331 " + client.getNickname() + " " + channel.getName() + " :" + topic + "\r\n";
+    }
     else
         topic = channel.getTopic();
-    return IRC_BLUE + ":" + server.getServerName() + " 332 RPL_TOPIC " + client.getNickname() + " "
-    + channel.getName() + " :" + topic + "\r\n" + IRC_RESET; 
+    return ":" + server.getServerName() + " 332 " + client.getNickname() + " "
+    + channel.getName() + " :" + topic + "\r\n"; 
 }
    
 //RPL_NAMREPLY
 std::string namesWhenJoin(Server &server, const Client &client, const Channel &channel)
 {
-    return IRC_BLUE + ":" + server.getServerName() + " 353 RPL_NAMREPLY " + client.getNickname() + " = " + channel.getName() + " : " + server.getChanelUsers(channel.getName()) 
-    + "\r\n" + IRC_RESET + endOfNamesList(server, client, channel);
+    return ":" + server.getServerName() + " 353 " + client.getNickname() + " = " + channel.getName() + " : " + server.getChanelUsers(channel.getName()) 
+    + "\r\n" + endOfNamesList(server, client, channel);
 }
 
 std::string endOfNamesList(Server &server, const Client &client, const Channel &channel)
 {
-    return IRC_BLUE + ";" + server.getServerName() + " 366 RPL_ENDOFNAMES " + client.getNickname()
-    + " " + channel.getName() + " :End of /Names list\r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " 366 " + client.getNickname()
+    + " " + channel.getName() + " :End of /Names list\r\n";
 }
 std::string notValidChanelName(Server &server)
 {
-    return IRC_RED + ";" + server.getServerName() + " This is not a valid name for channel Name \r\n" + IRC_RESET;
+    return IRC_RED + ":" + server.getServerName() + " This is not a valid name for channel Name \r\n" + IRC_RESET;
 }
