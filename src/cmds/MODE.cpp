@@ -1,29 +1,5 @@
 #include "../../include/Server.hpp"
 
-Modeinfo Server::getModeInfo(std::string command)
-{
-    Modeinfo info;
-
-    if (command.size() >= 4 && command.substr(0, 4) == "MODE")
-    {
-        if (command.size() <= 5)
-            return info;
-
-        std::string value = command.substr(5);
-
-        for (size_t i = 0; i < value.size(); i++)
-        {
-            if (value[i] == ' ')
-            {
-                info.channel = value.substr(0, i);
-                info.mode = value.substr(i + 1);
-                return info;
-            }
-        }
-    }
-    return info;
-}
-
 // bool isNumeric(const std::string& str) 
 // {
 //     if (str.empty()) 
@@ -37,6 +13,11 @@ Modeinfo Server::getModeInfo(std::string command)
 
 void Server::setMode(const Message &msg, Client &client)
 {
+    if (!client.hasPassAccepted() && !client.isRegistered())
+    {
+        sendMessageToClient(client.getFd(), clientNotRegestred(*this));
+        return ;
+    }
     std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
     
     if (it == _channels.end())

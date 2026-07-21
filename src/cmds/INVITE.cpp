@@ -1,26 +1,5 @@
 #include "../../include/Server.hpp"
 
-Inviteinfo Server::getInviteInfo(std::string command)
-{
-    Inviteinfo info;
-
-    if (command.size() >= 6 && command.substr(0, 6) == "INVITE")
-    {
-        if (command.size() <= 7)
-            return info;
-        std::string value = command.substr(7);
-        for (size_t i = 0; i < value.size(); i++)
-        {
-            if (value[i] == ' ')
-            {
-                info.channel = value.substr(0, i);
-                info.nickname = value.substr(i + 1);
-                return info;
-            }
-        }
-    }
-    return info;
-}
 /*
 **
 ** invite function takes arguments 1} - nickName, then  2} - chaneslName

@@ -1,30 +1,5 @@
 #include "../../include/Server.hpp"
 
-Topicinfo Server::getTopicInfo(std::string command)
-{
-    Topicinfo info;
-
-    if (command.size() >= 5 && command.substr(0, 5) == "TOPIC")
-    {
-        if (command.size() <= 6)
-            return info;
-        std::string value = command.substr(6);
-        for (size_t i = 0; i < value.size(); i++)
-        {
-            if (value[i] == ' ')
-            {
-                info.channel = value.substr(0, i);
-                info.topic = value.substr(i + 1);
-                return info;
-            }
-        }
-        // No topic provided
-        info.channel = value;
-    }
-    return info;
-}
-
-
 void Server::showTopic(const Message &msg, Client &client)
 {
 

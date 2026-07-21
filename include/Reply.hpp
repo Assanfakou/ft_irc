@@ -33,7 +33,7 @@ std::string startMessage(const Server &server, const Message msg);
 std::string EndMessage(const Server &server, const Message msg);
 
 
-std::string joinChannel(const Server &server, const Client &sender, std::string &chanelName);
+std::string joinChannel(const Server &server, const Client &sender, const std::string &chanelName);
 std::string topicWhenJoin(const Server &server, const Client &client, const Channel &channel);
 std::string endOfNamesList(Server &server, const Client &client, const Channel &channel);
 std::string namesWhenJoin(Server &server, const Client &client, const Channel &channel);
