@@ -17,9 +17,7 @@ class Client
         std::string _username; // Client's username
         std::string _hostname; // Client's hostname
         std::string _realname; // Client's real name
-        bool _isRegistered; // Flag to indicate if the client is registered
         //rida part
-        bool _passAccepted;
 
     public:
         Client(int fd);
