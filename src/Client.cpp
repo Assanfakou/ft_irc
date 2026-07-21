@@ -1,6 +1,6 @@
 #include "../include/Client.hpp"
 
-Client::Client(int fd) : _fd(fd), _isRegistered(false), _passAccepted(false), _nickname(""), _username(""), _hostname(""), _realname("") {}
+Client::Client(int fd) : _fd(fd), _isRegistered(false), _passAccepted(false), _nickname(""), _username(""), _hostname("localhost"), _realname("") {}
 
 // Getters
 int Client::getFd() const
