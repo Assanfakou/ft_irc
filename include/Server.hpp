@@ -23,6 +23,14 @@
 #include "Channel.hpp"
 #include "Reply.hpp"
 #include "commands.hpp"
+#include "Channel.hpp"
+
+
+struct JoinInfo
+{
+    std::string channel;
+    std::string Password;
+};
 
 struct Kickinfo
 {   
@@ -47,7 +55,10 @@ struct Modeinfo
     std::string channel;
     std::string mode;
     std::string Operator;
+    std::string Secret;
+    std::string userLimit;
 };
+
 
 class Server
 {
@@ -76,10 +87,10 @@ class Server
         std::string getNickname(std::string command);
         std::string getUsername(std::string command);
         void tryRegister(Client &client);
-        std::string getJoin(std::string command);
+        JoinInfo getJoin(std::string command);
         std::string getPart(std::string command);
-        void addMemberTo_Channel(std::string channelName, Client &client);
-        void check_Channels_and_addMember_to_Channel(std::string channelName, Client &client);
+        void addMemberTo_Channel(JoinInfo join_info, Client &client);
+        void check_Channels_and_addMember_to_Channel(JoinInfo join_info, Client &client);
         void compare_nickname_and_kickClient(const std::string &channelName, const std::string &nickname, Client &client);
         void compare_nickname_and_inviteClient(const std::string &channelName, const std::string &nickname, Client &client);
         void clientLeaveChannel(std::string channelName, Client &client);
