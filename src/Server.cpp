@@ -322,6 +322,8 @@ void Server::sendMessageToClient(int clientFd, const std::string &message)
 
 void Server::broadcastToChanel(Channel &channel, const Client& sender, const std::string &msg)
 {
+    std::cout << "client Prefix : [" <<  sender.getPrefix() << "]" << std::endl;
+    std::cout << "message : [" << msg << "]" << std::endl;
     std::vector<int> &members = channel.getMembers();
     std::vector<int>::iterator it = members.begin();
 

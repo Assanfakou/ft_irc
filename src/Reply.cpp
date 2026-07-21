@@ -36,34 +36,29 @@ std::string unknownCommand(const Server &server)
     return IRC_RED + ":" + server.getServerName() + " 421 : ERR_UNKNOWNCOMMAND\r\n" + IRC_RESET;
 }
 
-std::string welcomeMessage(const Server &server)
+std::string welcomeMessage(const Server &server, const Client &client)
 {
-    return IRC_GREEN + ":" + server.getServerName() + " 001 : Welcome to the IRC server!\r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " 001 " + client.getNickname() + " : Welcome to the IRC server!\r\n";
 }
 
 std::string startMessage(const Server &server, const Message msg)
 {
-    return IRC_GREEN + ":" + server.getServerName() + msg.getCommand() + " RPL_START \r\n";
+    return IRC_GREEN + ":" + server.getServerName() + " " + msg.getCommand() + " RPL_START \r\n";
 }
 
 std::string EndMessage(const Server &server, const Message msg)
 {
-    return ":" + server.getServerName() + msg.getCommand() + " RPL_END \r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " " + msg.getCommand() + " RPL_END \r\n" + IRC_RESET;
 }
 
 std::string whoStartMessage(const Server &server)
 {
-    return IRC_CYAN + ":" + server.getServerName() + " 314 : RPL_WHOSPCR\r\n" + IRC_RESET;
+    return IRC_CYAN + ":" + server.getServerName() + " 314 \r\n" + IRC_RESET;
 }
 
 std::string whoEndMessage(const Server &server)
 {
-    return IRC_CYAN + ":" + server.getServerName() + " 315 : RPL_ENDOFWHO\r\n" + IRC_RESET;
-}
-
-std::string whoIsEndMessage(const Server &server)
-{
-    return IRC_RED + ":" + server.getServerName() + " 318 : RPL_ENDOFWHOIS\r\n" + IRC_RESET;
+    return IRC_CYAN + ":" + server.getServerName() + " 315 \r\n" + IRC_RESET;
 }
 
 std::string whoMessage(const Server &server,const Client &client)
@@ -90,13 +85,13 @@ std::string pong(const Server &server, const Message &msg)
 }
 std::string wrongPassword(const Server &server)
 {
-    return IRC_RED + ":" + server.getServerName() + "  Wrong Password\r\n" + IRC_RESET;
+    return IRC_RED + ":" + server.getServerName() + " Wrong Password\r\n" + IRC_RESET;
 }
 
 std::string joinChannel(const Server &server, const Client &sender, const std::string &chanelName)
 {
     (void) server;
-    return ":" + sender.getPrefix() + " JOIN " + chanelName + "\r\n";
+    return ":" + sender.getPrefix() + " JOIN :" + chanelName + "\r\n";
 }
 std::string topicWhenJoin(const Server &server, const Client &client, const Channel &channel)
 {
@@ -110,20 +105,21 @@ std::string topicWhenJoin(const Server &server, const Client &client, const Chan
     else
         topic = channel.getTopic();
     return ":" + server.getServerName() + " 332 " + client.getNickname() + " "
-    + channel.getName() + " :" + topic + "\r\n"; 
+    + channel.getName() + " : " + topic + "\r\n"; 
 }
    
 //RPL_NAMREPLY
 std::string namesWhenJoin(Server &server, const Client &client, const Channel &channel)
 {
-    return ":" + server.getServerName() + " 353 " + client.getNickname() + " = " + channel.getName() + " : " + server.getChanelUsers(channel.getName()) 
-    + "\r\n" + endOfNamesList(server, client, channel);
+    return ":" + server.getServerName() + " 353 " + client.getNickname() + " = " + channel.getName() + " :@" + server.getChanelUsers(channel.getName()) 
+    + "\r\n";
 }
 
 std::string endOfNamesList(Server &server, const Client &client, const Channel &channel)
 {
+    (void)server;
     return ":" + server.getServerName() + " 366 " + client.getNickname()
-    + " " + channel.getName() + " :End of /Names list\r\n";
+    + " " + channel.getName() + " :End of /NAMES list\r\n";
 }
 std::string notValidChanelName(Server &server)
 {

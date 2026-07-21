@@ -13,7 +13,7 @@ std::string noSuchNick(const Server &server);
 std::string needMoreParams(const Server &server);
 std::string cantSendToSelf(const Server &server);
 std::string unknownCommand(const Server &server);
-std::string welcomeMessage(const Server &server);
+std::string welcomeMessage(const Server &server, const Client &client);
 
 /* who messages */
 std::string whoStartMessage(const Server &server);
