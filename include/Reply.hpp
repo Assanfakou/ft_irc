@@ -45,3 +45,9 @@ std::string chanOpPrivsNeeded(const Server &server, const Message &msg);
 std::string userNotInChannel(const Server &server, const Client &client, const Message &msg);
 std::string notOnChannel(const Server &server, const Client &client, const Message &msg);
 std::string noSuchChannel(const Server &server, const Client &client , const Message &msg);
+
+/*invite*/
+
+std::string inviteMessage(const Client &sender, const Message &msg);
+std::string inviting(const Server &server, const Client &client, const Message &msg);
+std::string userOnChannel(const Server &server, const Client &client, const Message &msg);

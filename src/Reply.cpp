@@ -180,3 +180,40 @@ std::string noSuchChannel(const Server &server, const Client &client , const Mes
         + msg.getParameter(0)
         + " :No such channel\r\n";
 }
+
+// ERR_USERONCHANNEL (443)
+std::string userOnChannel(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 443 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(0)
+        + " "
+        + msg.getParameter(1)
+        + " :is already on channel\r\n";
+}
+
+// RPL_INVITING (341)
+std::string inviting(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 341 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(0)
+        + " "
+        + msg.getParameter(1)
+        + "\r\n";
+}
+
+// INVITE message sent to the invited user
+std::string inviteMessage(const Client &sender, const Message &msg)
+{
+    return ":" + sender.getPrefix()
+        + " INVITE "
+        + msg.getParameter(0)
+        + " :"
+        + msg.getParameter(1)
+        + "\r\n";
+}

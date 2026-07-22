@@ -37,30 +37,20 @@ void Server::compare_nickname_and_inviteClient(const Message &msg, Client &clien
             }
             if (it2->second.isMember(targetFd))
             {
-                sendMessageToClient(client.getFd(), ":server 443 clientnick targetnick #channel :is already on channel\r\n");
-                return;
-            }
-
-            if (it2->second.isInvited(targetFd))
-            {
-                sendMessageToClient(client.getFd(), ":server client already invited\r\n");
+                sendMessageToClient(client.getFd(), userOnChannel(*this, client, msg));
                 return;
             }
             /*should make everything it's error */
             if (it2->second.isMember(client.getFd()) && it2->second.isOperator(client.getFd()))
             {
                 it2->second.addInvitedClient(targetFd);
-                sendMessageToClient(client.getFd(), ":server 341 clientnick target #channel\r\n");
-                sendMessageToClient(targetFd, ":prefixsender Command target :#channel\r\n");
+                sendMessageToClient(client.getFd(), inviting(*this, client, msg));
+                sendMessageToClient(targetFd, inviteMessage(client, msg));
             }
             else
-                sendMessageToClient(client.getFd(), ": server 442 you are not in channel 482 you are not channel opearator\r\n");
-            return;
-        }
-        else
-        {
-            sendMessageToClient(client.getFd(), noSuchNick(*this, client, msg.getParameter(0)));
+                sendMessageToClient(client.getFd(), notOnChannel(*this, client, msg));
             return;
         }
     }
+    sendMessageToClient(client.getFd(), noSuchNick(*this, client, msg.getParameter(0)));
 }
