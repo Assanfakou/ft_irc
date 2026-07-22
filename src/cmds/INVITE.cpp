@@ -1,13 +1,6 @@
 #include "../../include/Server.hpp"
 
-/*
-**
-** invite function takes arguments 1} - nickName, then  2} - chaneslName
-** with the error messages should be sent to the target or the sender in case 
-** of errors. << later >>
-**
-*/
-void Server::compare_nickname_and_inviteClient(const std::string &channelName, const std::string &nickname, Client &client)
+void Server::compare_nickname_and_inviteClient(const Message &msg, Client &client)
 {
     if (!client.hasPassAccepted() && !client.isRegistered())
     {
@@ -16,44 +9,51 @@ void Server::compare_nickname_and_inviteClient(const std::string &channelName, c
     }
     std::map<int, Client>::iterator it;
 
-    if (channelName.empty() || nickname.empty())
+    if (msg.getParameter(1).empty() || msg.getParameter(0).empty())
     {
-        sendMessageToClient(client.getFd(), needMoreParams(*this));
+        sendMessageToClient(client.getFd(), needMoreParams(*this, client, msg));
         return ;
     }
     for (it = _clients.begin(); it != _clients.end(); ++it)
     {
-        if (it->second.getNickname() == nickname)
+        if (it->second.getNickname() == msg.getParameter(0))
         {
             int targetFd = it->second.getFd();
 
-            std::map<std::string, Channel>::iterator it2 = _channels.find(channelName);
+            std::map<std::string, Channel>::iterator it2 = _channels.find(msg.getParameter(1));
             
             if (it2 == _channels.end())
             {
-                std::cout << "Channel not found" << std::endl;
+                /* this should be noSuchChannel */
+                sendMessageToClient(client.getFd(), noSuchChannel(*this, client, msg.getParameter(1)));
                 return;
             }
-            
             if (it2->second.isMember(targetFd))
             {
-                std::cout << "Client Already in this channel" << std::endl;
+                sendMessageToClient(client.getFd(), ":server 443 clientnick targetnick #channel :is already on channel\r\n");
                 return;
             }
 
             if (it2->second.isInvited(targetFd))
             {
-                std::cout << "Client already invited" << std::endl;
+                sendMessageToClient(client.getFd(), ":server client already invited\r\n");
                 return;
             }
-            
+            /*should make everything it's error */
             if (it2->second.isMember(client.getFd()) && it2->second.isOperator(client.getFd()))
             {
                 it2->second.addInvitedClient(targetFd);
-                std::cout << nickname << " invited to " << channelName << std::endl;
+                sendMessageToClient(client.getFd(), ":server 341 clientnick target #channel\r\n");
+                sendMessageToClient(targetFd, ":prefixsender Command target :#channel\r\n");
             }
+            else
+                sendMessageToClient(client.getFd(), ": server 442 you are not in channel 482 you are not channel opearator\r\n");
+            return;
+        }
+        else
+        {
+            sendMessageToClient(client.getFd(), noSuchNick(*this));
             return;
         }
     }
-    std::cout << "Nickname not found" << std::endl;
 }

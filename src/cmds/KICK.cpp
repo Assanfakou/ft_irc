@@ -1,6 +1,6 @@
 #include "../../include/Server.hpp"
 
-void Server::compare_nickname_and_kickClient(const std::string &channelName, const std::string &nickname, Client &client)
+void Server::compare_nickname_and_kickClient(const Message &msg, Client &client)
 {
     if (!client.hasPassAccepted() && !client.isRegistered())
     {
@@ -10,7 +10,7 @@ void Server::compare_nickname_and_kickClient(const std::string &channelName, con
     std::map<int, Client>::iterator it;
     for (it = _clients.begin(); it != _clients.end(); ++it)
     {
-        if (it->second.getNickname() == nickname)
+        if (it->second.getNickname() == )
         {
             int targetFd = it->second.getFd();
 
