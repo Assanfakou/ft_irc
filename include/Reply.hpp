@@ -58,3 +58,20 @@ std::string channelIsFull(const Server &server, const Client &client, const Mess
 std::string userAlreadyOnChannel(const Server &server, const Client &client, const Message &msg);
 std::string badChannelKey(const Server &server, const Client &client, const Message &msg);
 std::string inviteOnlyChan(const Server &server, const Client &client, const Message &msg);
+
+
+/* mode*/
+
+std::string modeMessage(const Client &sender, const Message &msg);
+std::string invalidModeParameter(const Server &server, const Client &client, const Message &msg);
+std::string unknownMode(const Server &server, const Client &client, const Message &msg);
+
+/*Part */
+
+std::string partMessage(const Client &client, const Message &msg);
+
+/* topic */
+
+std::string topicMessage(const Client &client, const Message &msg);
+std::string noTopic(const Server &server, const Client &client, const Message &msg);
+std::string topicReply(const Server &server, const Client &client, const Channel &channel);

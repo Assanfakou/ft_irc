@@ -23,12 +23,12 @@ void Server::setMode(const Message &msg, Client &client)
     
     if (it == _channels.end())
     {
-        std::cout << "Channel not found" << std::endl;
+        sendMessageToClient(client.getFd(), noSuchChannel(*this, client, msg));
         return;
     }
     if (!it->second.isOperator(client.getFd()))
     {
-        std::cout << "You don't have permission to change channel modes." << std::endl;
+        sendMessageToClient(client.getFd(), chanOpPrivsNeeded(*this, msg));
         return;
     }
     if (msg.getParameter(1) == "+i")
@@ -42,12 +42,12 @@ void Server::setMode(const Message &msg, Client &client)
     if (msg.getParameter(1) == "+k")
     {
         it->second.setPasswordEnabled(true);
-        std::cout << "The password has been set successfully." << std::endl;
+        broadcastToChanel(it->second, client, modeMessage(client, msg));
     }
     if (msg.getParameter(1) == "-k")
     {
         it->second.setPasswordEnabled(false);
-        std::cout << "The password has been removed successfully." << std::endl;
+        broadcastToChanel(it->second, client, modeMessage(client, msg));
     }
     if (msg.getParameter(1) == "+l")
     {
@@ -56,21 +56,21 @@ void Server::setMode(const Message &msg, Client &client)
         if (!msg.getParameter(2).empty())
             num = std::atoi(msg.getParameter(2).c_str());
         else
-            return ; /*
-                    ** notice that sends 461 NEEDMORE params 
-                    ** and if it gives a non non numbers it gives 696 invalide mode number
-                     */
+        {
+            sendMessageToClient(client.getFd(), needMoreParams(*this, client, msg));
+            return;
+        }
+        /** notice that sends 461 NEEDMORE params
+         ** and if it gives a non non numbers it gives 696 invalide mode number
+         */
         it->second.setUserLimit(num);
-
-        std::cout << "The limit of the channel has been set to " 
-        << it->second.getUserLimit() << std::endl;
+        broadcastToChanel(it->second, client, modeMessage(client, msg));
     }
     if (msg.getParameter(1) == "-l")
     {
         it->second.setUserLimitEnabled(false);
-        std::cout << "The limit of channel has been removed successfully." << std::endl;
+        broadcastToChanel(it->second, client, modeMessage(client, msg));
     }
-
     std::map<int, Client>::iterator it2;
 
     for (it2 = _clients.begin(); it2 != _clients.end(); it2++)
@@ -84,9 +84,9 @@ void Server::setMode(const Message &msg, Client &client)
                     it->second.addOperator(targetFd);
                 if (msg.getParameter(1) == "-o")
                     it->second.removeOperator(targetFd);
+                broadcastToChanel(it->second, client, modeMessage(client, msg));
             }
         }
     }
-
     return;
 }

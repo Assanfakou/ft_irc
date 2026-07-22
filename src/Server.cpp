@@ -133,7 +133,7 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "WHO")
         who(*this, client, msg);
     else if (msg.getCommand() == "PART")
-        clientLeaveChannel(msg.getParameter(0), client);
+        clientLeaveChannel(msg, client);
     else if (msg.getCommand() == "JOIN")
         check_Channels_and_addMember_to_Channel(msg, client);
     else if (msg.getCommand() == "INVITE")

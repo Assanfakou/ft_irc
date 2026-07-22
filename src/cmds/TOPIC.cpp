@@ -7,7 +7,7 @@ void Server::showTopic(const Message &msg, Client &client)
 
     if (it == _channels.end())
     {
-        std::cout << "Channel not found !!" << std::endl;
+        sendMessageToClient(client.getFd(), noSuchChannel(*this, client, msg));
         return;
     }
 
@@ -15,25 +15,19 @@ void Server::showTopic(const Message &msg, Client &client)
     {
         if (it->second.isTopicRestricted())
         {
-            std::cout << "You don't have permission to change the topic of this channel." << std::endl;
+            sendMessageToClient(client.getFd(), chanOpPrivsNeeded(*this, msg));
             return;
         }
         if (it->second.isOperator(client.getFd()))
         {
             it->second.setTopic(msg.getParameter(1));
-            std::cout << "Topic set to: "
-                      << msg.getParameter(1)
-                      << " "
-                      << it->second.getTopic()
-                      << std::endl;
+            broadcastToChanel(it->second, client, topicMessage(client, msg));
+            return ;
         }
     }
     else
     {
-        std::cout << "Topic of "
-                  << msg.getParameter(0)
-                  << ": "
-                  << it->second.getTopic()
-                  << std::endl;
+        sendMessageToClient(client.getFd(), topicReply(*this, client, it->second));
+        return ;
     }
 }

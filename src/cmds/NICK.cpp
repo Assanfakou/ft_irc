@@ -11,6 +11,7 @@ std::string Server::getNickname(std::string command)
     }
     return "";
 }
+
 /*
 ** 
 ** This function will be probably a server member function
@@ -30,8 +31,17 @@ void nickHandler(Client &client, Server &server, const Message &msg)
         }
         else
         {
-            server.sendMessageToClient(client.getFd(), IRC_RED + "this nickName is taken \r\n" + IRC_RESET);
-            return ;
+            if (fakeClient->getFd() == client.getFd())
+            {
+                client.setNickname(msg.getParameter(0));
+                server.sendMessageToClient(client.getFd(), IRC_BLUE + "YOU'RE KNOWN AS : " + client.getNickname() + "\r\n" + IRC_RESET);
+                server.tryRegister(client);
+            }
+            else
+            {
+                server.sendMessageToClient(client.getFd(), IRC_RED + "this nickName is taken \r\n" + IRC_RESET);
+                return;
+            }
         }
     }
     else
