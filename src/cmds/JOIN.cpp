@@ -6,14 +6,14 @@ void Server::addMemberTo_Channel(const Message &msg, Client &client)
     int fd = client.getFd();
     if (it->second.isMember(fd))
     {
-        std::cout << "Client already in channel" << std::endl;
+        sendMessageToClient(client.getFd(), userAlreadyOnChannel(*this, client, msg));
         return;
     }
     if (it->second.isInviteOnly())
     {
         if (!it->second.isInvited(fd))
         {
-            std::cout << "You don't have permission to join the channel" << std::endl;
+            sendMessageToClient(client.getFd(), inviteOnlyChan(*this, client, msg));
             return;
         }
     }
@@ -23,7 +23,7 @@ void Server::addMemberTo_Channel(const Message &msg, Client &client)
             std::cout << "Password Accepted" << std::endl;
         else
         {
-            std::cout << "The password you have provided is incorrect" << std::endl;
+            sendMessageToClient(client.getFd(), badChannelKey(*this, client, msg));
             return;
         }
     }
@@ -31,11 +31,10 @@ void Server::addMemberTo_Channel(const Message &msg, Client &client)
     {
         if (it->second.getMemberCount() >= it->second.getUserLimit())
         {
-            std::cout << "The channel is full" << std::endl;
+            sendMessageToClient(client.getFd(), channelIsFull(*this, client, msg));
             return;
         }
     }
-
     it->second.addMember(fd);
     std::cout << "Client added to channel: " << msg.getParameter(0) << std::endl;
     Channel *reciever = getChanel(msg.getParameter(0));
@@ -44,7 +43,6 @@ void Server::addMemberTo_Channel(const Message &msg, Client &client)
     sendMessageToClient(client.getFd(), namesWhenJoin(*this, client, *reciever));
     sendMessageToClient(client.getFd(), endOfNamesList(*this, client, *reciever));
     broadcastToChanel(*reciever, client, joinChannel(*this, client, msg.getParameter(0)));
-
 }
 
 void Server::check_Channels_and_addMember_to_Channel(const Message &msg, Client &client)
@@ -65,7 +63,6 @@ void Server::check_Channels_and_addMember_to_Channel(const Message &msg, Client 
         {
             _channels.insert(std::make_pair(msg.getParameter(0), Channel(msg.getParameter(0)))); //pass name and creates a Channel object using constructor
             std::cout << "Channel created: " << msg.getParameter(0) << std::endl;
-            
             addMemberTo_Channel(msg, client);
             std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
             if (it != _channels.end())

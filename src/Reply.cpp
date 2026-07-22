@@ -217,3 +217,43 @@ std::string inviteMessage(const Client &sender, const Message &msg)
         + msg.getParameter(1)
         + "\r\n";
 }
+// ERR_CHANNELISFULL (471)
+std::string channelIsFull(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 471 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(0)
+        + " :Cannot join channel (+l)\r\n";
+}
+// ERR_USERONCHANNEL (443)
+std::string userAlreadyOnChannel(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 443 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(0)
+        + " :is already on channel\r\n";
+}
+// ERR_BADCHANNELKEY (475)
+std::string badChannelKey(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 475 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(0)
+        + " :Cannot join channel (+k)\r\n";
+}
+// ERR_INVITEONLYCHAN (473)
+std::string inviteOnlyChan(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 473 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(0)
+        + " :Cannot join channel (+i)\r\n";
+}
