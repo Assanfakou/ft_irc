@@ -59,8 +59,8 @@ class Server
         std::string getPart(std::string command);
         void addMemberTo_Channel(const Message &msg, Client &client);
         void check_Channels_and_addMember_to_Channel(const Message &msg, Client &client);
-        void compare_nickname_and_kickClient(const std::string &channelName, const std::string &nickname, Client &client);
-        void compare_nickname_and_inviteClient(const std::string &channelName, const std::string &nickname, Client &client);
+        void compare_nickname_and_kickClient(const Message &msg, Client &client);
+        void compare_nickname_and_inviteClient(const Message &msg, Client &client);
         void clientLeaveChannel(std::string channelName, Client &client);
         void        showTopic(const Message &msg, Client &client);
         void setMode(const Message &msg, Client &client);

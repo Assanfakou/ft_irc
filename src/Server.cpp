@@ -117,13 +117,13 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "NOTICE")
         notice(*this, client, msg);
     else if (msg.getCommand() == "NICK")
-        nickHandler(client, *this, msg.getParameter(0));
-    else if (msg.getCommand() == "KICK")
-        compare_nickname_and_kickClient(msg.getParameter(0), msg.getParameter(1), client);
+        nickHandler(client, *this, msg);
+    // else if (msg.getCommand() == "KICK")
+    //     compare_nickname_and_kickClient(msg, client);
     else if (msg.getCommand() == "USER")
         userHandler(*this, client, msg);
     else if (msg.getCommand() == "PASS")
-        passHandler(*this, client, msg.getParameter(0));
+        passHandler(*this, client, msg);
     else if (msg.getCommand() == "HOST")
         client.setHostname(msg.getParameter(0));
     else if (msg.getCommand() == "QUIT")
@@ -137,7 +137,7 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "JOIN")
         check_Channels_and_addMember_to_Channel(msg, client);
     else if (msg.getCommand() == "INVITE")
-        compare_nickname_and_inviteClient(msg.getParameter(0), msg.getParameter(1), client);
+        compare_nickname_and_inviteClient(msg, client);
     else if (msg.getCommand() == "TOPIC")
         showTopic(msg, client);
     else if (msg.getCommand() == "MODE")

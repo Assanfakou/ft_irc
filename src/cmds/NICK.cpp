@@ -17,14 +17,14 @@ std::string Server::getNickname(std::string command)
 **
 */
 
-void nickHandler(Client &client, Server &server, const std::string nickName)
+void nickHandler(Client &client, Server &server, const Message &msg)
 {
-    if (!nickName.empty())
+    if (!msg.getParameter(0).empty())
     {
-        Client *fakeClient = server.getClientByNickname(nickName);
+        Client *fakeClient = server.getClientByNickname(msg.getParameter(0));
         if (!fakeClient)
         {
-            client.setNickname(nickName);
+            client.setNickname(msg.getParameter(0));
             server.sendMessageToClient(client.getFd(), IRC_BLUE + "YOU'RE KNOWN AS : " + client.getNickname() + "\r\n" + IRC_RESET);
             server.tryRegister(client);
         }
@@ -36,7 +36,7 @@ void nickHandler(Client &client, Server &server, const std::string nickName)
     }
     else
     {
-        server.sendMessageToClient(client.getFd(), needMoreParams(server));
+        server.sendMessageToClient(client.getFd(), needMoreParams(server, client, msg));
         return;
     }
 }

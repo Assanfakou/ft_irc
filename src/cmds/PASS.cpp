@@ -5,11 +5,11 @@ const std::string& Server::getPassword() const
     return this->_password;
 }
 
-void passHandler(Server &server, Client &client, const std::string &password)
+void passHandler(Server &server, Client &client, const Message &msg)
 {
-    if (!password.empty())
+    if (!msg.getParameter(0).empty())
     {
-        if (server.getPassword() == password)
+        if (server.getPassword() == msg.getParameter(0))
         {
             client.setPassAccepted(true);
             server.sendMessageToClient(client.getFd(), passwordAccepted(server));
@@ -21,6 +21,6 @@ void passHandler(Server &server, Client &client, const std::string &password)
             server.sendMessageToClient(client.getFd(), ":" + server.getServerName() + "  Wrong Password\r\n");
     }
     else
-        server.sendMessageToClient(client.getFd(), needMoreParams(server));
+        server.sendMessageToClient(client.getFd(), needMoreParams(server, client, msg));
     return;
 }

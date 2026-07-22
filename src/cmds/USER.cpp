@@ -23,5 +23,5 @@ void userHandler(Server &server, Client &client, const Message &msg)
         server.tryRegister(client);
     }
     else
-        server.sendMessageToClient(client.getFd(), needMoreParams(server));
+        server.sendMessageToClient(client.getFd(), needMoreParams(server, client, msg));
 }

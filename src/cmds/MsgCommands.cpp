@@ -18,7 +18,7 @@ void privmsg(Server &server, Client &sender, const Message &msg)
     }
     if (msg.getParams().empty())
     {
-        server.sendMessageToClient(sender.getFd(), needMoreParams(server));
+        server.sendMessageToClient(sender.getFd(), needMoreParams(server, sender, msg));
         return;
     }
     std::string receiver = msg.getParameter(0);
@@ -124,7 +124,7 @@ void who(Server &server, Client &sender, const Message &msg)
     if (msg.getParams().empty())
     {
         server.sendMessageToClient(sender.getFd(), whoStartMessage(server));
-        server.sendMessageToClient(sender.getFd(), needMoreParams(server));
+        server.sendMessageToClient(sender.getFd(), needMoreParams(server, sender, msg));
         server.sendMessageToClient(sender.getFd(), whoEndMessage(server));
         return;
     }

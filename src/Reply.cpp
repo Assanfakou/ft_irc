@@ -16,14 +16,19 @@ std::string noTextToSend(const Server &server)
     return IRC_RED + ":" + server.getServerName() + " 412 : ERR_NOTEXTTOSEND\r\n" + IRC_RESET;
 }
 
-std::string noSuchNick(const Server &server)
+std::string noSuchNick(const Server &server, const Client &client, const std::string &targetName)
 {
-    return IRC_RED + ":" + server.getServerName() + " 401 : ERR_NOSUCHNICK\r\n" + IRC_RESET;
+    return IRC_RED + ":" + server.getServerName() + " 401 " + client.getNickname() + " " + targetName + " :No suchNick\r\n" + IRC_RESET;
 }
 
-std::string needMoreParams(const Server &server)
+std::string noSuchCnannel(const Server &server, const Client &client, const std::string &targetName)
 {
-    return IRC_RED + ":" + server.getServerName() + " 461 : ERR_NEEDMOREPARAMS\r\n" + IRC_RESET;
+    return IRC_RED + ":" + server.getServerName() + " 403 " + client.getNickname() + " " + targetName + " :No such Channel\r\n" + IRC_RESET;
+}
+
+std::string needMoreParams(const Server &server, const Client &client, const Message &msg)
+{
+    return IRC_RED + ":" + server.getServerName() + " 461 " + client.getNickname() + " " + msg.getCommand() + " :Not enough parameters\r\n" + IRC_RESET;
 }
 
 std::string cantSendToSelf(const Server &server)
@@ -38,7 +43,7 @@ std::string unknownCommand(const Server &server)
 
 std::string welcomeMessage(const Server &server, const Client &client)
 {
-    return ":" + server.getServerName() + " 001 " + client.getNickname() + " : Welcome to the IRC server!\r\n";
+    return ":" + server.getServerName() + " 001 " + client.getNickname() + " :Welcome to the IRC server!\r\n";
 }
 
 std::string startMessage(const Server &server, const Message msg)

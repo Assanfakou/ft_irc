@@ -9,8 +9,9 @@ class Server;
 std::string generateMEssage(const Client &client, const Message &msg);
 
 std::string noTextToSend(const Server &server);
-std::string noSuchNick(const Server &server);
-std::string needMoreParams(const Server &server);
+std::string noSuchNick(const Server &server, Client &client, const std::string &targetNick);
+std::string noSuchChannel(const Server &server, Client &client, const std::string &targetNick);
+std::string needMoreParams(const Server &server, const Client &client, const Message &msg);
 std::string cantSendToSelf(const Server &server);
 std::string unknownCommand(const Server &server);
 std::string welcomeMessage(const Server &server, const Client &client);
