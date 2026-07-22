@@ -51,3 +51,10 @@ std::string noSuchChannel(const Server &server, const Client &client , const Mes
 std::string inviteMessage(const Client &sender, const Message &msg);
 std::string inviting(const Server &server, const Client &client, const Message &msg);
 std::string userOnChannel(const Server &server, const Client &client, const Message &msg);
+
+/* join */
+
+std::string channelIsFull(const Server &server, const Client &client, const Message &msg);
+std::string userAlreadyOnChannel(const Server &server, const Client &client, const Message &msg);
+std::string badChannelKey(const Server &server, const Client &client, const Message &msg);
+std::string inviteOnlyChan(const Server &server, const Client &client, const Message &msg);
