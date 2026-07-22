@@ -9,8 +9,7 @@ class Server;
 std::string generateMEssage(const Client &client, const Message &msg);
 
 std::string noTextToSend(const Server &server);
-std::string noSuchNick(const Server &server, Client &client, const std::string &targetNick);
-std::string noSuchChannel(const Server &server, Client &client, const std::string &targetNick);
+std::string noSuchNick(const Server &server, const Client &client, const std::string &targetName);
 std::string needMoreParams(const Server &server, const Client &client, const Message &msg);
 std::string cantSendToSelf(const Server &server);
 std::string unknownCommand(const Server &server);
@@ -39,3 +38,10 @@ std::string topicWhenJoin(const Server &server, const Client &client, const Chan
 std::string endOfNamesList(Server &server, const Client &client, const Channel &channel);
 std::string namesWhenJoin(Server &server, const Client &client, const Channel &channel);
 std::string notValidChanelName(Server &server);
+
+
+std::string kickMessage(const Client &sender, const Message &msg);
+std::string chanOpPrivsNeeded(const Server &server, const Message &msg);
+std::string userNotInChannel(const Server &server, const Client &client, const Message &msg);
+std::string notOnChannel(const Server &server, const Client &client, const Message &msg);
+std::string noSuchChannel(const Server &server, const Client &client , const Message &msg);

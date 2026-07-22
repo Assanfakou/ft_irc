@@ -1,5 +1,12 @@
 #include "../../include/Server.hpp"
 
+/*
+
+** invite takess 
+** arg 0 -user
+** arg 1 - channel
+
+*/
 void Server::compare_nickname_and_inviteClient(const Message &msg, Client &client)
 {
     if (!client.hasPassAccepted() && !client.isRegistered())
@@ -25,7 +32,7 @@ void Server::compare_nickname_and_inviteClient(const Message &msg, Client &clien
             if (it2 == _channels.end())
             {
                 /* this should be noSuchChannel */
-                sendMessageToClient(client.getFd(), noSuchChannel(*this, client, msg.getParameter(1)));
+                sendMessageToClient(client.getFd(), noSuchChannel(*this, client, msg));
                 return;
             }
             if (it2->second.isMember(targetFd))
@@ -52,7 +59,7 @@ void Server::compare_nickname_and_inviteClient(const Message &msg, Client &clien
         }
         else
         {
-            sendMessageToClient(client.getFd(), noSuchNick(*this));
+            sendMessageToClient(client.getFd(), noSuchNick(*this, client, msg.getParameter(0)));
             return;
         }
     }

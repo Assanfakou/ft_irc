@@ -24,7 +24,7 @@ void privmsg(Server &server, Client &sender, const Message &msg)
     std::string receiver = msg.getParameter(0);
     if (receiver.empty())
     {
-        server.sendMessageToClient(sender.getFd(), noSuchNick(server));
+        server.sendMessageToClient(sender.getFd(), noSuchNick(server, sender, receiver));
         return;
     }
     if (msg.getParams().size() < 2)
@@ -56,7 +56,7 @@ void privmsg(Server &server, Client &sender, const Message &msg)
     }
     else
     {
-        server.sendMessageToClient(sender.getFd(), noSuchNick(server));
+        server.sendMessageToClient(sender.getFd(), noSuchNick(server, sender, msg.getParameter(0)));
         return;
     }
 }
@@ -69,6 +69,7 @@ void privmsg(Server &server, Client &sender, const Message &msg)
 ** const Message &msg: The parsed message containing the command and parameters
 **
 */
+
 void notice(Server &server, Client &sender, const Message &msg)
 {
     if (!sender.hasPassAccepted() && !sender.isRegistered())
