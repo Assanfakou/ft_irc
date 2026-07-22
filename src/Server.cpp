@@ -118,8 +118,8 @@ void Server::despatchMessage(Client &client, const Message &msg)
         notice(*this, client, msg);
     else if (msg.getCommand() == "NICK")
         nickHandler(client, *this, msg);
-    // else if (msg.getCommand() == "KICK")
-    //     compare_nickname_and_kickClient(msg, client);
+    else if (msg.getCommand() == "KICK")
+        compare_nickname_and_kickClient(msg, client);
     else if (msg.getCommand() == "USER")
         userHandler(*this, client, msg);
     else if (msg.getCommand() == "PASS")

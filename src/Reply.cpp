@@ -130,3 +130,53 @@ std::string notValidChanelName(Server &server)
 {
     return IRC_RED + ":" + server.getServerName() + " This is not a valid name for channel Name \r\n" + IRC_RESET;
 }
+
+// Broadcast when a user is kicked.
+std::string kickMessage(const Client &sender, const Message &msg)
+{
+    std::string mssg = ":" + sender.getPrefix() + " KICK " + msg.getParameter(0) + " " + msg.getParameter(1);
+    if (!msg.getParameter(2).empty())
+        mssg += " :" + msg.getParameter(2);
+
+    mssg += "\r\n";
+    return mssg;
+}
+std::string chanOpPrivsNeeded(const Server &server, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 482 "
+        + msg.getParameter(1)
+        + " "
+        + msg.getParameter(0)
+        + " :You're not channel operator\r\n";
+}
+
+std::string userNotInChannel(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 441 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(1)
+        + " "
+        + msg.getParameter(0)
+        + " :Doesn't exist on that channel\r\n";
+}
+std::string notOnChannel(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 442 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(0)
+        + " :You're not on that channel\r\n";
+}
+std::string noSuchChannel(const Server &server, const Client &client , const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 403 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(0)
+        + " :No such channel\r\n";
+}
