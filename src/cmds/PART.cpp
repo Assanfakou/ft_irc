@@ -1,17 +1,5 @@
 #include "../../include/Server.hpp"
 
-std::string Server::getPart(std::string command)
-{
-    if (command.size() >= 4 && command.substr(0, 4) == "PART")
-    {
-        if (command.size() <= 5)
-            return "";
-        std::string value = command.substr(5);
-        return value;
-    }
-    return "";
-}
-
 void Channel::leaveChannel(std::string channelName, int fd)
 {
     std::vector<int>::iterator it;
@@ -25,24 +13,37 @@ void Channel::leaveChannel(std::string channelName, int fd)
         }  
     }
 }
-
-void Server::clientLeaveChannel(std::string channelName, Client &client)
+/******Part
+* - 1 channel name 
+* - :folowed by a godby message
+*
+*/
+void Server::clientLeaveChannel(const Message &msg, Client &client)
 {
     if (!client.hasPassAccepted() && !client.isRegistered())
     {
         sendMessageToClient(client.getFd(), clientNotRegestred(*this));
         return ;
     }
-    std::map<std::string, Channel>::iterator it = _channels.find(channelName); 
+    std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
     if (it != _channels.end())
     {
         int fd = client.getFd();
         if (it->second.isMember(fd))
-            it->second.leaveChannel(channelName, fd);
+        {
+            it->second.leaveChannel(msg.getParameter(0), fd);
+            broadcastToChanel(it->second, client, partMessage(client, msg));
+            return ;
+        }
+        else
+        {
+            sendMessageToClient(client.getFd(), notOnChannel(*this, client, msg));
+            return ;
+        }
     }
     else
     {
-        std::cout << "Client is not a member of the specified channel" << std::endl;
+        sendMessageToClient(client.getFd(), noSuchChannel(*this, client, msg));
         return;
     }
 }

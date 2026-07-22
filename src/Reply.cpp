@@ -257,3 +257,84 @@ std::string inviteOnlyChan(const Server &server, const Client &client, const Mes
         + msg.getParameter(0)
         + " :Cannot join channel (+i)\r\n";
 }
+
+std::string modeMessage(const Client &sender, const Message &msg)
+{
+    std::string reply = ":" + sender.getPrefix()
+        + " MODE "
+        + msg.getParameter(0)
+        + " "
+        + msg.getParameter(1);
+
+    if (!msg.getParameter(2).empty())
+        reply += " " + msg.getParameter(2);
+
+    reply += "\r\n";
+    return reply;
+}
+// ERR_INVALIDMODEPARAM (696)
+// Used when +l receives an invalid limit.
+std::string invalidModeParameter(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 696 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(0)
+        + " "
+        + msg.getParameter(1)
+        + " :Invalid mode parameter\r\n";
+}
+// ERR_UNKNOWNMODE (472)
+std::string unknownMode(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 472 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(1)
+        + " :is unknown mode char to me\r\n";
+}
+
+std::string partMessage(const Client &client, const Message &msg)
+{
+    std::string reply = ":" + client.getPrefix()
+        + " PART "
+        + msg.getParameter(0);
+
+    if (!msg.getParameter(1).empty())
+        reply += " :" + msg.getParameter(1);
+
+    reply += "\r\n";
+    return reply;
+}
+
+std::string topicMessage(const Client &client, const Message &msg)
+{
+    return ":" + client.getPrefix()
+        + " TOPIC "
+        + msg.getParameter(0)
+        + " :"
+        + msg.getParameter(1)
+        + "\r\n";
+}
+std::string noTopic(const Server &server, const Client &client, const Message &msg)
+{
+    return ":" + server.getServerName()
+        + " 331 "
+        + client.getNickname()
+        + " "
+        + msg.getParameter(0)
+        + " :No topic is set\r\n";
+}
+std::string topicReply(const Server &server, const Client &client, const Channel &channel)
+{
+    return ":" + server.getServerName()
+        + " 332 "
+        + client.getNickname()
+        + " "
+        + channel.getName()
+        + " :"
+        + channel.getTopic()
+        + "\r\n";
+}
