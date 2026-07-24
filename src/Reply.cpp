@@ -2,14 +2,29 @@
 
 std::string generateMEssage(const Client &client, const Message &msg)
 {
-    std::string message = IRC_BLUE + ":" + client.getPrefix() + " " + msg.getCommand() + " :";
-    for (size_t i = 0; i < msg.getParams().size(); ++i)
-    {
-        message += msg.getParameter(i) + " ";
-    }
-    message += "\r\n" + IRC_RESET;
+    std::string message;
+
+    message = ":" + client.getPrefix() + " ";
+    message += msg.getCommand();
+    message += " ";
+    message += msg.getParameter(0);      // target
+    message += " :";
+    message += msg.getParameter(1);      // text
+    message += "\r\n";
+
     return message;
 }
+
+// std::string generateMEssage(const Client &client, const Message &msg)
+// {
+//     std::string message = IRC_BLUE + ":" + client.getPrefix() + " " + msg.getCommand() + " :";
+//     for (size_t i = 0; i < msg.getParams().size(); ++i)
+//     {
+//         message += msg.getParameter(i) + " ";
+//     }
+//     message += "\r\n" + IRC_RESET;
+//     return message;
+// }
 
 std::string noTextToSend(const Server &server)
 {
@@ -96,7 +111,8 @@ std::string wrongPassword(const Server &server)
 std::string joinChannel(const Server &server, const Client &sender, const std::string &chanelName)
 {
     (void) server;
-    return ":" + sender.getPrefix() + " JOIN :" + chanelName + "\r\n";
+    //return ":" + sender.getPrefix() + " JOIN :" + chanelName + "\r\n";
+    return ":" + sender.getPrefix() + " JOIN " + chanelName + "\r\n";
 }
 std::string topicWhenJoin(const Server &server, const Client &client, const Channel &channel)
 {
