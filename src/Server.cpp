@@ -144,6 +144,10 @@ void Server::despatchMessage(Client &client, const Message &msg)
         setMode(msg, client);
     else if (msg.getCommand() == "LIST")
         listChanels(client, msg);
+    else if (msg.getCommand() == "CAP")
+    {
+        return;
+    }
     else
     {
         this->sendMessageToClient(client.getFd(), unknownCommand(*this));
@@ -194,12 +198,30 @@ Client *Server::getClientByNickname(const std::string &nicknames)
 
 void Server::tryRegister(Client &client)
 {
-    if (client.hasPassAccepted() && !client.getNickname().empty() && !client.getUsername().empty())
+    if (client.isRegistered())
+        return;
+
+    if (client.hasPassAccepted()
+        && !client.getNickname().empty()
+        && !client.getUsername().empty())
     {
         client.setRegistered(true);
+
+        sendMessageToClient(client.getFd(),
+            welcomeMessage(*this, client));
+
         std::cout << "Client registered!" << std::endl;
     }
 }
+
+// void Server::tryRegister(Client &client)
+// {
+//     if (client.hasPassAccepted() && !client.getNickname().empty() && !client.getUsername().empty())
+//     {
+//         client.setRegistered(true);
+//         std::cout << "Client registered!" << std::endl;
+//     }
+// }
 
 //rida (i only add my own code here , the function created by anass)
 
@@ -314,11 +336,30 @@ void Server::acceptClient()
     std::cout << "Client connected fd= " << clientFd << std::endl;
 }
 
-void Server::sendMessageToClient(int clientFd, const std::string &message)
+void Server::sendMessageToClient(int fd, const std::string &msg)
 {
-    if (send(clientFd, message.c_str(), message.size(), 0) == -1)
-        std::cerr << "Failed to send message to client " << clientFd << "\n";
+    std::cout << "SEND[" << fd << "] ";
+
+    for (size_t i = 0; i < msg.size(); i++)
+    {
+        if (msg[i] == '\r')
+            std::cout << "\\r";
+        else if (msg[i] == '\n')
+            std::cout << "\\n";
+        else
+            std::cout << msg[i];
+    }
+
+    std::cout << std::endl;
+
+    send(fd, msg.c_str(), msg.size(), 0);
 }
+
+// void Server::sendMessageToClient(int clientFd, const std::string &message)
+// {
+//     if (send(clientFd, message.c_str(), message.size(), 0) == -1)
+//         std::cerr << "Failed to send message to client " << clientFd << "\n";
+// }
 
 void Server::broadcastToChanel(Channel &channel, const Client& sender, const std::string &msg)
 {

@@ -26,6 +26,36 @@ void Server::setMode(const Message &msg, Client &client)
         sendMessageToClient(client.getFd(), noSuchChannel(*this, client, msg));
         return;
     }
+    //
+    if (msg.getParams().size() == 1)
+    {
+        std::string modes = "+";
+
+        if (it->second.isInviteOnly())
+            modes += "i";
+
+        if (it->second.isTopicRestricted())
+            modes += "t";
+
+        if (it->second.isPasswordEnabled())
+            modes += "k";
+
+        if (it->second.isUserLimitEnabled())
+            modes += "l";
+
+        sendMessageToClient(client.getFd(),
+            ":" + getServerName()
+            + " 324 "
+            + client.getNickname()
+            + " "
+            + it->second.getName()
+            + " "
+            + modes
+            + "\r\n");
+
+        return;
+    }
+    //
     if (!it->second.isOperator(client.getFd()))
     {
         sendMessageToClient(client.getFd(), chanOpPrivsNeeded(*this, msg));
