@@ -132,13 +132,12 @@ std::string topicWhenJoin(const Server &server, const Client &client, const Chan
 //RPL_NAMREPLY
 std::string namesWhenJoin(Server &server, const Client &client, const Channel &channel)
 {
-    return ":" + server.getServerName() + " 353 " + client.getNickname() + " = " + channel.getName() + " :@" + server.getChanelUsers(channel.getName()) 
+    return ":" + server.getServerName() + " 353 " + client.getNickname() + " = " + channel.getName() + " :" + server.getChanelUsers(channel.getName()) 
     + "\r\n";
 }
 
 std::string endOfNamesList(Server &server, const Client &client, const Channel &channel)
 {
-    (void)server;
     return ":" + server.getServerName() + " 366 " + client.getNickname()
     + " " + channel.getName() + " :End of /NAMES list\r\n";
 }

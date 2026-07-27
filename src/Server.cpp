@@ -122,6 +122,8 @@ void Server::despatchMessage(Client &client, const Message &msg)
         compare_nickname_and_kickClient(msg, client);
     else if (msg.getCommand() == "USER")
         userHandler(*this, client, msg);
+    else if (msg.getCommand() == "NAMES")
+        names(client, msg);
     else if (msg.getCommand() == "PASS")
         passHandler(*this, client, msg);
     else if (msg.getCommand() == "HOST")
@@ -398,6 +400,7 @@ std::string Server::getChanelUsers(const std::string &channelName)
 {
     Channel &itchan = _channels.find(channelName)->second;
     std::vector<int> vecInt = itchan.getMembers();
+    std::vector <int> ope = itchan.getOperators();
     std::map<int, Client> &clients = getClients();
     std::string names;
 
@@ -407,6 +410,8 @@ std::string Server::getChanelUsers(const std::string &channelName)
         if (iter != clients.end())
         {
             Client &client = iter->second;
+            if (itchan.isOperator(client.getFd()))
+                names += "@";
             names += client.getNickname() + " ";
         }
     }

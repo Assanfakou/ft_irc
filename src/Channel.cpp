@@ -151,3 +151,9 @@ int Channel::getMemberCount() const
 {
     return _members.size();
 }
+
+const std::vector<int> &Channel::getOperators() const
+{
+    return _operators;
+}
+
