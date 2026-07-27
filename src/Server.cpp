@@ -129,7 +129,7 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "HOST")
         client.setHostname(msg.getParameter(0));
     else if (msg.getCommand() == "QUIT")
-        this->removeClient(client.getFd());
+        client.setExited(true);
     else if (msg.getCommand() == "PING")
         this->sendMessageToClient(client.getFd(), pong(*this, msg));
     else if (msg.getCommand() == "WHO")
@@ -235,6 +235,24 @@ void Server::tryRegister(Client &client)
 **
 */
 
+/*
+** here i need to add a function that removes a client from the other vectors on the channel
+** because when exiting the server the client needs to leave all the channels
+*/
+
+void Server::removeExitedClientInChannels(const Client &client)
+{
+    std::map<std::string, Channel>::iterator mapIter = _channels.begin();
+
+    for (; mapIter != _channels.end(); ++mapIter)
+    {
+        if (mapIter->second.isMember(client.getFd()))
+            mapIter->second.leaveChannel(mapIter->first, client.getFd());
+        if (mapIter->second.isOperator(client.getFd()))
+            mapIter->second.removeOperator(client.getFd());
+    }
+}
+
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
@@ -247,6 +265,12 @@ void Server::processClientBuffer(Client &client)
         Parser parser;
         Message mesg = parser.parse(client.getBuffer().substr(0, pos));
         despatchMessage(client, mesg);
+        if (client.getExited())
+        {
+            removeExitedClientInChannels(client);
+            removeClient(client.getFd());
+            break ;
+        }
         client.getBuffer().erase(0, pos + 2);
     }
 }
