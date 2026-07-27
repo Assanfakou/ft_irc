@@ -12,6 +12,7 @@ class Client
         bool _isRegistered; // Flag to indicate if the client is registered
         // by Rida
         bool _passAccepted;
+        bool exited;
         std::string _buffer; // Buffer to store incoming data
         std::string _nickname; // Client's nickname
         std::string _username; // Client's username
@@ -42,8 +43,11 @@ class Client
         void setRealname(const std::string &realname);
         void setRegistered(bool isRegistered);
         //rida
-        void setPassAccepted(bool passAccepted); 
+        void setPassAccepted(bool passAccepted);
 
+
+        bool getExited() const;
+        void setExited(bool exitStatus);
 };
 
 #endif

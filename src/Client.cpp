@@ -1,6 +1,6 @@
 #include "../include/Client.hpp"
 
-Client::Client(int fd) : _fd(fd), _isRegistered(false), _passAccepted(false), _nickname(""), _username(""), _hostname("localhost"), _realname("") {}
+Client::Client(int fd) : _fd(fd), _isRegistered(false), _passAccepted(false), exited(false), _nickname(""), _username(""), _hostname("localhost"), _realname("") {}
 
 // Getters
 int Client::getFd() const
@@ -79,4 +79,14 @@ std::string Client::getPrefix() const
 void Client::setPassAccepted(bool passAccepted)
 {
     _passAccepted = passAccepted;
+}
+
+bool Client::getExited() const
+{
+    return exited;
+}
+
+void Client::setExited(bool exitStatus)
+{
+    exited = exitStatus;
 }

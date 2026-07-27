@@ -87,6 +87,7 @@ class Server
         std::map<int, Client> &getClients();
         std::string getChanelUsers(const std::string &channelName);
         void names(Client &sender, const Message &msg);
+        void removeExitedClientInChannels(const Client &client);
 };
 
 #endif
