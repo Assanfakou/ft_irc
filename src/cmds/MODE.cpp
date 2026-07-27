@@ -137,7 +137,6 @@ void Server::setMode(const Message &msg, Client &client)
                     it->second.removeOperator(targetFd);
                 broadcastToChanel(it->second, client, modeMessage(client, msg));
                 sendMessageToClient(client.getFd(), modeMessage(client, msg));
-                
                 return ;
             }
             else
