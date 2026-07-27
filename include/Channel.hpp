@@ -47,6 +47,9 @@ class Channel
         int getUserLimit() const;
         int getMemberCount() const;
 
+        /*assan here */
+       const std::vector<int> &getOperators()const;
+
 };
 
 #endif

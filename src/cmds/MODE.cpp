@@ -62,22 +62,40 @@ void Server::setMode(const Message &msg, Client &client)
         return;
     }
     if (msg.getParameter(1) == "+i")
+    {
         it->second.setInviteOnly(true);
+        broadcastToChanel(it->second, client, modeMessage(client, msg));
+        sendMessageToClient(client.getFd(), modeMessage(client, msg));
+    }
     if (msg.getParameter(1) == "-i")
+    {
         it->second.setInviteOnly(false);
+        broadcastToChanel(it->second, client, modeMessage(client, msg));
+        sendMessageToClient(client.getFd(), modeMessage(client, msg));
+    }
     if (msg.getParameter(1) == "+t")
+    {
         it->second.setTopicRestricted(true);
+        broadcastToChanel(it->second, client, modeMessage(client, msg));
+        sendMessageToClient(client.getFd(), modeMessage(client, msg));
+    }
     if (msg.getParameter(1) == "-t")
+    {
         it->second.setTopicRestricted(false);
+        broadcastToChanel(it->second, client, modeMessage(client, msg));
+        sendMessageToClient(client.getFd(), modeMessage(client, msg));
+    }
     if (msg.getParameter(1) == "+k")
     {
         it->second.setPasswordEnabled(true);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
+        sendMessageToClient(client.getFd(), modeMessage(client, msg));
     }
     if (msg.getParameter(1) == "-k")
     {
         it->second.setPasswordEnabled(false);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
+        sendMessageToClient(client.getFd(), modeMessage(client, msg));
     }
     if (msg.getParameter(1) == "+l")
     {
@@ -95,11 +113,13 @@ void Server::setMode(const Message &msg, Client &client)
          */
         it->second.setUserLimit(num);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
+        sendMessageToClient(client.getFd(), modeMessage(client, msg));
     }
     if (msg.getParameter(1) == "-l")
     {
         it->second.setUserLimitEnabled(false);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
+        sendMessageToClient(client.getFd(), modeMessage(client, msg));
     }
     std::map<int, Client>::iterator it2;
 
@@ -107,6 +127,7 @@ void Server::setMode(const Message &msg, Client &client)
     {
         if (it2->second.getNickname() == msg.getParameter(2))
         {
+            std::cout << IRC_RED << "hello here \n" << IRC_RESET;
             int targetFd = it2->second.getFd();
             if (it->second.isMember(targetFd))
             {
@@ -115,8 +136,17 @@ void Server::setMode(const Message &msg, Client &client)
                 if (msg.getParameter(1) == "-o")
                     it->second.removeOperator(targetFd);
                 broadcastToChanel(it->second, client, modeMessage(client, msg));
+                sendMessageToClient(client.getFd(), modeMessage(client, msg));
+                
+                return ;
+            }
+            else
+            {
+                sendMessageToClient(client.getFd(), userNotInChannel(*this, client, msg));
+                return ;
             }
         }
     }
+    sendMessageToClient(client.getFd(), noSuchNick(*this, client, msg.getParameter(2)));
     return;
 }

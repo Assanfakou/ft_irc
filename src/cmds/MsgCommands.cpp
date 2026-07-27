@@ -9,6 +9,38 @@
 ** It stil needd to implement the #chanel users.
 */
 
+void Server::names(Client &sender, const Message &msg)
+{
+    if (!sender.hasPassAccepted() && !sender.isRegistered())
+    {
+        sendMessageToClient(sender.getFd(), clientNotRegestred(*this));
+        return ;
+    }
+    if (msg.getParameter(0).empty())
+    {
+        std::map<std::string, Channel>::iterator iter = _channels.begin();
+        for (; iter != _channels.end(); iter++)
+        {
+            sendMessageToClient(sender.getFd(), namesWhenJoin(*this, sender, iter->second));
+            sendMessageToClient(sender.getFd(), endOfNamesList(*this, sender, iter->second));
+        }
+        return ;
+    }
+    std::string reciever = msg.getParameter(0);
+    Channel *channel = getChanel(reciever);
+    if (channel == NULL)
+    {
+        sendMessageToClient(sender.getFd(), ":" + getServerName() + " 366 " + sender.getNickname() + " " + reciever + ":End of /NAMES List");
+        return ;
+    }
+    if (msg.getParameter(0)[0] == '#')
+    {
+        sendMessageToClient(sender.getFd(), namesWhenJoin(*this, sender, *channel));
+        sendMessageToClient(sender.getFd(), endOfNamesList(*this, sender, *channel));
+    }
+    return ;
+}
+
 void privmsg(Server &server, Client &sender, const Message &msg)
 {
     if (!sender.hasPassAccepted() && !sender.isRegistered())

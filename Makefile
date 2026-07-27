@@ -11,14 +11,13 @@ all : $(NAME)
 
 $(NAME): $(SRC)
 	$(CXX) $(CXXFLAGS) $(SRC) -o $(NAME)
-	$(CXX) $(CXXFLAGS) $(SRCC) -o $(NAMEC)
 
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 fclean :
-	rm -f $(NAME) $(NAMEC)
+	rm -f $(NAME)
 
-re : fclean $(NAME) $(NAMEC)
+re : fclean $(NAME)
 
 .PHONY : all NAME fclean re
