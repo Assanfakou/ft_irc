@@ -3,6 +3,12 @@
 Server::Server(int port, const std::string &password)
     : _port(port), _password(password), _serverSocket(-1)
 {
+    char hostname[HOST_NAME_MAX + 1];
+    int result = gethostname(hostname, sizeof(hostname));
+    if (result ==0)
+        serverName = hostname;
+    else
+        serverName = "Server";
 }
 
 Server::~Server()
@@ -82,20 +88,193 @@ void Server::removeClient(int clientFd)
     }
     std::cout << "Client disconnected fd= " << clientFd << std::endl;
 }
+/* 
+** here we should add the prefix with the line to specify who send the message 
+** to any user using client.getPrefix()
+** No I think we don't because we already have every client has it's fd so we don't need the prefix
+** BUt in a normal irc server when the clients sends a message to the client the server parse it and 
+** add that prefix at the first of the message or line : put in you head: it looks like that
+**         >> :nick!user@host  ---- line ----<<
+*/
 
+/*
+------------------------------- i'm working here----------------------------------------- 
+*/
+
+void Server::listAllUsers(Client &sender)
+{
+    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        Client target = it->second;
+        this->sendMessageToClient(sender.getFd(), whoMessage(*this,target));
+    }
+}
+
+void Server::despatchMessage(Client &client, const Message &msg)
+{
+    if (msg.getCommand() == "PRIVMSG")
+          privmsg(*this, client, msg);
+    else if (msg.getCommand() == "NOTICE")
+        notice(*this, client, msg);
+    else if (msg.getCommand() == "NICK")
+        nickHandler(client, *this, msg);
+    else if (msg.getCommand() == "KICK")
+        compare_nickname_and_kickClient(msg, client);
+    else if (msg.getCommand() == "USER")
+        userHandler(*this, client, msg);
+    else if (msg.getCommand() == "NAMES")
+        names(client, msg);
+    else if (msg.getCommand() == "PASS")
+        passHandler(*this, client, msg);
+    else if (msg.getCommand() == "HOST")
+        client.setHostname(msg.getParameter(0));
+    else if (msg.getCommand() == "QUIT")
+        client.setExited(true);
+    else if (msg.getCommand() == "PING")
+        this->sendMessageToClient(client.getFd(), pong(*this, msg));
+    else if (msg.getCommand() == "WHO")
+        who(*this, client, msg);
+    else if (msg.getCommand() == "PART")
+        clientLeaveChannel(msg, client);
+    else if (msg.getCommand() == "JOIN")
+        check_Channels_and_addMember_to_Channel(msg, client);
+    else if (msg.getCommand() == "INVITE")
+        compare_nickname_and_inviteClient(msg, client);
+    else if (msg.getCommand() == "TOPIC")
+        showTopic(msg, client);
+    else if (msg.getCommand() == "MODE")
+        setMode(msg, client);
+    else if (msg.getCommand() == "LIST")
+        listChanels(client, msg);
+    else if (msg.getCommand() == "CAP")
+    {
+        return;
+    }
+    else
+    {
+        this->sendMessageToClient(client.getFd(), unknownCommand(*this));
+        return;
+    }
+}
+/*
+**
+** getCLients_by_nickname**
+**
+** arg& nicknames : is a string of nicknames of separated by comma
+** 
+*/
+std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
+{
+    std::vector<Client *> clients;
+    size_t start = 0;
+    size_t end = nicknames.find(',');
+
+    while (end != std::string::npos)
+    {
+        std::string nickname = nicknames.substr(start, end - start);
+        Client *client = getClientByNickname(nickname);
+        if (client)
+            clients.push_back(client);
+        start = end + 1;
+        end = nicknames.find(',', start);
+    }
+    /* hendle the last nickname and the only one that exists */
+    std::string nickname = nicknames.substr(start);
+    Client *client = getClientByNickname(nickname);
+    if (client)
+        clients.push_back(client);
+    return clients;
+}
+
+Client *Server::getClientByNickname(const std::string &nicknames)
+{
+    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+    {
+        if (it->second.getNickname() == nicknames)
+            return &(it->second);
+    }
+    return NULL;
+}
+
+//rida
+
+void Server::tryRegister(Client &client)
+{
+    if (client.isRegistered())
+        return;
+
+    if (client.hasPassAccepted()
+        && !client.getNickname().empty()
+        && !client.getUsername().empty())
+    {
+        client.setRegistered(true);
+
+        sendMessageToClient(client.getFd(),
+            welcomeMessage(*this, client));
+
+        std::cout << "Client registered!" << std::endl;
+    }
+}
+
+// void Server::tryRegister(Client &client)
+// {
+//     if (client.hasPassAccepted() && !client.getNickname().empty() && !client.getUsername().empty())
+//     {
+//         client.setRegistered(true);
+//         std::cout << "Client registered!" << std::endl;
+//     }
+// }
+
+//rida (i only add my own code here , the function created by anass)
+
+/*
+**
+** the buffer shouldn't be use after quiting the user, there will be leaks 
+** solve : the despatch should re turn if the client is quited or not
+** so it can remove the client here ; || we can copy the buffer and use it as a copy
+**
+*/
+
+/*
+** here i need to add a function that removes a client from the other vectors on the channel
+** because when exiting the server the client needs to leave all the channels
+*/
+
+void Server::removeExitedClientInChannels(const Client &client)
+{
+    std::map<std::string, Channel>::iterator mapIter = _channels.begin();
+
+    for (; mapIter != _channels.end(); ++mapIter)
+    {
+        if (mapIter->second.isMember(client.getFd()))
+            mapIter->second.leaveChannel(mapIter->first, client.getFd());
+        if (mapIter->second.isOperator(client.getFd()))
+            mapIter->second.removeOperator(client.getFd());
+    }
+}
 
 void Server::processClientBuffer(Client &client)
 {
     size_t pos;
-
+ 
     while ((pos = client.getBuffer().find("\r\n")) != std::string::npos)
     {
-        std::string command = client.getBuffer().substr(0, pos);
-        // TODO:
-        // Pass the command to a command handler function to process it
+        // std::cout << client.getPrefix() << "\n";
+        std::cout << "buffer: [" << client.getBuffer().substr(0, pos) << "]" << " length: [" << pos << "]" << std::endl;
+        // std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;
+        Parser parser;
+        Message mesg = parser.parse(client.getBuffer().substr(0, pos));
+        despatchMessage(client, mesg);
+        if (client.getExited())
+        {
+            removeExitedClientInChannels(client);
+            removeClient(client.getFd());
+            break ;
+        }
         client.getBuffer().erase(0, pos + 2);
-    }  
+    }
 }
+
 
 bool Server::receiveClientMessage(int clientFd)
 {
@@ -121,12 +300,14 @@ bool Server::receiveClientMessage(int clientFd)
         std::cerr << "Error: Client with fd " << clientFd << " not found in _clients map." << std::endl;
         return true; // The client is still connected, but we couldn't find it in the map.
     }
+    buffer[bytesReceived] = '\n'; // Null-terminate the received data
     it->second.getBuffer().append(buffer, bytesReceived);
 
     Client &client = it->second;
     processClientBuffer(client);
     return true;// The client is still connected.
 }
+
 void Server::runPollLoop()
 {
     std::cout << "Server is running..." << std::endl;
@@ -181,8 +362,87 @@ void Server::acceptClient()
     std::cout << "Client connected fd= " << clientFd << std::endl;
 }
 
-void Server::sendMessageToClient(int clientFd, const std::string &message)
+void Server::sendMessageToClient(int fd, const std::string &msg)
 {
-    if (send(clientFd, message.c_str(), message.size(), 0) == -1)
-        std::cerr << "Failed to send message to client " << clientFd << std::endl;
+    std::cout << "SEND[" << fd << "] ";
+
+    for (size_t i = 0; i < msg.size(); i++)
+    {
+        if (msg[i] == '\r')
+            std::cout << "\\r";
+        else if (msg[i] == '\n')
+            std::cout << "\\n";
+        else
+            std::cout << msg[i];
+    }
+
+    std::cout << std::endl;
+
+    send(fd, msg.c_str(), msg.size(), 0);
+}
+
+// void Server::sendMessageToClient(int clientFd, const std::string &message)
+// {
+//     if (send(clientFd, message.c_str(), message.size(), 0) == -1)
+//         std::cerr << "Failed to send message to client " << clientFd << "\n";
+// }
+
+void Server::broadcastToChanel(Channel &channel, const Client& sender, const std::string &msg)
+{
+    std::cout << "client Prefix : [" <<  sender.getPrefix() << "]" << std::endl;
+    std::cout << "message : [" << msg << "]" << std::endl;
+    std::vector<int> &members = channel.getMembers();
+    std::vector<int>::iterator it = members.begin();
+
+    for (; it != members.end(); it++)
+    {
+        if (*it != sender.getFd())
+            sendMessageToClient(*it, msg);
+    }
+}
+
+std::string Server::getServerName() const
+{
+    return serverName;
+}
+
+Channel *Server::getChanel(const std::string &chanNeame)
+{
+    std::map<std::string, Channel>::iterator it = _channels.find(chanNeame);
+
+    if (it != _channels.end())
+        return &it->second;
+    return NULL;
+}
+
+std::map<std::string, Channel> *Server::getChannels()
+{
+    return &_channels;
+}
+
+std::string Server::getChanelUsers(const std::string &channelName)
+{
+    Channel &itchan = _channels.find(channelName)->second;
+    std::vector<int> vecInt = itchan.getMembers();
+    std::vector <int> ope = itchan.getOperators();
+    std::map<int, Client> &clients = getClients();
+    std::string names;
+
+    for (size_t i = 0; i < vecInt.size(); i++)
+    {
+        std::map<int, Client>::iterator iter = clients.find(vecInt[i]);
+        if (iter != clients.end())
+        {
+            Client &client = iter->second;
+            if (itchan.isOperator(client.getFd()))
+                names += "@";
+            names += client.getNickname() + " ";
+        }
+    }
+    return names;
+}
+
+std::map<int, Client> &Server::getClients()
+{
+    return _clients;
 }
