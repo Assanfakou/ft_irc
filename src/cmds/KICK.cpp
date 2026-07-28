@@ -42,6 +42,8 @@ void Server::compare_nickname_and_kickClient(const Message &msg, Client &client)
                     broadcastToChanel(it2->second, client, kickMessage(client, msg));
                     sendMessageToClient(client.getFd(), kickMessage(client, msg));
                     it2->second.leaveChannel(msg.getParameter(0), targetFd);
+                    if (it2->second.getMemberCount() == 0 && it2->second.getOperatorCount() == 0)
+                        it2->second.setEmpty(true);
                     return ;
                 }
                 else

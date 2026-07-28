@@ -1,7 +1,7 @@
 #include "../include/Channel.hpp"
 
 Channel::Channel(const std::string &name): _name(name), _inviteOnly(false), 
-    _topicRestricted(false), passwordEnabled(false), _userLimitEnabled(false)
+    _topicRestricted(false), passwordEnabled(false), _userLimitEnabled(false), _empty(true)
 {
 
 }
@@ -151,9 +151,22 @@ int Channel::getMemberCount() const
 {
     return _members.size();
 }
+int Channel::getOperatorCount() const
+{
+    return _operators.size();
+}
 
 const std::vector<int> &Channel::getOperators() const
 {
     return _operators;
 }
 
+void Channel::setEmpty(bool status)
+{
+    _empty = status;
+}
+
+bool Channel::getEmpty()
+{
+    return _empty;
+}

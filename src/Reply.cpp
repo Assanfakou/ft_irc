@@ -28,32 +28,32 @@ std::string generateMEssage(const Client &client, const Message &msg)
 
 std::string noTextToSend(const Server &server)
 {
-    return IRC_RED + ":" + server.getServerName() + " 412 : ERR_NOTEXTTOSEND\r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " 412 : ERR_NOTEXTTOSEND\r\n";
 }
 
 std::string noSuchNick(const Server &server, const Client &client, const std::string &targetName)
 {
-    return IRC_RED + ":" + server.getServerName() + " 401 " + client.getNickname() + " " + targetName + " :No suchNick\r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " 401 " + client.getNickname() + " " + targetName + " :No suchNick\r\n";
 }
 
 std::string noSuchCnannel(const Server &server, const Client &client, const std::string &targetName)
 {
-    return IRC_RED + ":" + server.getServerName() + " 403 " + client.getNickname() + " " + targetName + " :No such Channel\r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " 403 " + client.getNickname() + " " + targetName + " :No such Channel\r\n";
 }
 
 std::string needMoreParams(const Server &server, const Client &client, const Message &msg)
 {
-    return IRC_RED + ":" + server.getServerName() + " 461 " + client.getNickname() + " " + msg.getCommand() + " :Not enough parameters\r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " 461 " + client.getNickname() + " " + msg.getCommand() + " :Not enough parameters\r\n";
 }
 
 std::string cantSendToSelf(const Server &server)
 {
-    return IRC_RED + ":" + server.getServerName() + " 666 : ERR_CANTSENDTOSELF\r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " 666 : ERR_CANTSENDTOSELF\r\n";
 }
 
 std::string unknownCommand(const Server &server)
 {
-    return IRC_RED + ":" + server.getServerName() + " 421 : ERR_UNKNOWNCOMMAND\r\n" + IRC_RESET;
+    return  ":" + server.getServerName() + " 421 : ERR_UNKNOWNCOMMAND\r\n";
 }
 
 std::string welcomeMessage(const Server &server, const Client &client)
@@ -63,49 +63,49 @@ std::string welcomeMessage(const Server &server, const Client &client)
 
 std::string startMessage(const Server &server, const Message msg)
 {
-    return IRC_GREEN + ":" + server.getServerName() + " " + msg.getCommand() + " RPL_START \r\n";
+    return ":" + server.getServerName() + " " + msg.getCommand() + " RPL_START \r\n";
 }
 
 std::string EndMessage(const Server &server, const Message msg)
 {
-    return ":" + server.getServerName() + " " + msg.getCommand() + " RPL_END \r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " " + msg.getCommand() + " RPL_END \r\n";
 }
 
 std::string whoStartMessage(const Server &server)
 {
-    return IRC_CYAN + ":" + server.getServerName() + " 314 \r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " 314 \r\n";
 }
 
 std::string whoEndMessage(const Server &server)
 {
-    return IRC_CYAN + ":" + server.getServerName() + " 315 \r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " 315 \r\n";
 }
 
 std::string whoMessage(const Server &server,const Client &client)
 {
-    std::string message = IRC_BLUE + ":" +  server.getServerName() + " 311 : " + client.getNickname() 
+    std::string message = ":" +  server.getServerName() + " 311 : " + client.getNickname() 
     + " " + client.getUsername() + " " 
     + client.getHostname() + " " 
-    + client.getRealname() + "\r\n" + IRC_RESET;
+    + client.getRealname() + "\r\n";
     return message;
 }
 
 std::string clientNotRegestred(const Server &server)
 {
-    return IRC_RED + ":" + server.getServerName() + " 451 : ERR_NOTREGISTERED\r\n" + IRC_RESET;
+    return  ":" + server.getServerName() + " 451 : ERR_NOTREGISTERED\r\n";
 }
 
 std::string passwordAccepted(const Server &server)
 {
-    return IRC_BROWN + ":" + server.getServerName() + " Password Accepted\r\n" + IRC_RESET;
+    return ":" + server.getServerName() + " Password Accepted\r\n";
 }
 std::string pong(const Server &server, const Message &msg)
 {
-    return IRC_BLUE + ":" + server.getServerName() + " PONG :" + msg.getParameter(0) + "\r\n";
+    return ":" + server.getServerName() + " PONG :" + msg.getParameter(0) + "\r\n";
 }
 std::string wrongPassword(const Server &server)
 {
-    return IRC_RED + ":" + server.getServerName() + " Wrong Password\r\n" + IRC_RESET;
+    return  ":" + server.getServerName() + " Wrong Password\r\n";
 }
 
 std::string joinChannel(const Server &server, const Client &sender, const std::string &chanelName)
@@ -143,7 +143,7 @@ std::string endOfNamesList(Server &server, const Client &client, const Channel &
 }
 std::string notValidChanelName(Server &server)
 {
-    return IRC_RED + ":" + server.getServerName() + " This is not a valid name for channel Name \r\n" + IRC_RESET;
+    return  ":" + server.getServerName() + " This is not a valid name for channel Name \r\n";
 }
 
 // Broadcast when a user is kicked.

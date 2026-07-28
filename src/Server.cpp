@@ -74,7 +74,7 @@ void Server::setupSocket()
     _pollfds.push_back(serverPollFd);
 }
 
-void Server::removeClient(int clientFd)
+    void Server::removeClient(int clientFd)
 {
     close(clientFd);// free the kernel resource
     _clients.erase(clientFd);// remove the client from the map
@@ -132,8 +132,8 @@ void Server::despatchMessage(Client &client, const Message &msg)
         client.setExited(true);
     else if (msg.getCommand() == "PING")
         this->sendMessageToClient(client.getFd(), pong(*this, msg));
-    else if (msg.getCommand() == "WHO")
-        who(*this, client, msg);
+    // else if (msg.getCommand() == "WHO")
+    //     who(*this, client, msg);
     else if (msg.getCommand() == "PART")
         clientLeaveChannel(msg, client);
     else if (msg.getCommand() == "JOIN")
@@ -244,12 +244,17 @@ void Server::removeExitedClientInChannels(const Client &client)
 {
     std::map<std::string, Channel>::iterator mapIter = _channels.begin();
 
-    for (; mapIter != _channels.end(); ++mapIter)
+    for (; mapIter != _channels.end();)
     {
+
         if (mapIter->second.isMember(client.getFd()))
             mapIter->second.leaveChannel(mapIter->first, client.getFd());
         if (mapIter->second.isOperator(client.getFd()))
             mapIter->second.removeOperator(client.getFd());
+        if (mapIter->second.getEmpty())
+            _channels.erase(mapIter++);
+        else
+            ++mapIter;
     }
 }
 
@@ -265,16 +270,23 @@ void Server::processClientBuffer(Client &client)
         Parser parser;
         Message mesg = parser.parse(client.getBuffer().substr(0, pos));
         despatchMessage(client, mesg);
+        for (std::map<std::string, Channel>::iterator itChan = _channels.begin(); itChan != _channels.end();)
+        {
+            std::cout << "exited : " << itChan->second.getEmpty() << std::endl;
+            if (itChan->second.getEmpty())
+                _channels.erase(itChan++);
+            else
+                ++itChan;
+        }
         if (client.getExited())
         {
             removeExitedClientInChannels(client);
             removeClient(client.getFd());
-            break ;
+            break;
         }
         client.getBuffer().erase(0, pos + 2);
     }
 }
-
 
 bool Server::receiveClientMessage(int clientFd)
 {

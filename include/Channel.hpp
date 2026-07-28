@@ -18,6 +18,7 @@ class Channel
         std::string _channelPassword;
         bool _userLimitEnabled;
         int _userLimit;
+        bool _empty;
 
     public:
         Channel(const std::string &name);
@@ -49,7 +50,9 @@ class Channel
 
         /*assan here */
        const std::vector<int> &getOperators()const;
-
+       void setEmpty(bool status);
+       bool getEmpty();
+       int getOperatorCount() const;
 };
 
 #endif

@@ -26,7 +26,7 @@ void nickHandler(Client &client, Server &server, const Message &msg)
         if (!fakeClient)
         {
             client.setNickname(msg.getParameter(0));
-            server.sendMessageToClient(client.getFd(), IRC_BLUE + "YOU'RE KNOWN AS : " + client.getNickname() + "\r\n" + IRC_RESET);
+            server.sendMessageToClient(client.getFd(), "YOU'RE KNOWN AS : " + client.getNickname() + "\r\n");
             server.tryRegister(client);
         }
         else
@@ -34,12 +34,12 @@ void nickHandler(Client &client, Server &server, const Message &msg)
             if (fakeClient->getFd() == client.getFd())
             {
                 client.setNickname(msg.getParameter(0));
-                server.sendMessageToClient(client.getFd(), IRC_BLUE + "YOU'RE KNOWN AS : " + client.getNickname() + "\r\n" + IRC_RESET);
+                server.sendMessageToClient(client.getFd(), "YOU'RE KNOWN AS : " + client.getNickname() + "\r\n");
                 server.tryRegister(client);
             }
             else
             {
-                server.sendMessageToClient(client.getFd(), IRC_RED + "this nickName is taken \r\n" + IRC_RESET);
+                server.sendMessageToClient(client.getFd(), "this nickName is taken \r\n" );
                 return;
             }
         }

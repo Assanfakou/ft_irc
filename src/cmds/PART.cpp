@@ -8,6 +8,8 @@ void Channel::leaveChannel(std::string channelName, int fd)
         if (*it == fd)
         {
             _members.erase(it);
+            if (_members.size() == 0)
+                setEmpty(true);
             std::cout << "Client leaves channel " <<  channelName << std::endl;
             break;
         }  
@@ -31,8 +33,9 @@ void Server::clientLeaveChannel(const Message &msg, Client &client)
         int fd = client.getFd();
         if (it->second.isMember(fd))
         {
-            it->second.leaveChannel(msg.getParameter(0), fd);
+            sendMessageToClient(client.getFd(), partMessage(client, msg));
             broadcastToChanel(it->second, client, partMessage(client, msg));
+            it->second.leaveChannel(msg.getParameter(0), fd);
             return ;
         }
         else

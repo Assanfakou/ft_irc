@@ -36,6 +36,9 @@ void Server::addMemberTo_Channel(const Message &msg, Client &client)
         }
     }
     it->second.addMember(fd);
+    /*this is for removing the channel if it is empty*/
+    it->second.setEmpty(false);
+    /*-----------------------------*/
     std::cout << "Client added to channel: " << msg.getParameter(0) << std::endl;
     Channel *reciever = getChanel(msg.getParameter(0));
     sendMessageToClient(client.getFd(), joinChannel(*this, client, msg.getParameter(0)));
