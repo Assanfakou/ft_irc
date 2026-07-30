@@ -14,6 +14,7 @@ std::string needMoreParams(const Server &server, const Client &client, const Mes
 std::string cantSendToSelf(const Server &server);
 std::string unknownCommand(const Server &server);
 std::string welcomeMessage(const Server &server, const Client &client);
+std::string noMotd(Server &server, Client &client);
 
 /* who messages */
 std::string whoStartMessage(const Server &server);

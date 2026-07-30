@@ -208,10 +208,8 @@ void Server::tryRegister(Client &client)
         && !client.getUsername().empty())
     {
         client.setRegistered(true);
-
-        sendMessageToClient(client.getFd(),
-            welcomeMessage(*this, client));
-
+        sendMessageToClient(client.getFd(), welcomeMessage(*this, client));
+        sendMessageToClient(client.getFd(), noMotd(*this, client));
         std::cout << "Client registered!" << std::endl;
     }
 }
@@ -292,6 +290,10 @@ bool Server::receiveClientMessage(int clientFd)
 {
     char buffer[1024];
     int bytesReceived = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
+    std::cout << "recv() returned " << bytesReceived << std::endl;
+    std::cout << "received: [";
+    std::cout.write(buffer, bytesReceived);
+    std::cout << "]" << std::endl;
 
     if (bytesReceived == 0)
     {
@@ -319,15 +321,26 @@ bool Server::receiveClientMessage(int clientFd)
     return true;// The client is still connected.
 }
 
+bool Server::running = true;
+void Server::signalHandler(int signum)
+{
+    (void)signum;
+    Server::running = false;
+}
+
 void Server::runPollLoop()
 {
     std::cout << "Server is running..." << std::endl;
     
-    while (true)
+    while (Server::running)
     {
         int ret = poll(_pollfds.data(), _pollfds.size(), -1);
         if (ret == -1)
+        {   
+            if (errno == EINTR)
+                continue;
             throw std::runtime_error("poll failed");
+        }
         for (size_t i = 0; i < _pollfds.size(); ++i)
         {
             if (_pollfds[i].revents & POLLIN)

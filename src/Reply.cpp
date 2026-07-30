@@ -61,6 +61,13 @@ std::string welcomeMessage(const Server &server, const Client &client)
     return ":" + server.getServerName() + " 001 " + client.getNickname() + " :Welcome to the IRC server!\r\n";
 }
 
+std::string noMotd(Server &server, Client &client)
+{
+    return ":" + server.getServerName() +
+           " 422 " + client.getNickname() +
+           " :MOTD File is missing\r\n";
+}
+
 std::string startMessage(const Server &server, const Message msg)
 {
     return ":" + server.getServerName() + " " + msg.getCommand() + " RPL_START \r\n";
