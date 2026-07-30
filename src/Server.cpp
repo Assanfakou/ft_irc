@@ -312,7 +312,6 @@ bool Server::receiveClientMessage(int clientFd)
         std::cerr << "Error: Client with fd " << clientFd << " not found in _clients map." << std::endl;
         return true; // The client is still connected, but we couldn't find it in the map.
     }
-    buffer[bytesReceived] = '\n'; // Null-terminate the received data
     it->second.getBuffer().append(buffer, bytesReceived);
 
     Client &client = it->second;
