@@ -1,16 +1,5 @@
 #include "../../include/Server.hpp"
 
-// bool isNumeric(const std::string& str) 
-// {
-//     if (str.empty()) 
-//         return false;
-    
-//     std::istringstream iss(str); //iss : object (instance), str: argument passed to the constructor
-//     size_t Buffer;
-    
-//     return (iss >> Buffer) && iss.eof(); //iss.eof() ensures that nothing remains after the number
-// }
-
 void Server::setMode(const Message &msg, Client &client)
 {
     if (!client.hasPassAccepted() && !client.isRegistered())
@@ -130,12 +119,14 @@ void Server::setMode(const Message &msg, Client &client)
         it->second.setUserLimit(num);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
         sendMessageToClient(client.getFd(), modeMessage(client, msg));
+        return ;
     }
     if (msg.getParameter(1) == "-l")
     {
         it->second.setUserLimitEnabled(false);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
         sendMessageToClient(client.getFd(), modeMessage(client, msg));
+        return ;
     }
     std::map<int, Client>::iterator it2;
 

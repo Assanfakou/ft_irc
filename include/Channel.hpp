@@ -53,6 +53,7 @@ class Channel
        void setEmpty(bool status);
        bool getEmpty();
        int getOperatorCount() const;
+       void ereasFromInvitedVec(int fd);
 };
 
 #endif

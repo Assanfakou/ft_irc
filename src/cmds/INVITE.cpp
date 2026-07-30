@@ -40,10 +40,12 @@ void Server::compare_nickname_and_inviteClient(const Message &msg, Client &clien
                 sendMessageToClient(client.getFd(), userOnChannel(*this, client, msg));
                 return;
             }
-            /*should make everything it's error */
             if (it2->second.isMember(client.getFd()) && it2->second.isOperator(client.getFd()))
             {
-                it2->second.addInvitedClient(targetFd);
+                /* to not invite again */
+                if (!it2->second.isInvited(targetFd))
+                    it2->second.addInvitedClient(targetFd);
+
                 sendMessageToClient(client.getFd(), inviting(*this, client, msg));
                 sendMessageToClient(targetFd, inviteMessage(client, msg));
             }

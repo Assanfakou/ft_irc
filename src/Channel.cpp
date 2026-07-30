@@ -170,3 +170,16 @@ bool Channel::getEmpty()
 {
     return _empty;
 }
+
+void Channel::ereasFromInvitedVec(int fd)
+{
+    for (std::vector<int>::iterator it = _invitedClients.begin();
+         it != _invitedClients.end(); ++it)
+    {
+        if (*it == fd)
+        {
+            _invitedClients.erase(it);
+            break;
+        }
+    }
+}
