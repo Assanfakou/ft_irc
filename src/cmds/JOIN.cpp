@@ -65,11 +65,10 @@ void Server::check_Channels_and_addMember_to_Channel(const Message &msg, Client 
         if (!msg.getParameter(0).empty())
         {
             _channels.insert(std::make_pair(msg.getParameter(0), Channel(msg.getParameter(0)))); //pass name and creates a Channel object using constructor
+            std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
+            it->second.addOperator(client.getFd());
             std::cout << "Channel created: " << msg.getParameter(0) << std::endl;
             addMemberTo_Channel(msg, client);
-            std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
-            if (it != _channels.end())
-                it->second.addOperator(client.getFd());
         }
     }
     else

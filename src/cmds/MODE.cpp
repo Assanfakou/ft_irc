@@ -66,51 +66,67 @@ void Server::setMode(const Message &msg, Client &client)
         it->second.setInviteOnly(true);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
         sendMessageToClient(client.getFd(), modeMessage(client, msg));
+        return ;
     }
     if (msg.getParameter(1) == "-i")
     {
         it->second.setInviteOnly(false);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
         sendMessageToClient(client.getFd(), modeMessage(client, msg));
+        return ;
     }
     if (msg.getParameter(1) == "+t")
     {
         it->second.setTopicRestricted(true);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
         sendMessageToClient(client.getFd(), modeMessage(client, msg));
+        return ;
     }
     if (msg.getParameter(1) == "-t")
     {
         it->second.setTopicRestricted(false);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
         sendMessageToClient(client.getFd(), modeMessage(client, msg));
+        return ;
     }
     if (msg.getParameter(1) == "+k")
     {
         it->second.setPasswordEnabled(true);
+        it->second.setPassword(msg.getParameter(2));
         broadcastToChanel(it->second, client, modeMessage(client, msg));
         sendMessageToClient(client.getFd(), modeMessage(client, msg));
+        return ;
     }
     if (msg.getParameter(1) == "-k")
     {
         it->second.setPasswordEnabled(false);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
         sendMessageToClient(client.getFd(), modeMessage(client, msg));
+        return ;
     }
     if (msg.getParameter(1) == "+l")
     {
         int num;
         it->second.setUserLimitEnabled(true);
         if (!msg.getParameter(2).empty())
+        {
+            std::string numb = msg.getParameter(2);
+            int i = 0;
+            while (numb[i])
+            {
+                std::cout << IRC_RED << numb[i] << std::endl << IRC_RESET;
+                if (std::isdigit(numb[i]))
+                    i++;
+                else
+                    return;
+            }
             num = std::atoi(msg.getParameter(2).c_str());
+        }
         else
         {
             sendMessageToClient(client.getFd(), needMoreParams(*this, client, msg));
             return;
         }
-        /** notice that sends 461 NEEDMORE params
-         ** and if it gives a non non numbers it gives 696 invalide mode number
-         */
         it->second.setUserLimit(num);
         broadcastToChanel(it->second, client, modeMessage(client, msg));
         sendMessageToClient(client.getFd(), modeMessage(client, msg));
@@ -127,7 +143,6 @@ void Server::setMode(const Message &msg, Client &client)
     {
         if (it2->second.getNickname() == msg.getParameter(2))
         {
-            std::cout << IRC_RED << "hello here \n" << IRC_RESET;
             int targetFd = it2->second.getFd();
             if (it->second.isMember(targetFd))
             {

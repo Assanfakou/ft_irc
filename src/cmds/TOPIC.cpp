@@ -22,12 +22,16 @@ void Server::showTopic(const Message &msg, Client &client)
         {
             it->second.setTopic(msg.getParameter(1));
             broadcastToChanel(it->second, client, topicMessage(client, msg));
+            sendMessageToClient(client.getFd(), topicMessage(client, msg));
             return ;
         }
     }
     else
     {
-        sendMessageToClient(client.getFd(), topicReply(*this, client, it->second));
+        if (it->second.getTopic().empty())
+            sendMessageToClient(client.getFd(), noTopic(*this, client, msg));
+        else
+            sendMessageToClient(client.getFd(), topicReply(*this, client, it->second));
         return ;
     }
 }

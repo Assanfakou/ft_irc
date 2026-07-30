@@ -342,6 +342,7 @@ std::string noTopic(const Server &server, const Client &client, const Message &m
         + msg.getParameter(0)
         + " :No topic is set\r\n";
 }
+
 std::string topicReply(const Server &server, const Client &client, const Channel &channel)
 {
     return ":" + server.getServerName()
