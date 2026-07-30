@@ -16,9 +16,11 @@
 #include <fcntl.h>
 #include <string>
 #include <sstream>
+#include <cerrno>
 
 #include <sstream>
 #include <cstdlib>
+#include <csignal>
 
 #include "Client.hpp"
 #include "Message.hpp"
@@ -36,6 +38,7 @@ class Server
         int _port;
         std::string _password;
         int _serverSocket;
+        static bool running;
         std::vector<pollfd> _pollfds;
         std::map<int, Client> _clients; // Map to store clients with their file descriptors as keys
         //rida
@@ -88,6 +91,7 @@ class Server
         std::string getChanelUsers(const std::string &channelName);
         void names(Client &sender, const Message &msg);
         void removeExitedClientInChannels(const Client &client);
+        static void signalHandler(int signum);
 };
 
 #endif

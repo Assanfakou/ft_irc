@@ -1,52 +1,158 @@
 #include "../../include/Server.hpp"
 
-std::string Server::getNickname(std::string command)
-{
-    if (command.size() >= 4 && command.substr(0, 4) == "NICK")
-    {
-        if (command.size() <= 5)
-            return "";
-        std::string nickname = command.substr(5);
-        return nickname;
-    }
-    return "";
-}
-
 /*
 ** 
 ** This function will be probably a server member function
 **
 */
 
+bool firstNickCharacter(char c)
+{
+    if (std::isalpha(c))
+        return true;
+    if (c == '[' || c == ']' || c == '\\' || c == '^' || c ==  '{' || c == '}' || c == '`')
+        return true;
+    return false;
+}
+
+char ircToUpper(char c)
+{
+    if (c >= 'a' && c <= 'z')
+        return c - ('a' - 'A');
+
+    switch (c)
+    {
+        case '{': return '[';
+        case '}': return ']';
+        case '|': return '\\';
+        case '^': return '~';
+        default:  return c;
+    }
+}
+bool isValidCharachter(char c)
+{
+    if (std::isalnum(c))
+        return true;
+    if (c == '[' || c == ']' || c == '\\' || c == '^' || c ==  '{' || c == '}' || c == '`')
+        return true;
+    return false;
+}
+
+bool compareNick(const std::string &a, const std::string &b)
+{
+    if (a.size() != b.size())
+        return false;
+
+    for (size_t i = 0; i < a.size(); ++i)
+    {
+        if (ircToUpper(a[i]) != ircToUpper(b[i]))
+            return false;
+    }
+    return true;
+}
+
+bool checkNick(const std::string &nick)
+{
+    for (size_t i = 1; i < nick.size(); i++)
+    {
+        if (!isValidCharachter(nick[i]))
+            return false;
+    }
+    return true;
+}
+
+// void nickHandler(Client &client, Server &server, const Message &msg)
+// {
+//     if (!msg.getParameter(0).empty())
+//     {
+//         if (msg.getParameter(0).size() > 9)
+//         {
+//             server.sendMessageToClient(client.getFd(), "Long NickName\r\n");
+//             return;
+//         }
+//         Client *fakeClient = server.getClientByNickname(msg.getParameter(0));
+//         if (!fakeClient)
+//         {
+//             if (!firstNickCharacter(msg.getParameter(0)[0]))
+//             {
+//                 server.sendMessageToClient(client.getFd(), "Firstcharachter invalid\r\n");
+//                 return;
+//             }
+//             if (!checkNick(msg.getParameter(0)))
+//             {
+//                 server.sendMessageToClient(client.getFd(), "charachterNotvalid\r\n");
+//                 return ;
+//             }
+//             client.setNickname(msg.getParameter(0));
+//             server.sendMessageToClient(client.getFd(), client.getPrefix() +" NICK :"+ client.getNickname() + "\r\n");
+//             server.tryRegister(client);
+//         }
+//         else
+//         {
+//             if (fakeClient->getFd() == client.getFd())
+//             {
+//                 server.sendMessageToClient(client.getFd(), client.getPrefix() + " NICK :" + client.getNickname() + "\r\n");
+//                 client.setNickname(msg.getParameter(0));
+//                 server.tryRegister(client);
+//             }
+//             else
+//             {
+//                 server.sendMessageToClient(client.getFd(), "this nickName is taken \r\n" );
+//                 return;
+//             }
+//         }
+//     }
+//     else
+//     {
+//         server.sendMessageToClient(client.getFd(), needMoreParams(server, client, msg));
+//         return;
+//     }
+// }
+
 void nickHandler(Client &client, Server &server, const Message &msg)
 {
-    if (!msg.getParameter(0).empty())
-    {
-        Client *fakeClient = server.getClientByNickname(msg.getParameter(0));
-        if (!fakeClient)
-        {
-            client.setNickname(msg.getParameter(0));
-            server.sendMessageToClient(client.getFd(), IRC_BLUE + "YOU'RE KNOWN AS : " + client.getNickname() + "\r\n" + IRC_RESET);
-            server.tryRegister(client);
-        }
-        else
-        {
-            if (fakeClient->getFd() == client.getFd())
-            {
-                client.setNickname(msg.getParameter(0));
-                server.sendMessageToClient(client.getFd(), IRC_BLUE + "YOU'RE KNOWN AS : " + client.getNickname() + "\r\n" + IRC_RESET);
-                server.tryRegister(client);
-            }
-            else
-            {
-                server.sendMessageToClient(client.getFd(), IRC_RED + "this nickName is taken \r\n" + IRC_RESET);
-                return;
-            }
-        }
-    }
-    else
+    if (msg.getParameter(0).empty())
     {
         server.sendMessageToClient(client.getFd(), needMoreParams(server, client, msg));
         return;
     }
+
+    if (msg.getParameter(0).size() > 9)
+    {
+        server.sendMessageToClient(client.getFd(), "Long NickName\r\n");
+        return;
+    }
+
+    if (!firstNickCharacter(msg.getParameter(0)[0]))
+    {
+        server.sendMessageToClient(client.getFd(), "Firstcharachter invalid\r\n");
+        return;
+    }
+
+    if (!checkNick(msg.getParameter(0)))
+    {
+        server.sendMessageToClient(client.getFd(), "charachterNotvalid\r\n");
+        return;
+    }
+
+    Client *fakeClient = server.getClientByNickname(msg.getParameter(0));
+
+    if (fakeClient && fakeClient->getFd() != client.getFd())
+    {
+        server.sendMessageToClient(client.getFd(), "this nickName is taken\r\n");
+        return;
+    }
+
+    // Save the old prefix before changing the nickname
+    std::string oldPrefix = client.getPrefix();
+
+    client.setNickname(msg.getParameter(0));
+
+    // The prefix must contain the OLD nickname
+    server.sendMessageToClient(
+        client.getFd(),
+        ":" + oldPrefix + " NICK :" + client.getNickname() + "\r\n"
+    );
+
+    server.tryRegister(client);
 }

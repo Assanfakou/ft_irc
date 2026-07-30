@@ -36,6 +36,11 @@ void Server::addMemberTo_Channel(const Message &msg, Client &client)
         }
     }
     it->second.addMember(fd);
+    /* this is for erasing the invitation */
+    it->second.ereasFromInvitedVec(fd);
+    /*this is for removing the channel if it is empty*/
+    it->second.setEmpty(false);
+    /*-----------------------------*/
     std::cout << "Client added to channel: " << msg.getParameter(0) << std::endl;
     Channel *reciever = getChanel(msg.getParameter(0));
     sendMessageToClient(client.getFd(), joinChannel(*this, client, msg.getParameter(0)));
@@ -62,11 +67,10 @@ void Server::check_Channels_and_addMember_to_Channel(const Message &msg, Client 
         if (!msg.getParameter(0).empty())
         {
             _channels.insert(std::make_pair(msg.getParameter(0), Channel(msg.getParameter(0)))); //pass name and creates a Channel object using constructor
+            std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
+            it->second.addOperator(client.getFd());
             std::cout << "Channel created: " << msg.getParameter(0) << std::endl;
             addMemberTo_Channel(msg, client);
-            std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
-            if (it != _channels.end())
-                it->second.addOperator(client.getFd());
         }
     }
     else

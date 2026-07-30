@@ -74,7 +74,7 @@ void Server::setupSocket()
     _pollfds.push_back(serverPollFd);
 }
 
-void Server::removeClient(int clientFd)
+    void Server::removeClient(int clientFd)
 {
     close(clientFd);// free the kernel resource
     _clients.erase(clientFd);// remove the client from the map
@@ -186,12 +186,12 @@ std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
     return clients;
 }
 
-Client *Server::getClientByNickname(const std::string &nicknames)
+Client *Server::getClientByNickname(const std::string &nickname)
 {
     for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
     {
-        if (it->second.getNickname() == nicknames)
-            return &(it->second);
+        if (compareNick(it->second.getNickname(), nickname))
+            return &it->second;
     }
     return NULL;
 }
@@ -208,10 +208,8 @@ void Server::tryRegister(Client &client)
         && !client.getUsername().empty())
     {
         client.setRegistered(true);
-
-        sendMessageToClient(client.getFd(),
-            welcomeMessage(*this, client));
-
+        sendMessageToClient(client.getFd(), welcomeMessage(*this, client));
+        sendMessageToClient(client.getFd(), noMotd(*this, client));
         std::cout << "Client registered!" << std::endl;
     }
 }
@@ -244,12 +242,17 @@ void Server::removeExitedClientInChannels(const Client &client)
 {
     std::map<std::string, Channel>::iterator mapIter = _channels.begin();
 
-    for (; mapIter != _channels.end(); ++mapIter)
+    for (; mapIter != _channels.end();)
     {
+
         if (mapIter->second.isMember(client.getFd()))
             mapIter->second.leaveChannel(mapIter->first, client.getFd());
         if (mapIter->second.isOperator(client.getFd()))
             mapIter->second.removeOperator(client.getFd());
+        if (mapIter->second.getEmpty())
+            _channels.erase(mapIter++);
+        else
+            ++mapIter;
     }
 }
 
@@ -265,21 +268,32 @@ void Server::processClientBuffer(Client &client)
         Parser parser;
         Message mesg = parser.parse(client.getBuffer().substr(0, pos));
         despatchMessage(client, mesg);
+        for (std::map<std::string, Channel>::iterator itChan = _channels.begin(); itChan != _channels.end();)
+        {
+            std::cout << "exited : " << itChan->second.getEmpty() << std::endl;
+            if (itChan->second.getEmpty())
+                _channels.erase(itChan++);
+            else
+                ++itChan;
+        }
         if (client.getExited())
         {
             removeExitedClientInChannels(client);
             removeClient(client.getFd());
-            break ;
+            break;
         }
         client.getBuffer().erase(0, pos + 2);
     }
 }
 
-
 bool Server::receiveClientMessage(int clientFd)
 {
     char buffer[1024];
     int bytesReceived = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
+    std::cout << "recv() returned " << bytesReceived << std::endl;
+    std::cout << "received: [";
+    std::cout.write(buffer, bytesReceived);
+    std::cout << "]" << std::endl;
 
     if (bytesReceived == 0)
     {
@@ -300,7 +314,6 @@ bool Server::receiveClientMessage(int clientFd)
         std::cerr << "Error: Client with fd " << clientFd << " not found in _clients map." << std::endl;
         return true; // The client is still connected, but we couldn't find it in the map.
     }
-    buffer[bytesReceived] = '\n'; // Null-terminate the received data
     it->second.getBuffer().append(buffer, bytesReceived);
 
     Client &client = it->second;
@@ -308,15 +321,26 @@ bool Server::receiveClientMessage(int clientFd)
     return true;// The client is still connected.
 }
 
+bool Server::running = true;
+void Server::signalHandler(int signum)
+{
+    (void)signum;
+    Server::running = false;
+}
+
 void Server::runPollLoop()
 {
     std::cout << "Server is running..." << std::endl;
     
-    while (true)
+    while (Server::running)
     {
         int ret = poll(_pollfds.data(), _pollfds.size(), -1);
         if (ret == -1)
+        {   
+            if (errno == EINTR)
+                continue;
             throw std::runtime_error("poll failed");
+        }
         for (size_t i = 0; i < _pollfds.size(); ++i)
         {
             if (_pollfds[i].revents & POLLIN)
