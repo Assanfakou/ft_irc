@@ -132,8 +132,8 @@ void Server::despatchMessage(Client &client, const Message &msg)
         client.setExited(true);
     else if (msg.getCommand() == "PING")
         this->sendMessageToClient(client.getFd(), pong(*this, msg));
-    // else if (msg.getCommand() == "WHO")
-    //     who(*this, client, msg);
+    else if (msg.getCommand() == "WHO")
+        who(*this, client, msg);
     else if (msg.getCommand() == "PART")
         clientLeaveChannel(msg, client);
     else if (msg.getCommand() == "JOIN")
@@ -186,12 +186,12 @@ std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
     return clients;
 }
 
-Client *Server::getClientByNickname(const std::string &nicknames)
+Client *Server::getClientByNickname(const std::string &nickname)
 {
     for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
     {
-        if (it->second.getNickname() == nicknames)
-            return &(it->second);
+        if (compareNick(it->second.getNickname(), nickname))
+            return &it->second;
     }
     return NULL;
 }
