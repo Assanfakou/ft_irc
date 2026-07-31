@@ -361,3 +361,11 @@ std::string topicReply(const Server &server, const Client &client, const Channel
         + channel.getTopic()
         + "\r\n";
 }
+std::string botMessage(const Client &client, const std::string &text)
+{
+    return ":l7aj!bot@localhost PRIVMSG "
+        + client.getNickname()
+        + " :"
+        + text
+        + "\r\n";
+}

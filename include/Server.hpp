@@ -92,6 +92,7 @@ class Server
         void names(Client &sender, const Message &msg);
         void removeExitedClientInChannels(const Client &client);
         static void signalHandler(int signum);
+        void bot(const Message &msg, const Client &client);
 };
 
 #endif

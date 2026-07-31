@@ -76,3 +76,6 @@ std::string partMessage(const Client &client, const Message &msg);
 std::string topicMessage(const Client &client, const Message &msg);
 std::string noTopic(const Server &server, const Client &client, const Message &msg);
 std::string topicReply(const Server &server, const Client &client, const Channel &channel);
+
+/* bot */
+std::string botMessage(const Client &client, const std::string &text);
