@@ -95,6 +95,7 @@ class Server
         void bot(const Message &msg, const Client &client);
         Channel *getChannelbyName(const std::string &name);
         std::vector<Channel *> getChannelsByName(const std::string &channels);
+        void nickHandler(Client &client, const Message &msg);
 };
 
 #endif

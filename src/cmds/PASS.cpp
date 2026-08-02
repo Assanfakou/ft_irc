@@ -7,6 +7,8 @@ const std::string& Server::getPassword() const
 
 void passHandler(Server &server, Client &client, const Message &msg)
 {
+    if (client.hasPassAccepted())
+        return ;
     if (msg.getParameter(0).empty())
     {
         server.sendMessageToClient(client.getFd(),
@@ -22,8 +24,7 @@ void passHandler(Server &server, Client &client, const Message &msg)
     }
     client.setPassAccepted(true);
 
-    server.sendMessageToClient(client.getFd(),
-        passwordAccepted(server));
+    server.sendMessageToClient(client.getFd(), passwordAccepted(server));
 }
 
 // void passHandler(Server &server, Client &client, const Message &msg)

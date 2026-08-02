@@ -44,7 +44,6 @@ void Server::setMode(const Message &msg, Client &client)
 
         return;
     }
-    //
     if (!it->second.isOperator(client.getFd()))
     {
         sendMessageToClient(client.getFd(), chanOpPrivsNeeded(*this, msg));

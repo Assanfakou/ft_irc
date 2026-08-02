@@ -68,7 +68,12 @@ void privmsg(Server &server, Client &sender, const Message &msg)
     {
         Channel *channel = server.getChanel(receiver);
         if (channel != NULL)
-            server.broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
+        {
+            if (channel->isMember(sender.getFd()))
+                server.broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
+            else
+                server.sendMessageToClient(sender.getFd(), notOnChannel(server, sender, msg));
+        }
         else
             server.sendMessageToClient(sender.getFd(), noSuchChannel(server, sender, msg));
         return ;
@@ -120,9 +125,9 @@ void notice(Server &server, Client &sender, const Message &msg)
         return;
     if (receiver[0] == '#')
     {
-        // i should skip the # character
         Channel *channel = server.getChanel(receiver);
-        server.broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
+        if (channel != NULL && channel->isMember(sender.getFd()))
+            server.broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
         return ;
     }
     std::vector<Client *> receiverClients = server.getClientsByNickname(receiver);
