@@ -43,7 +43,7 @@ class Server
         std::map<int, Client> _clients; // Map to store clients with their file descriptors as keys
         //rida
         std::map<std::string, Channel> _channels;
-
+        bool firstMember;
 
     public:
         Server(int port, const std::string &password);
@@ -60,7 +60,7 @@ class Server
         std::string getUsername(std::string command);
         void tryRegister(Client &client);
         std::string getPart(std::string command);
-        void addMemberTo_Channel(const Message &msg, Client &client);
+        void addMemberTo_Channel(Channel &channel, const Message &msg, Client &client);
         void check_Channels_and_addMember_to_Channel(const Message &msg, Client &client);
         void compare_nickname_and_kickClient(const Message &msg, Client &client);
         void compare_nickname_and_inviteClient(const Message &msg, Client &client);
@@ -93,6 +93,8 @@ class Server
         void removeExitedClientInChannels(const Client &client);
         static void signalHandler(int signum);
         void bot(const Message &msg, const Client &client);
+        Channel *getChannelbyName(const std::string &name);
+        std::vector<Channel *> getChannelsByName(const std::string &channels);
 };
 
 #endif

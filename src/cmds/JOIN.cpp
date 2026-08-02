@@ -1,8 +1,8 @@
 #include "../../include/Server.hpp"
 
-void Server::addMemberTo_Channel(const Message &msg, Client &client)
+void Server::addMemberTo_Channel(Channel &channel, const Message &msg, Client &client)
 {
-    std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0)); //now point to channel object (we can get the first elemnt or second (map))
+    std::map<std::string, Channel>::iterator it = _channels.find(channel.getName()); //now point to channel object (we can get the first elemnt or second (map))
     int fd = client.getFd();
     if (it->second.isMember(fd))
     {
@@ -36,18 +36,19 @@ void Server::addMemberTo_Channel(const Message &msg, Client &client)
         }
     }
     it->second.addMember(fd);
+    if (firstMember)
+        it->second.addOperator(fd);
     /* this is for erasing the invitation */
     it->second.ereasFromInvitedVec(fd);
     /*this is for removing the channel if it is empty*/
     it->second.setEmpty(false);
     /*-----------------------------*/
-    std::cout << "Client added to channel: " << msg.getParameter(0) << std::endl;
-    Channel *reciever = getChanel(msg.getParameter(0));
-    sendMessageToClient(client.getFd(), joinChannel(*this, client, msg.getParameter(0)));
-    sendMessageToClient(client.getFd(), topicWhenJoin(*this, client, *reciever));
-    sendMessageToClient(client.getFd(), namesWhenJoin(*this, client, *reciever));
-    sendMessageToClient(client.getFd(), endOfNamesList(*this, client, *reciever));
-    broadcastToChanel(*reciever, client, joinChannel(*this, client, msg.getParameter(0)));
+    std::cout << "Client added to channel: " << channel.getName() << std::endl;
+    sendMessageToClient(client.getFd(), joinChannel(*this, client, channel.getName()));
+    sendMessageToClient(client.getFd(), topicWhenJoin(*this, client, channel));
+    sendMessageToClient(client.getFd(), namesWhenJoin(*this, client, channel));
+    sendMessageToClient(client.getFd(), endOfNamesList(*this, client, channel));
+    broadcastToChanel(channel, client, joinChannel(*this, client, channel.getName()));
 }
 
 void Server::check_Channels_and_addMember_to_Channel(const Message &msg, Client &client)
@@ -57,22 +58,34 @@ void Server::check_Channels_and_addMember_to_Channel(const Message &msg, Client 
         sendMessageToClient(client.getFd(), clientNotRegestred(*this));
         return ;
     }
-    if (msg.getParameter(0)[0] != '#')
+    if (msg.getParameter(0).empty())
     {
-        sendMessageToClient(client.getFd(), notValidChanelName(*this));
+        sendMessageToClient(client.getFd(), needMoreParams(*this, client, msg));
         return ;
     }
-    if (_channels.find(msg.getParameter(0)) == _channels.end()) //if we reach the end and we don't get the name of channel
+    if (msg.getParameter(0).size() == 1)
     {
-        if (!msg.getParameter(0).empty())
+        if (msg.getParameter(0)[0] == '0')
         {
-            _channels.insert(std::make_pair(msg.getParameter(0), Channel(msg.getParameter(0)))); //pass name and creates a Channel object using constructor
-            std::map<std::string, Channel>::iterator it = _channels.find(msg.getParameter(0));
-            it->second.addOperator(client.getFd());
-            std::cout << "Channel created: " << msg.getParameter(0) << std::endl;
-            addMemberTo_Channel(msg, client);
+            removeExitedClientInChannels(client.getFd());
+            return ;
         }
+        else
+            sendMessageToClient(client.getFd(), "bad Parameter\r\n");
+        return ;
     }
-    else
-        addMemberTo_Channel(msg, client);
+    // if (msg.getParameter(0)[0] != '#')
+    // {
+    //     sendMessageToClient(client.getFd(), notValidChanelName(*this));
+    //     return;
+    // }
+    std::cout << "channel names : " << msg.getParameter(0)<< std::endl;
+    std::vector<Channel *> channels = getChannelsByName(msg.getParameter(0));
+    for (std::vector<Channel *>::iterator iter = channels.begin(); iter != channels.end(); iter++)
+    {
+        firstMember = false;
+        if ((*iter)->getMemberCount() == 0)
+            firstMember = true;
+        addMemberTo_Channel(**iter, msg, client);
+    }
 }

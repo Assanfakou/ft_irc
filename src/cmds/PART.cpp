@@ -36,6 +36,8 @@ void Server::clientLeaveChannel(const Message &msg, Client &client)
             sendMessageToClient(client.getFd(), partMessage(client, msg));
             broadcastToChanel(it->second, client, partMessage(client, msg));
             it->second.leaveChannel(msg.getParameter(0), fd);
+            if (it->second.isOperator(client.getFd()))
+                it->second.removeOperator(fd);
             return ;
         }
         else

@@ -66,7 +66,6 @@ void privmsg(Server &server, Client &sender, const Message &msg)
     }
     if (receiver[0] == '#')
     {
-        // i should skip the # character
         Channel *channel = server.getChanel(receiver);
         if (channel != NULL)
             server.broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
