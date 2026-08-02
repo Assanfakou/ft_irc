@@ -42,7 +42,7 @@ void Server::createSocket()
         throw std::runtime_error("Failed to create socket");
     if (fcntl(_serverSocket, F_SETFL, O_NONBLOCK) == -1)
         throw std::runtime_error("Failed to set server socket to non-blocking mode"); // throwing an exception here will terminate the program, which is appropriate since we can't proceed without a non-blocking server socket.
-    std::cout << "Server socket created: " << _serverSocket << std::endl;
+    std::cout << IRC_GREEN << "Server socket created: " << _serverSocket << std::endl << IRC_RESET;
 }
 
 void Server::setupSocket()
@@ -64,7 +64,7 @@ void Server::setupSocket()
     if (listen(_serverSocket, 128) < 0)
         throw std::runtime_error("listen failed");
 
-    std::cout << "Server is listening on port " << _port << std::endl;
+    std::cout << IRC_GREEN << "Server is listening on port " << _port << std::endl << IRC_RESET;
 
     // add the server socket to the pollfd vector to monitor for incoming connections
     pollfd serverPollFd;
@@ -86,7 +86,7 @@ void Server::removeClient(int clientFd)
             break;
         }
     }
-    std::cout << "Client disconnected fd= " << clientFd << std::endl;
+    std::cout << IRC_RED << "Client disconnected fd= " << clientFd << std::endl << IRC_RESET;
 }
 /* 
 ** here we should add the prefix with the line to specify who send the message 
@@ -210,7 +210,7 @@ void Server::tryRegister(Client &client)
         client.setRegistered(true);
         sendMessageToClient(client.getFd(), welcomeMessage(*this, client));
         sendMessageToClient(client.getFd(), noMotd(*this, client));
-        std::cout << "Client registered!" << std::endl;
+        std::cout << IRC_GREEN << "Client registered!" << std::endl << IRC_RESET;
     }
 }
 
@@ -260,15 +260,11 @@ void Server::processClientBuffer(Client &client)
  
     while ((pos = client.getBuffer().find("\r\n")) != std::string::npos)
     {
-        // std::cout << client.getPrefix() << "\n";
-        std::cout << "buffer: [" << client.getBuffer().substr(0, pos) << "]" << " length: [" << pos << "]" << std::endl;
-        // std::cout << "{" << client.getBuffer().substr(0, pos) << '}' << std::endl;
         Parser parser;
         Message mesg = parser.parse(client.getBuffer().substr(0, pos));
         despatchMessage(client, mesg);
         for (std::map<std::string, Channel>::iterator itChan = _channels.begin(); itChan != _channels.end();)
         {
-            std::cout << "exited : " << itChan->second.getEmpty() << std::endl;
             if (itChan->second.getEmpty())
                 _channels.erase(itChan++);
             else
@@ -330,7 +326,7 @@ void Server::signalHandler(int signum)
 
 void Server::runPollLoop()
 {
-    std::cout << "Server is running..." << std::endl;
+    std::cout << IRC_GREEN << "Server is running..." << std::endl << IRC_RESET;
     
     while (Server::running)
     {
@@ -370,7 +366,7 @@ void Server::acceptClient()
     if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1)
     {
         close(clientFd); // Close the client socket if we can't set it to non-blocking mode
-        std::cerr << "Failed to set client socket to non-blocking mode" << std::endl; // ignore the client if we can't set it to non-blocking mode
+    std::cerr << IRC_RED << "Failed to set client socket to non-blocking mode" << std::endl << IRC_RESET; // ignore the client if we can't set it to non-blocking mode
         return;
     }
 
