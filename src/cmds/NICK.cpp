@@ -33,7 +33,8 @@ bool isValidCharachter(char c)
 {
     if (std::isalnum(c))
         return true;
-    if (c == '[' || c == ']' || c == '\\' || c == '^' || c ==  '{' || c == '}' || c == '`')
+    if (c == '[' || c == ']' || c == '\\' || c == '^' || c ==  '{' || c == '}' || c == '`'
+        || c == '-' || c == '_' || c == '|') 
         return true;
     return false;
 }
@@ -120,17 +121,18 @@ void Server::nickHandler(Client &client, const Message &msg)
     }
     if (msg.getParameter(0).size() > 9)
     {
-        sendMessageToClient(client.getFd(), "Long NickName\r\n");
+        sendMessageToClient(client.getFd(), ":" + getServerName() + " 432 * " + msg.getParameter(0) + " :Erroneous Nickname\r\n");
+         
         return;
     }
     if (!firstNickCharacter(msg.getParameter(0)[0]))
     {
-        sendMessageToClient(client.getFd(), "Firstcharachter invalid\r\n");
+        sendMessageToClient(client.getFd(), ":" + getServerName() + " 432 * " + msg.getParameter(0) + " :Erroneous Nickname\r\n");
         return;
     }
     if (!checkNick(msg.getParameter(0)))
     {
-        sendMessageToClient(client.getFd(), "charachterNotvalid\r\n");
+        sendMessageToClient(client.getFd(), "432 * " + msg.getParameter(0) + " :Erroneous Nickname\r\n");
         return;
     }
     Client *fakeClient = getClientByNickname(msg.getParameter(0));

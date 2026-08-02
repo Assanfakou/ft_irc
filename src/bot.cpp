@@ -166,8 +166,17 @@ void Server::bot(const Message &msg, const Client &client)
     }
     if (msg.getParameter(0) ==  "help")
     {
-        sendMessageToClient(client.getFd(), botMessage(client, "help here "));
-        return ;
+        sendMessageToClient(client.getFd(), botMessage(client, "=== Bot Commands ==="));
+        sendMessageToClient(client.getFd(), botMessage(client, "help              - Show this help"));
+        sendMessageToClient(client.getFd(), botMessage(client, "time              - Show current server time"));
+        sendMessageToClient(client.getFd(), botMessage(client, "coin              - Flip a coin"));
+        sendMessageToClient(client.getFd(), botMessage(client, "roll              - Roll a dice (1-6)"));
+        sendMessageToClient(client.getFd(), botMessage(client, "calc a + b        - Calculate integers"));
+        sendMessageToClient(client.getFd(), botMessage(client, "joke              - Random programming joke"));
+        sendMessageToClient(client.getFd(), botMessage(client, "quote             - Random inspirational quote"));
+        sendMessageToClient(client.getFd(), botMessage(client, "fact              - Random interesting fact"));
+        sendMessageToClient(client.getFd(), botMessage(client, "===================="));
+        return;
     }
     else if (msg.getParameter(0) == "time")
     {

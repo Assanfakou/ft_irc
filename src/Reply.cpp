@@ -99,7 +99,7 @@ std::string whoMessage(const Server &server,const Client &client)
 
 std::string clientNotRegestred(const Server &server)
 {
-    return  ":" + server.getServerName() + " 451 : ERR_NOTREGISTERED\r\n";
+    return  ":" + server.getServerName() + " 451 : Not regestred\r\n";
 }
 
 std::string passwordAccepted(const Server &server)
@@ -112,7 +112,7 @@ std::string pong(const Server &server, const Message &msg)
 }
 std::string wrongPassword(const Server &server)
 {
-    return  ":" + server.getServerName() + " Wrong Password\r\n";
+    return  ":" + server.getServerName() + " 464 * :Wrong Password\r\n";
 }
 
 std::string joinChannel(const Server &server, const Client &sender, const std::string &chanelName)

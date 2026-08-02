@@ -79,3 +79,6 @@ std::string topicReply(const Server &server, const Client &client, const Channel
 
 /* bot */
 std::string botMessage(const Client &client, const std::string &text);
+
+
+std::string wrongPassword(const Server &server);
