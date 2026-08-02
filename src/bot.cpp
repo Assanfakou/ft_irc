@@ -154,6 +154,11 @@ bool calculate(const Message &msg, std::string &result)
 
 void Server::bot(const Message &msg, const Client &client)
 {
+    if (!client.hasPassAccepted() || !client.isRegistered())
+    {
+        sendMessageToClient(client.getFd(), clientNotRegestred(*this));
+        return ;
+    }
     if (msg.getParameter(0).empty())
     {
         sendMessageToClient(client.getFd(), botMessage(client, "Need mor parameters "));
