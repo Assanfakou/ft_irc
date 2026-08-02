@@ -90,3 +90,7 @@ void Client::setExited(bool exitStatus)
 {
     exited = exitStatus;
 }
+bool Client::getPassAccepted() const
+{
+    return _passAccepted;
+}

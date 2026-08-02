@@ -74,7 +74,7 @@ void Server::setupSocket()
     _pollfds.push_back(serverPollFd);
 }
 
-    void Server::removeClient(int clientFd)
+void Server::removeClient(int clientFd)
 {
     close(clientFd);// free the kernel resource
     _clients.erase(clientFd);// remove the client from the map
@@ -113,19 +113,19 @@ void Server::listAllUsers(Client &sender)
 void Server::despatchMessage(Client &client, const Message &msg)
 {
     if (msg.getCommand() == "PRIVMSG")
-          privmsg(*this, client, msg);
+          privmsg(client, msg);
     else if (msg.getCommand() == "NOTICE")
-        notice(*this, client, msg);
+        notice(client, msg);
     else if (msg.getCommand() == "NICK")
-        nickHandler(client, *this, msg);
+        nickHandler(client, msg);
     else if (msg.getCommand() == "KICK")
         compare_nickname_and_kickClient(msg, client);
     else if (msg.getCommand() == "USER")
-        userHandler(*this, client, msg);
+        userHandler(client, msg);
     else if (msg.getCommand() == "NAMES")
         names(client, msg);
     else if (msg.getCommand() == "PASS")
-        passHandler(*this, client, msg);
+        passHandler(client, msg);
     else if (msg.getCommand() == "HOST")
         client.setHostname(msg.getParameter(0));
     else if (msg.getCommand() == "QUIT")
@@ -133,7 +133,7 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "PING")
         this->sendMessageToClient(client.getFd(), pong(*this, msg));
     else if (msg.getCommand() == "WHO")
-        who(*this, client, msg);
+        who(client, msg);
     else if (msg.getCommand() == "PART")
         clientLeaveChannel(msg, client);
     else if (msg.getCommand() == "JOIN")
@@ -147,9 +147,9 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "LIST")
         listChanels(client, msg);
     else if (msg.getCommand() == "CAP")
-    {
         return;
-    }
+    else if (msg.getCommand() == "L7AJ")
+        bot(msg, client);
     else
     {
         this->sendMessageToClient(client.getFd(), unknownCommand(*this));
@@ -223,7 +223,6 @@ void Server::tryRegister(Client &client)
 //     }
 // }
 
-//rida (i only add my own code here , the function created by anass)
 
 /*
 **
@@ -244,7 +243,6 @@ void Server::removeExitedClientInChannels(const Client &client)
 
     for (; mapIter != _channels.end();)
     {
-
         if (mapIter->second.isMember(client.getFd()))
             mapIter->second.leaveChannel(mapIter->first, client.getFd());
         if (mapIter->second.isOperator(client.getFd()))
@@ -285,7 +283,6 @@ void Server::processClientBuffer(Client &client)
         client.getBuffer().erase(0, pos + 2);
     }
 }
-
 bool Server::receiveClientMessage(int clientFd)
 {
     char buffer[1024];
@@ -297,6 +294,9 @@ bool Server::receiveClientMessage(int clientFd)
 
     if (bytesReceived == 0)
     {
+        std::map<int, Client>::iterator it = _clients.find(clientFd);
+        if (it != _clients.end())
+            removeExitedClientInChannels(it->second);
         removeClient(clientFd);
         return false; // The client no longer exists.
     }
@@ -469,4 +469,79 @@ std::string Server::getChanelUsers(const std::string &channelName)
 std::map<int, Client> &Server::getClients()
 {
     return _clients;
+}
+
+Channel* Server::getChannelbyName(const std::string &name)
+{
+    std::map<std::string, Channel>::iterator iter = _channels.find(name);
+    if (iter != _channels.end())
+        return &iter->second;
+    return NULL;
+}
+
+// std::vector<Channel *> Server::getChannelsByName(const std::string &channels)
+// {
+//     std::vector<Channel *> channelsV;
+//     size_t start = 0;
+//     size_t end = channels.find(',');
+
+//     while (end != std::string::npos)
+//     {
+//         std::string name = channels.substr(start, end - start);
+//         Channel *channel = getChannelbyName(name);
+//         if (!channel)
+//         {
+//             _channels.insert(std::make_pair(name, Channel(name))); // pass name and creates a Channel object using constructor
+//             channel = getChannelbyName(name);
+//         }
+//         channelsV.push_back(channel);
+//         start = end + 1;
+//         end = channels.find(',', start);
+//     }
+//     /* hendle the last nickname and the only one that exists */
+//     std::string name = channels.substr(start);
+//     Channel *channel = getChannelbyName(name);
+//     if (!channel)
+//     {
+//         _channels.insert(std::make_pair(name, Channel(name))); // pass name and creates a Channel object using constructor
+//         channel = getChannelbyName(name);
+//     }
+//     channelsV.push_back(channel);
+//     return channelsV;
+// }
+
+std::vector<Channel *> Server::getChannelsByName(const std::string &channels)
+{
+    std::vector<Channel *> channelsV;
+    size_t start = 0;
+
+    while (start < channels.length())
+    {
+        size_t end = channels.find(',', start);
+        std::string name;
+        if (end == std::string::npos)
+            name = channels.substr(start);
+        else
+            name = channels.substr(start, end - start);
+        // Ignore empty names
+        if (!name.empty())
+        {
+            // Only accept valid IRC channel names
+            if (name[0] == '#')
+            {
+                Channel *channel = getChannelbyName(name);
+                if (!channel)
+                {
+                    std::cout << "Channel created: " << name << std::endl;
+                    _channels.insert(std::make_pair(name, Channel(name)));
+                    channel = getChannelbyName(name);
+                }
+                channelsV.push_back(channel);
+            }
+        }
+        if (end == std::string::npos)
+            break;
+        start = end + 1;
+    }
+    return channelsV;
 }

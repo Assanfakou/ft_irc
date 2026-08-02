@@ -40,7 +40,7 @@ std::string convertintToString(int num)
 
 void Server::listChanels(const Client &client, const Message &msg)
 {
-    if (!client.hasPassAccepted() && !client.isRegistered())
+    if (!client.hasPassAccepted() || !client.isRegistered())
     {
         sendMessageToClient(client.getFd(), clientNotRegestred(*this));
         return ;

@@ -1,23 +1,21 @@
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = src/Client.cpp src/main.cpp src/Server.cpp src/Message.cpp src/Parser.cpp src/cmds/* src/Reply.cpp src/Channel.cpp
+SRC = src/Client.cpp src/main.cpp src/Server.cpp src/Message.cpp src/Parser.cpp src/Reply.cpp src/Channel.cpp src/bot.cpp \
+		src/cmds/JOIN.cpp src/cmds/INVITE.cpp src/cmds/KICK.cpp src/cmds/LIST.cpp src/cmds/MODE.cpp src/cmds/MsgCommands.cpp src/cmds/NICK.cpp src/cmds/PART.cpp src/cmds/PASS.cpp src/cmds/TOPIC.cpp src/cmds/USER.cpp
 
-SRCC = src/mync.cpp
 NAME = ircserv
-NAMEC = client
 
 all : $(NAME)
 
 $(NAME): $(SRC)
 	$(CXX) $(CXXFLAGS) $(SRC) -o $(NAME)
 
-%.o : %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-fclean :
+clean :
 	rm -f $(NAME)
+fclean : clean
+	@rm -f $(NAME)
 
-re : fclean $(NAME)
+re : fclean all
 
-.PHONY : all NAME fclean re
+.PHONY : all clean fclean re

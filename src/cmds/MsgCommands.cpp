@@ -11,7 +11,7 @@
 
 void Server::names(Client &sender, const Message &msg)
 {
-    if (!sender.hasPassAccepted() && !sender.isRegistered())
+    if (!sender.hasPassAccepted() || !sender.isRegistered())
     {
         sendMessageToClient(sender.getFd(), clientNotRegestred(*this));
         return ;
@@ -41,40 +41,44 @@ void Server::names(Client &sender, const Message &msg)
     return ;
 }
 
-void privmsg(Server &server, Client &sender, const Message &msg)
+void Server::privmsg(Client &sender, const Message &msg)
 {
-    if (!sender.hasPassAccepted() && !sender.isRegistered())
+    if (!sender.hasPassAccepted() || !sender.isRegistered())
     {
-        server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
+        sendMessageToClient(sender.getFd(), clientNotRegestred(*this));
         return ;
     }
     if (msg.getParams().empty())
     {
-        server.sendMessageToClient(sender.getFd(), needMoreParams(server, sender, msg));
+        sendMessageToClient(sender.getFd(), needMoreParams(*this, sender, msg));
         return;
     }
     std::string receiver = msg.getParameter(0);
     if (receiver.empty())
     {
-        server.sendMessageToClient(sender.getFd(), noSuchNick(server, sender, receiver));
+        sendMessageToClient(sender.getFd(), noSuchNick(*this, sender, receiver));
         return;
     }
     if (msg.getParams().size() < 2)
     {
-        server.sendMessageToClient(sender.getFd(), noTextToSend(server));
+        sendMessageToClient(sender.getFd(), noTextToSend(*this));
         return;
     }
     if (receiver[0] == '#')
     {
-        // i should skip the # character
-        Channel *channel = server.getChanel(receiver);
+        Channel *channel = getChanel(receiver);
         if (channel != NULL)
-            server.broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
+        {
+            if (channel->isMember(sender.getFd()))
+                broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
+            else
+                sendMessageToClient(sender.getFd(), notOnChannel(*this, sender, msg));
+        }
         else
-            server.sendMessageToClient(sender.getFd(), noSuchChannel(server, sender, msg));
+            sendMessageToClient(sender.getFd(), noSuchChannel(*this, sender, msg));
         return ;
     }
-    std::vector<Client *> receiverClients = server.getClientsByNickname(receiver);
+    std::vector<Client *> receiverClients = getClientsByNickname(receiver);
     if (!receiverClients.empty())
     {
         for (std::vector<Client *>::iterator it = receiverClients.begin(); it != receiverClients.end(); ++it)
@@ -82,16 +86,16 @@ void privmsg(Server &server, Client &sender, const Message &msg)
             Client *receiverClient = *it;
             if (receiverClient->getFd() == sender.getFd())
             {
-                server.sendMessageToClient(sender.getFd(), cantSendToSelf(server));
+                sendMessageToClient(sender.getFd(), cantSendToSelf(*this));
                 continue;
             }
-            server.sendMessageToClient(receiverClient->getFd(), generateMEssage(sender, msg));
+            sendMessageToClient(receiverClient->getFd(), generateMEssage(sender, msg));
         }
         return ;
     }
     else
     {
-        server.sendMessageToClient(sender.getFd(), noSuchNick(server, sender, msg.getParameter(0)));
+        sendMessageToClient(sender.getFd(), noSuchNick(*this, sender, msg.getParameter(0)));
         return;
     }
 }
@@ -105,11 +109,11 @@ void privmsg(Server &server, Client &sender, const Message &msg)
 **
 */
 
-void notice(Server &server, Client &sender, const Message &msg)
+void Server::notice(Client &sender, const Message &msg)
 {
-    if (!sender.hasPassAccepted() && !sender.isRegistered())
+    if (!sender.hasPassAccepted() || !sender.isRegistered())
     {
-        server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
+        sendMessageToClient(sender.getFd(), clientNotRegestred(*this));
         return ;
     }
     if (msg.getParams().empty())
@@ -121,12 +125,12 @@ void notice(Server &server, Client &sender, const Message &msg)
         return;
     if (receiver[0] == '#')
     {
-        // i should skip the # character
-        Channel *channel = server.getChanel(receiver);
-        server.broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
+        Channel *channel = getChanel(receiver);
+        if (channel != NULL && channel->isMember(sender.getFd()))
+            broadcastToChanel(*channel, sender, generateMEssage(sender, msg));
         return ;
     }
-    std::vector<Client *> receiverClients = server.getClientsByNickname(receiver);
+    std::vector<Client *> receiverClients = getClientsByNickname(receiver);
     if (!receiverClients.empty())
     {
         for (std::vector<Client *>::iterator it = receiverClients.begin(); it != receiverClients.end(); ++it)
@@ -134,7 +138,7 @@ void notice(Server &server, Client &sender, const Message &msg)
             Client *receiverClient = *it;
             if (receiverClient->getFd() == sender.getFd())
                 continue;
-            server.sendMessageToClient(receiverClient->getFd(), generateMEssage(sender, msg));
+            sendMessageToClient(receiverClient->getFd(), generateMEssage(sender, msg));
         }
         return ;
     }
@@ -150,32 +154,29 @@ void notice(Server &server, Client &sender, const Message &msg)
 ** WHO #unknown	        315 RPL_ENDOFWHO
 */
 
-void who(Server &server, Client &sender, const Message &msg)
+void Server::who(Client &sender, const Message &msg)
 {
     if (!sender.hasPassAccepted() || !sender.isRegistered())
     {
-        server.sendMessageToClient(sender.getFd(),
-            clientNotRegestred(server));
+        sendMessageToClient(sender.getFd(), clientNotRegestred(*this));
         return;
     }
 
     if (msg.getParams().empty())
     {
-        server.sendMessageToClient(sender.getFd(),
-            needMoreParams(server, sender, msg));
+        sendMessageToClient(sender.getFd(), needMoreParams(*this, sender, msg));
         return;
     }
-
     std::string target = msg.getParameter(0);
 
     if (target[0] == '#')
     {
-        Channel *channel = server.getChanel(target);
+        Channel *channel = getChanel(target);
 
         if (!channel)
         {
-            server.sendMessageToClient(sender.getFd(),
-                ":" + server.getServerName()
+            sendMessageToClient(sender.getFd(),
+                ":" + getServerName()
                 + " 315 "
                 + sender.getNickname()
                 + " "
@@ -188,13 +189,13 @@ void who(Server &server, Client &sender, const Message &msg)
 
         for (size_t i = 0; i < members.size(); i++)
         {
-            Client *member = server.getClient(members[i]);
+            Client *member = getClient(members[i]);
 
             if (!member)
                 continue;
 
             std::string reply =
-                ":" + server.getServerName()
+                ":" + getServerName()
                 + " 352 "
                 + sender.getNickname()
                 + " "
@@ -204,18 +205,18 @@ void who(Server &server, Client &sender, const Message &msg)
                 + " "
                 + member->getHostname()
                 + " "
-                + server.getServerName()
+                + getServerName()
                 + " "
                 + member->getNickname()
                 + " H :0 "
                 + member->getRealname()
                 + "\r\n";
 
-            server.sendMessageToClient(sender.getFd(), reply);
+            sendMessageToClient(sender.getFd(), reply);
         }
 
-        server.sendMessageToClient(sender.getFd(),
-            ":" + server.getServerName()
+        sendMessageToClient(sender.getFd(),
+            ":" + getServerName()
             + " 315 "
             + sender.getNickname()
             + " "
@@ -226,12 +227,12 @@ void who(Server &server, Client &sender, const Message &msg)
     }
 
     Client *targetClient =
-        server.getClientByNickname(target);
+        getClientByNickname(target);
 
     if (targetClient)
     {
         std::string reply =
-            ":" + server.getServerName()
+            ":" + getServerName()
             + " 352 "
             + sender.getNickname()
             + " * "
@@ -239,57 +240,21 @@ void who(Server &server, Client &sender, const Message &msg)
             + " "
             + targetClient->getHostname()
             + " "
-            + server.getServerName()
+            + getServerName()
             + " "
             + targetClient->getNickname()
             + " H :0 "
             + targetClient->getRealname()
             + "\r\n";
 
-        server.sendMessageToClient(sender.getFd(), reply);
+        sendMessageToClient(sender.getFd(), reply);
     }
 
-    server.sendMessageToClient(sender.getFd(),
-        ":" + server.getServerName()
+    sendMessageToClient(sender.getFd(),
+        ":" + getServerName()
         + " 315 "
         + sender.getNickname()
         + " "
         + target
         + " :End of WHO list\r\n");
 }
-
-// void who(Server &server, Client &sender, const Message &msg)
-// {
-//     if (!sender.hasPassAccepted() && !sender.isRegistered())
-//     {
-//         server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
-//         return ;
-//     }
-//     if (msg.getParams().empty())
-//     {
-//         server.sendMessageToClient(sender.getFd(), whoStartMessage(server));
-//         server.sendMessageToClient(sender.getFd(), needMoreParams(server, sender, msg));
-//         server.sendMessageToClient(sender.getFd(), whoEndMessage(server));
-//         return;
-//     }
-//     if (msg.getParameter(0) == "*")
-//     {
-//         server.sendMessageToClient(sender.getFd(), whoStartMessage(server));
-//         server.listAllUsers(sender);
-//         server.sendMessageToClient(sender.getFd(), whoEndMessage(server));
-//         return ;
-//     }
-//     std::string targetNickname = msg.getParameter(0);
-//     if (!targetNickname.empty())
-//     {
-//         Client *targetClient = server.getClientByNickname(targetNickname);
-//         server.sendMessageToClient(sender.getFd(), whoStartMessage(server));
-//         if (!targetClient)
-//             server.sendMessageToClient(sender.getFd(), whoEndMessage(server));
-//         else
-//         {
-//             server.sendMessageToClient(sender.getFd(), whoMessage(server, *targetClient));
-//             server.sendMessageToClient(sender.getFd(), whoEndMessage(server));
-//         }
-//     }
-// }
