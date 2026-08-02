@@ -1,6 +1,4 @@
 #include "../include/Server.hpp"
-#include <ctime>
-#include <sstream>
 
 void sendCurrentTime(Server &server, const Client &client)
 {

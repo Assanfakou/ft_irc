@@ -113,19 +113,19 @@ void Server::listAllUsers(Client &sender)
 void Server::despatchMessage(Client &client, const Message &msg)
 {
     if (msg.getCommand() == "PRIVMSG")
-          privmsg(*this, client, msg);
+          privmsg(client, msg);
     else if (msg.getCommand() == "NOTICE")
-        notice(*this, client, msg);
+        notice(client, msg);
     else if (msg.getCommand() == "NICK")
         nickHandler(client, msg);
     else if (msg.getCommand() == "KICK")
         compare_nickname_and_kickClient(msg, client);
     else if (msg.getCommand() == "USER")
-        userHandler(*this, client, msg);
+        userHandler(client, msg);
     else if (msg.getCommand() == "NAMES")
         names(client, msg);
     else if (msg.getCommand() == "PASS")
-        passHandler(*this, client, msg);
+        passHandler(client, msg);
     else if (msg.getCommand() == "HOST")
         client.setHostname(msg.getParameter(0));
     else if (msg.getCommand() == "QUIT")
@@ -133,7 +133,7 @@ void Server::despatchMessage(Client &client, const Message &msg)
     else if (msg.getCommand() == "PING")
         this->sendMessageToClient(client.getFd(), pong(*this, msg));
     else if (msg.getCommand() == "WHO")
-        who(*this, client, msg);
+        who(client, msg);
     else if (msg.getCommand() == "PART")
         clientLeaveChannel(msg, client);
     else if (msg.getCommand() == "JOIN")

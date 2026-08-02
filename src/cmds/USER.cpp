@@ -1,6 +1,6 @@
 #include "../../include/Server.hpp"
 
-void userHandler(Server &server, Client &client, const Message &msg)
+void Server::userHandler(Client &client, const Message &msg)
 {
     if (client.getNickname().empty() || !client.getPassAccepted())
         return ;
@@ -10,8 +10,8 @@ void userHandler(Server &server, Client &client, const Message &msg)
         if (!msg.getParameter(3).empty())
             client.setRealname(msg.getParameter(3));
         std::cout << "Username saved: " << client.getUsername() << std::endl;
-        server.tryRegister(client);
+        tryRegister(client);
     }
     else
-        server.sendMessageToClient(client.getFd(), needMoreParams(server, client, msg));
+        sendMessageToClient(client.getFd(), needMoreParams(*this, client, msg));
 }

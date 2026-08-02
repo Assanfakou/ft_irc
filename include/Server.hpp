@@ -18,6 +18,8 @@
 #include <sstream>
 #include <cerrno>
 
+#include <ctime>
+#include <sstream>
 #include <sstream>
 #include <cstdlib>
 #include <csignal>
@@ -96,6 +98,12 @@ class Server
         Channel *getChannelbyName(const std::string &name);
         std::vector<Channel *> getChannelsByName(const std::string &channels);
         void nickHandler(Client &client, const Message &msg);
+
+        void privmsg(Client &sender, const Message &msg);
+        void notice(Client &sender, const Message &msg);
+        void who(Client &sender, const Message &msg);
+        void userHandler(Client &client, const Message &msg);
+        void passHandler(Client &client, const Message &msg);
 };
 
 #endif
