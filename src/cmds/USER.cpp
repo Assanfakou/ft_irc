@@ -2,6 +2,8 @@
 
 void userHandler(Server &server, Client &client, const Message &msg)
 {
+    if (client.getNickname().empty() || !client.getPassAccepted())
+        return ;
     if (!msg.getParameter(0).empty())
     {
         client.setUsername(msg.getParameter(0));

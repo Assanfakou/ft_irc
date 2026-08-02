@@ -111,48 +111,36 @@ bool checkNick(const std::string &nick)
 
 void nickHandler(Client &client, Server &server, const Message &msg)
 {
+    if (!client.getPassAccepted())
+        return ;
     if (msg.getParameter(0).empty())
     {
         server.sendMessageToClient(client.getFd(), needMoreParams(server, client, msg));
         return;
     }
-
     if (msg.getParameter(0).size() > 9)
     {
         server.sendMessageToClient(client.getFd(), "Long NickName\r\n");
         return;
     }
-
     if (!firstNickCharacter(msg.getParameter(0)[0]))
     {
         server.sendMessageToClient(client.getFd(), "Firstcharachter invalid\r\n");
         return;
     }
-
     if (!checkNick(msg.getParameter(0)))
     {
         server.sendMessageToClient(client.getFd(), "charachterNotvalid\r\n");
         return;
     }
-
     Client *fakeClient = server.getClientByNickname(msg.getParameter(0));
-
     if (fakeClient && fakeClient->getFd() != client.getFd())
     {
         server.sendMessageToClient(client.getFd(), "this nickName is taken\r\n");
         return;
     }
-
-    // Save the old prefix before changing the nickname
     std::string oldPrefix = client.getPrefix();
-
     client.setNickname(msg.getParameter(0));
-
-    // The prefix must contain the OLD nickname
-    server.sendMessageToClient(
-        client.getFd(),
-        ":" + oldPrefix + " NICK :" + client.getNickname() + "\r\n"
-    );
-
-    server.tryRegister(client);
+    server.sendMessageToClient(client.getFd(), ":" + oldPrefix + " NICK :" + client.getNickname() + "\r\n");
+    // broadcast the message to all users
 }

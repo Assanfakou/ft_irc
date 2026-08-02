@@ -11,7 +11,7 @@
 
 void Server::names(Client &sender, const Message &msg)
 {
-    if (!sender.hasPassAccepted() && !sender.isRegistered())
+    if (!sender.hasPassAccepted() || !sender.isRegistered())
     {
         sendMessageToClient(sender.getFd(), clientNotRegestred(*this));
         return ;
@@ -43,7 +43,7 @@ void Server::names(Client &sender, const Message &msg)
 
 void privmsg(Server &server, Client &sender, const Message &msg)
 {
-    if (!sender.hasPassAccepted() && !sender.isRegistered())
+    if (!sender.hasPassAccepted() || !sender.isRegistered())
     {
         server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
         return ;
@@ -106,7 +106,7 @@ void privmsg(Server &server, Client &sender, const Message &msg)
 
 void notice(Server &server, Client &sender, const Message &msg)
 {
-    if (!sender.hasPassAccepted() && !sender.isRegistered())
+    if (!sender.hasPassAccepted() || !sender.isRegistered())
     {
         server.sendMessageToClient(sender.getFd(), clientNotRegestred(server));
         return ;

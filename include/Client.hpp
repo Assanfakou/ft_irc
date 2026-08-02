@@ -48,6 +48,7 @@ class Client
 
         bool getExited() const;
         void setExited(bool exitStatus);
+        bool getPassAccepted() const;
 };
 
 #endif

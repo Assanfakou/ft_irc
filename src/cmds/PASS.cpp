@@ -20,13 +20,10 @@ void passHandler(Server &server, Client &client, const Message &msg)
             ":" + server.getServerName() + " Wrong Password\r\n");
         return;
     }
-
     client.setPassAccepted(true);
 
     server.sendMessageToClient(client.getFd(),
         passwordAccepted(server));
-
-    server.tryRegister(client);
 }
 
 // void passHandler(Server &server, Client &client, const Message &msg)

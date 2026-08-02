@@ -22,7 +22,7 @@ void Channel::leaveChannel(std::string channelName, int fd)
 */
 void Server::clientLeaveChannel(const Message &msg, Client &client)
 {
-    if (!client.hasPassAccepted() && !client.isRegistered())
+    if (!client.hasPassAccepted() || !client.isRegistered())
     {
         sendMessageToClient(client.getFd(), clientNotRegestred(*this));
         return ;
