@@ -11,28 +11,6 @@
 
 std::string convertintToString(int num)
 {
-    // static std::string number;
-    // while (num > 9)
-    // {
-    //     number += num % 10 + '0';
-    //     num /= 10;
-    // }
-    // number += num % 10 + '0';
-    // if (num < 10)
-    //     return number;
-    // else 
-    // {
-    //     int begin = 0;
-    //     int end = number.length() - 1;
-
-    //     while (begin < end)
-    //     {
-    //         std::swap(number[begin], number[end]);
-    //         end--;
-    //         begin++;
-    //     }
-    //     return number;
-    // }
     std::stringstream s;
     s << num;
     return s.str();

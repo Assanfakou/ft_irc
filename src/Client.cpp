@@ -38,7 +38,6 @@ bool Client::isRegistered() const
     return (_isRegistered);
 }
 
-//rida
 bool Client::hasPassAccepted() const
 {
     return _passAccepted;
@@ -75,7 +74,6 @@ std::string Client::getPrefix() const
     return _nickname + "!" + _username + "@" + _hostname;
 }
 
-//rida
 void Client::setPassAccepted(bool passAccepted)
 {
     _passAccepted = passAccepted;

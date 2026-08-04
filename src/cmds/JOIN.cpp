@@ -2,7 +2,7 @@
 
 void Server::addMemberTo_Channel(Channel &channel, const Message &msg, Client &client)
 {
-    std::map<std::string, Channel>::iterator it = _channels.find(channel.getName()); //now point to channel object (we can get the first elemnt or second (map))
+    std::map<std::string, Channel>::iterator it = _channels.find(channel.getName());
     int fd = client.getFd();
     if (it->second.isMember(fd))
     {
@@ -38,9 +38,7 @@ void Server::addMemberTo_Channel(Channel &channel, const Message &msg, Client &c
     it->second.addMember(fd);
     if (firstMember)
         it->second.addOperator(fd);
-    /* this is for erasing the invitation */
     it->second.ereasFromInvitedVec(fd);
-    /*this is for removing the channel if it is empty*/
     it->second.setEmpty(false);
     /*-----------------------------*/
     std::cout << "Client added to channel: " << channel.getName() << std::endl;
@@ -74,11 +72,6 @@ void Server::check_Channels_and_addMember_to_Channel(const Message &msg, Client 
             sendMessageToClient(client.getFd(), "bad Parameter\r\n");
         return ;
     }
-    // if (msg.getParameter(0)[0] != '#')
-    // {
-    //     sendMessageToClient(client.getFd(), notValidChanelName(*this));
-    //     return;
-    // }
     std::cout << "channel names : " << msg.getParameter(0)<< std::endl;
     std::vector<Channel *> channels = getChannelsByName(msg.getParameter(0));
     for (std::vector<Channel *>::iterator iter = channels.begin(); iter != channels.end(); iter++)

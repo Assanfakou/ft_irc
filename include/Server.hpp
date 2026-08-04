@@ -43,7 +43,6 @@ class Server
         static bool running;
         std::vector<pollfd> _pollfds;
         std::map<int, Client> _clients; // Map to store clients with their file descriptors as keys
-        //rida
         std::map<std::string, Channel> _channels;
         bool firstMember;
 
@@ -56,7 +55,6 @@ class Server
         void sendMessageToClient(int clientFd, const std::string &message);
         void broadcastToChanel(Channel &chanel, const Client &client, const std::string &msg);
         void removeClient(int clientFd);
-        //rida
         const std::string &getPassword()const;
         std::string getNickname(std::string command);
         std::string getUsername(std::string command);
@@ -78,7 +76,6 @@ class Server
         bool receiveClientMessage(int clientFd);
         void processClientBuffer(Client &client);
 
-        // creadted by Assan
         void despatchMessage(Client &client, const Message &message);
     public:
         Client *getClientByNickname(const std::string &nickname);

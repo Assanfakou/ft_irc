@@ -131,7 +131,7 @@ void Server::setMode(const Message &msg, Client &client)
 
     for (it2 = _clients.begin(); it2 != _clients.end(); it2++)
     {
-        if (it2->second.getNickname() == msg.getParameter(2))
+        if (compareNick(it2->second.getNickname() ,msg.getParameter(2)))
         {
             int targetFd = it2->second.getFd();
             if (it->second.isMember(targetFd))

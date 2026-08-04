@@ -5,7 +5,7 @@ Server::Server(int port, const std::string &password)
 {
     char hostname[HOST_NAME_MAX + 1];
     int result = gethostname(hostname, sizeof(hostname));
-    if (result ==0)
+    if (result == 0)
         serverName = hostname;
     else
         serverName = "Server";
@@ -15,8 +15,8 @@ Server::~Server()
 {
     for(size_t i = 0; i < _pollfds.size(); i++)
         close(_pollfds[i].fd);
-    _clients.clear();//not strictly necessary, but good practice to clear the map of clients
-    _pollfds.clear();//not strictly necessary, but good practice to clear the vector of pollfds
+    _clients.clear();
+    _pollfds.clear();
 }
 
 void Server::start()
@@ -61,16 +61,15 @@ void Server::setupSocket()
     if (bind(_serverSocket, (struct sockaddr*)&addr, sizeof(addr)) < 0)
         throw std::runtime_error("bind failed");
 
-    if (listen(_serverSocket, 128) < 0)
+    if (listen(_serverSocket, SOMAXCONN) < 0)
         throw std::runtime_error("listen failed");
 
     std::cout << IRC_GREEN << "Server is listening on port " << _port << std::endl << IRC_RESET;
 
-    // add the server socket to the pollfd vector to monitor for incoming connections
     pollfd serverPollFd;
     serverPollFd.fd = _serverSocket;
-    serverPollFd.events = POLLIN;// read from this fd // I am interested in knowing when this fd becomes readable.
-    serverPollFd.revents = 0; // Initialize revents
+    serverPollFd.events = POLLIN;
+    serverPollFd.revents = 0;
     _pollfds.push_back(serverPollFd);
 }
 
@@ -178,7 +177,6 @@ std::vector<Client *> Server::getClientsByNickname(const std::string &nicknames)
         start = end + 1;
         end = nicknames.find(',', start);
     }
-    /* hendle the last nickname and the only one that exists */
     std::string nickname = nicknames.substr(start);
     Client *client = getClientByNickname(nickname);
     if (client)
@@ -196,8 +194,6 @@ Client *Server::getClientByNickname(const std::string &nickname)
     return NULL;
 }
 
-//rida
-
 void Server::tryRegister(Client &client)
 {
     if (client.isRegistered())
@@ -213,29 +209,6 @@ void Server::tryRegister(Client &client)
         std::cout << IRC_GREEN << "Client registered!" << std::endl << IRC_RESET;
     }
 }
-
-// void Server::tryRegister(Client &client)
-// {
-//     if (client.hasPassAccepted() && !client.getNickname().empty() && !client.getUsername().empty())
-//     {
-//         client.setRegistered(true);
-//         std::cout << "Client registered!" << std::endl;
-//     }
-// }
-
-
-/*
-**
-** the buffer shouldn't be use after quiting the user, there will be leaks 
-** solve : the despatch should re turn if the client is quited or not
-** so it can remove the client here ; || we can copy the buffer and use it as a copy
-**
-*/
-
-/*
-** here i need to add a function that removes a client from the other vectors on the channel
-** because when exiting the server the client needs to leave all the channels
-*/
 
 void Server::removeExitedClientInChannels(const Client &client)
 {
@@ -283,38 +256,34 @@ bool Server::receiveClientMessage(int clientFd)
 {
     char buffer[1024];
     int bytesReceived = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
-    std::cout << "recv() returned " << bytesReceived << std::endl;
-    std::cout << "received: [";
-    std::cout.write(buffer, bytesReceived);
-    std::cout << "]" << std::endl;
-
     if (bytesReceived == 0)
     {
         std::map<int, Client>::iterator it = _clients.find(clientFd);
         if (it != _clients.end())
             removeExitedClientInChannels(it->second);
         removeClient(clientFd);
-        return false; // The client no longer exists.
+        return false; 
     }
     if (bytesReceived == -1)
     {
         std::cout << "recv() failed for client fd= " << clientFd << std::endl;
         removeClient(clientFd);
-        return false;// The client no longer exists.
+        return false;
     }
+    buffer[bytesReceived + 1] = '\0';
 
     std::map<int, Client>::iterator it = _clients.find(clientFd);
 
     if (it == _clients.end())
     {
         std::cerr << "Error: Client with fd " << clientFd << " not found in _clients map." << std::endl;
-        return true; // The client is still connected, but we couldn't find it in the map.
+        return true;
     }
     it->second.getBuffer().append(buffer, bytesReceived);
 
     Client &client = it->second;
     processClientBuffer(client);
-    return true;// The client is still connected.
+    return true;
 }
 
 bool Server::running = true;
@@ -365,14 +334,14 @@ void Server::acceptClient()
 
     if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1)
     {
-        close(clientFd); // Close the client socket if we can't set it to non-blocking mode
-    std::cerr << IRC_RED << "Failed to set client socket to non-blocking mode" << std::endl << IRC_RESET; // ignore the client if we can't set it to non-blocking mode
+        close(clientFd);
+        std::cerr << IRC_RED << "Failed to set client socket to non-blocking mode" << std::endl
+                  << IRC_RESET;
         return;
     }
 
-    _clients.insert(std::make_pair(clientFd, Client(clientFd)));//store the client in the map with its fd as the key
+    _clients.insert(std::make_pair(clientFd, Client(clientFd)));
     
-    // Add the client socket to the pollfd vector to monitor for incoming messages
     pollfd clientPollFd;
     clientPollFd.fd = clientFd;
     clientPollFd.events = POLLIN;
@@ -384,28 +353,22 @@ void Server::acceptClient()
 
 void Server::sendMessageToClient(int fd, const std::string &msg)
 {
-    std::cout << "SEND[" << fd << "] ";
+    // std::cout << "SEND[" << fd << "] ";
 
-    for (size_t i = 0; i < msg.size(); i++)
-    {
-        if (msg[i] == '\r')
-            std::cout << "\\r";
-        else if (msg[i] == '\n')
-            std::cout << "\\n";
-        else
-            std::cout << msg[i];
-    }
+    // for (size_t i = 0; i < msg.size(); i++)
+    // {
+    //     if (msg[i] == '\r')
+    //         std::cout << "\\r";
+    //     else if (msg[i] == '\n')
+    //         std::cout << "\\n";
+    //     else
+    //         std::cout << msg[i];
+    // }
 
-    std::cout << std::endl;
-
+    // std::cout << std::endl;
     send(fd, msg.c_str(), msg.size(), 0);
 }
 
-// void Server::sendMessageToClient(int clientFd, const std::string &message)
-// {
-//     if (send(clientFd, message.c_str(), message.size(), 0) == -1)
-//         std::cerr << "Failed to send message to client " << clientFd << "\n";
-// }
 
 void Server::broadcastToChanel(Channel &channel, const Client& sender, const std::string &msg)
 {
@@ -475,36 +438,6 @@ Channel* Server::getChannelbyName(const std::string &name)
     return NULL;
 }
 
-// std::vector<Channel *> Server::getChannelsByName(const std::string &channels)
-// {
-//     std::vector<Channel *> channelsV;
-//     size_t start = 0;
-//     size_t end = channels.find(',');
-
-//     while (end != std::string::npos)
-//     {
-//         std::string name = channels.substr(start, end - start);
-//         Channel *channel = getChannelbyName(name);
-//         if (!channel)
-//         {
-//             _channels.insert(std::make_pair(name, Channel(name))); // pass name and creates a Channel object using constructor
-//             channel = getChannelbyName(name);
-//         }
-//         channelsV.push_back(channel);
-//         start = end + 1;
-//         end = channels.find(',', start);
-//     }
-//     /* hendle the last nickname and the only one that exists */
-//     std::string name = channels.substr(start);
-//     Channel *channel = getChannelbyName(name);
-//     if (!channel)
-//     {
-//         _channels.insert(std::make_pair(name, Channel(name))); // pass name and creates a Channel object using constructor
-//         channel = getChannelbyName(name);
-//     }
-//     channelsV.push_back(channel);
-//     return channelsV;
-// }
 
 std::vector<Channel *> Server::getChannelsByName(const std::string &channels)
 {
@@ -522,7 +455,6 @@ std::vector<Channel *> Server::getChannelsByName(const std::string &channels)
         // Ignore empty names
         if (!name.empty())
         {
-            // Only accept valid IRC channel names
             if (name[0] == '#')
             {
                 Channel *channel = getChannelbyName(name);

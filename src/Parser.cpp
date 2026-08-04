@@ -46,14 +46,13 @@ void Parser::parseParameters(Message &msg, const std::string &line, size_t &i)
     }
 }
 
-
-std::string Parser::toUpper(const std::string &str)
-{
-    std::string upperStr;
-    for (size_t i = 0; i < str.length(); ++i)
-        upperStr += std::toupper(str[i]);
-    return upperStr;
-}
+// std::string Parser::toUpper(const std::string &str)
+// {
+//     std::string upperStr;
+//     for (size_t i = 0; i < str.length(); ++i)
+//         upperStr += std::toupper(str[i]);
+//     return upperStr;
+// }
 
 void Parser::parseCommand(Message &msg, const std::string &line, size_t &i)
 {
@@ -65,5 +64,5 @@ void Parser::parseCommand(Message &msg, const std::string &line, size_t &i)
         i++;
     }
     i++;
-    msg.setCommand(toUpper(command));
+    msg.setCommand(command);
 }
