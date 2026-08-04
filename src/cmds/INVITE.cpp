@@ -31,7 +31,6 @@ void Server::compare_nickname_and_inviteClient(const Message &msg, Client &clien
             
             if (it2 == _channels.end())
             {
-                /* this should be noSuchChannel */
                 sendMessageToClient(client.getFd(), noSuchChannel(*this, client, msg));
                 return;
             }
@@ -42,7 +41,6 @@ void Server::compare_nickname_and_inviteClient(const Message &msg, Client &clien
             }
             if (it2->second.isMember(client.getFd()) && it2->second.isOperator(client.getFd()))
             {
-                /* to not invite again */
                 if (!it2->second.isInvited(targetFd))
                     it2->second.addInvitedClient(targetFd);
 

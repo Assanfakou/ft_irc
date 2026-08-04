@@ -15,16 +15,6 @@ std::string generateMEssage(const Client &client, const Message &msg)
     return message;
 }
 
-// std::string generateMEssage(const Client &client, const Message &msg)
-// {
-//     std::string message = IRC_BLUE + ":" + client.getPrefix() + " " + msg.getCommand() + " :";
-//     for (size_t i = 0; i < msg.getParams().size(); ++i)
-//     {
-//         message += msg.getParameter(i) + " ";
-//     }
-//     message += "\r\n" + IRC_RESET;
-//     return message;
-// }
 
 std::string noTextToSend(const Server &server)
 {
