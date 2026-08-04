@@ -23,7 +23,7 @@ void Server::compare_nickname_and_inviteClient(const Message &msg, Client &clien
     }
     for (it = _clients.begin(); it != _clients.end(); ++it)
     {
-        if (it->second.getNickname() == msg.getParameter(0))
+        if (compareNick(it->second.getNickname() ,msg.getParameter(0)))
         {
             int targetFd = it->second.getFd();
 

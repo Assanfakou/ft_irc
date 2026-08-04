@@ -17,7 +17,7 @@ void Server::compare_nickname_and_kickClient(const Message &msg, Client &client)
     std::map<int, Client>::iterator it;
     for (it = _clients.begin(); it != _clients.end(); ++it)
     {
-        if (it->second.getNickname() == msg.getParameter(1))
+        if (compareNick(it->second.getNickname(), msg.getParameter(1)))
         {
             int targetFd = it->second.getFd();
 

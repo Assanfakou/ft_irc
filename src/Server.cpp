@@ -5,7 +5,7 @@ Server::Server(int port, const std::string &password)
 {
     char hostname[HOST_NAME_MAX + 1];
     int result = gethostname(hostname, sizeof(hostname));
-    if (result ==0)
+    if (result == 0)
         serverName = hostname;
     else
         serverName = "Server";
@@ -15,8 +15,8 @@ Server::~Server()
 {
     for(size_t i = 0; i < _pollfds.size(); i++)
         close(_pollfds[i].fd);
-    _clients.clear();//not strictly necessary, but good practice to clear the map of clients
-    _pollfds.clear();//not strictly necessary, but good practice to clear the vector of pollfds
+    _clients.clear();
+    _pollfds.clear();
 }
 
 void Server::start()
@@ -283,11 +283,10 @@ bool Server::receiveClientMessage(int clientFd)
 {
     char buffer[1024];
     int bytesReceived = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
-    std::cout << "recv() returned " << bytesReceived << std::endl;
-    std::cout << "received: [";
-    std::cout.write(buffer, bytesReceived);
-    std::cout << "]" << std::endl;
-
+    // std::cout << "recv() returned " << bytesReceived << std::endl;
+    // std::cout << "received: [";
+    // std::cout.write(buffer, bytesReceived);
+    // std::cout << "]" << std::endl;
     if (bytesReceived == 0)
     {
         std::map<int, Client>::iterator it = _clients.find(clientFd);
@@ -384,20 +383,19 @@ void Server::acceptClient()
 
 void Server::sendMessageToClient(int fd, const std::string &msg)
 {
-    std::cout << "SEND[" << fd << "] ";
+    // std::cout << "SEND[" << fd << "] ";
 
-    for (size_t i = 0; i < msg.size(); i++)
-    {
-        if (msg[i] == '\r')
-            std::cout << "\\r";
-        else if (msg[i] == '\n')
-            std::cout << "\\n";
-        else
-            std::cout << msg[i];
-    }
+    // for (size_t i = 0; i < msg.size(); i++)
+    // {
+    //     if (msg[i] == '\r')
+    //         std::cout << "\\r";
+    //     else if (msg[i] == '\n')
+    //         std::cout << "\\n";
+    //     else
+    //         std::cout << msg[i];
+    // }
 
-    std::cout << std::endl;
-
+    // std::cout << std::endl;
     send(fd, msg.c_str(), msg.size(), 0);
 }
 
