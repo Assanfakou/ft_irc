@@ -359,3 +359,48 @@ std::string botMessage(const Client &client, const std::string &text)
         + text
         + "\r\n";
 }
+std::string entringMessage(Server &server)
+{
+    std::string notice;
+
+    notice += ":" + server.getServerName() + " NOTICE * :--------------------------------------------------\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :        Welcome to the Aliens IRC Server!\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :--------------------------------------------------\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :To begin, please register using:\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  pass <password>\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  nick <nickname>\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  user <username> 0 * :<realname>\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :\r\n";
+    return notice;
+}
+
+std::string serverNotice(Server &server)
+{
+    std::string notice;
+    notice += ":" + server.getServerName() + " NOTICE * :  These commands you can use:\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  /join #channel               Join or create a channel\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  /list                        List all channels\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  /privmsg <nick> :<msg>       Send a private message\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  /privmsg #channel :<msg>     Send a message to a channel\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  /part #channel               Leave a channel\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  /invite <nick> #channel      Invite a user\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  /mode #chan ...              Manage channel modes\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  /topic #chan <topic>         Change or view the topic\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  /kick <nick> #chan           Kick a user (operator only)\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :  /who #channel                List channel users\r\n";
+
+    notice += ":" + server.getServerName() + " NOTICE * :Channel modes:\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :+i Invite Only\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :+t Topic by Operators Only\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :+k Channel Password\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :+l User Limit\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :+o Give Operator Status\r\n";
+
+    notice += ":" + server.getServerName() + " NOTICE * : /quit               Disconnect from the server\r\n";
+
+    notice += ":" + server.getServerName() + " NOTICE * :\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :Enjoy your stay!\r\n";
+    notice += ":" + server.getServerName() + " NOTICE * :--------------------------------------------------\r\n";
+
+    return notice;
+}

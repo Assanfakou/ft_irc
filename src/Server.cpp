@@ -206,6 +206,7 @@ void Server::tryRegister(Client &client)
         client.setRegistered(true);
         sendMessageToClient(client.getFd(), welcomeMessage(*this, client));
         sendMessageToClient(client.getFd(), noMotd(*this, client));
+        sendMessageToClient(client.getFd(), serverNotice(*this));
         std::cout << IRC_GREEN << "Client registered!" << std::endl << IRC_RESET;
     }
 }
@@ -349,6 +350,7 @@ void Server::acceptClient()
     _pollfds.push_back(clientPollFd);
 
     std::cout << "Client connected fd= " << clientFd << std::endl;
+    sendMessageToClient(clientFd, entringMessage(*this));
 }
 
 void Server::sendMessageToClient(int fd, const std::string &msg)
