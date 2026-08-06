@@ -82,3 +82,7 @@ std::string botMessage(const Client &client, const std::string &text);
 
 
 std::string wrongPassword(const Server &server);
+
+/*notice*/
+std::string entringMessage(Server &server);
+std::string serverNotice(Server &server);
