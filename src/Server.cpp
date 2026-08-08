@@ -151,6 +151,10 @@ void Server::despatchMessage(Client &client, const Message &msg)
     //     bot(msg, client);
     else
     {
+        if (msg.getCommand().substr(0, 4) == "l7aj")
+        {
+            this->sendMessageToClient(client.)
+        }
         this->sendMessageToClient(client.getFd(), unknownCommand(*this));
         return;
     }

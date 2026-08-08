@@ -30,6 +30,7 @@ void parseBotMessage(Message &msg, int socketfd)
     }
     if (msg.getParameter(2) == "!help\r\n")
     {
+        std::cout << "here \n";
         help(socketfd);
         return ;
     }
