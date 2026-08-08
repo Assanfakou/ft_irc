@@ -1,6 +1,11 @@
-#include "../include/Server.hpp"
+#include "../../include/Server.hpp"
 
-void sendCurrentTime(Server &server, const Client &client)
+void sendBot(int socketfd, const std::string &msg)
+{
+    send(socketfd, msg.c_str(), msg.size(), 0);
+}
+
+std::string sendCurrentTime()
 {
     time_t now = time(NULL);
 
@@ -10,7 +15,7 @@ void sendCurrentTime(Server &server, const Client &client)
         << local->tm_hour << ":"
         << local->tm_min << ":"
         << local->tm_sec;
-    server.sendMessageToClient(client.getFd(), botMessage(client, oss.str()));
+    return oss.str();
 }
 
 std::string coin()
@@ -30,6 +35,7 @@ int roll()
         return 6;
     return num;
 }
+
 std::string joke()
 {
     std::vector<std::string> jokes;
@@ -114,107 +120,53 @@ std::string fact()
     return facts[index];
 }
 
-bool calculate(const Message &msg, std::string &result)
+std::string help()
 {
-    if (msg.getParams().size() < 4)
-        return false;
-
-    int lhs = std::atoi(msg.getParameter(1).c_str());
-    int rhs = std::atoi(msg.getParameter(3).c_str());
-    std::string op = msg.getParameter(2);
-
-    std::stringstream ss;
-
-    if (op == "+")
-        ss << lhs + rhs;
-    else if (op == "-")
-        ss << lhs - rhs;
-    else if (op == "*")
-        ss << lhs * rhs;
-    else if (op == "/")
-    {
-        if (rhs == 0)
-        {
-            result = "Error: division by zero.";
-            return true;
-        }
-        ss << lhs / rhs;
-    }
-    else
-    {
-        result = "Unknown operator.";
-        return true;
-    }
-
-    result = ss.str();
-    return true;
+    std::string help = "\n=== Bot Commands ===\n";
+    help += "help              - Show this help\n";
+    help += "time              - Show current server time\n";
+    help += "coin              - Flip a coin\n";
+    help += "roll              - Roll a dice (1-6)\n";
+    help += "calc a + b        - Calculate integers\n";
+    help += "joke              - Random programming joke\n";
+    help += "quote             - Random inspirational quote\n";
+    help += "fact              - Random interesting fact\n";
+    help += "====================\r\n";
+    return help;
 }
 
-void Server::bot(const Message &msg, const Client &client)
-{
-    if (!client.hasPassAccepted() || !client.isRegistered())
-    {
-        sendMessageToClient(client.getFd(), clientNotRegestred(*this));
-        return ;
-    }
-    if (msg.getParameter(0).empty())
-    {
-        sendMessageToClient(client.getFd(), botMessage(client, "Need mor parameters "));
-        return ;
-    }
-    if (msg.getParameter(0) ==  "help")
-    {
-        sendMessageToClient(client.getFd(), botMessage(client, "=== Bot Commands ==="));
-        sendMessageToClient(client.getFd(), botMessage(client, "help              - Show this help"));
-        sendMessageToClient(client.getFd(), botMessage(client, "time              - Show current server time"));
-        sendMessageToClient(client.getFd(), botMessage(client, "coin              - Flip a coin"));
-        sendMessageToClient(client.getFd(), botMessage(client, "roll              - Roll a dice (1-6)"));
-        sendMessageToClient(client.getFd(), botMessage(client, "calc a + b        - Calculate integers"));
-        sendMessageToClient(client.getFd(), botMessage(client, "joke              - Random programming joke"));
-        sendMessageToClient(client.getFd(), botMessage(client, "quote             - Random inspirational quote"));
-        sendMessageToClient(client.getFd(), botMessage(client, "fact              - Random interesting fact"));
-        sendMessageToClient(client.getFd(), botMessage(client, "===================="));
-        return;
-    }
-    else if (msg.getParameter(0) == "time")
-    {
-        sendCurrentTime(*this, client);
-        return ;
-    }
-    else if (msg.getParameter(0) == "coin")
-    {
-        sendMessageToClient(client.getFd(), botMessage(client, "This is your shot : " + coin()));
-        return ;
-    }
-    else if (msg.getParameter(0) == "roll")
-    {
-        sendMessageToClient(client.getFd(), botMessage(client, "Dice  : " + convertintToString(roll())));
-        return ;
-    }
-    else if (msg.getParameter(0) == "joke")
-    {
-        sendMessageToClient(client.getFd(), botMessage(client, "Joke : " + joke()));
-        return ;
-    }
-    else if (msg.getParameter(0) == "quote")
-    {
-        sendMessageToClient(client.getFd(), botMessage(client, "Quote : " + quote()));
-        return ;
-    }
-    else if (msg.getParameter(0) == "fact")
-    {
-        sendMessageToClient(client.getFd(), botMessage(client, "Fact : " + fact()));
-        return ;
-    }
-    else if (msg.getParameter(0) == "calc")
-    {
-        std::string answer;
+// bool calculate(const Message &msg, std::string &result)
+// {
+//     if (msg.getParams().size() < 4)
+//         return false;
 
-        if (!calculate(msg, answer))
-        {
-            sendMessageToClient(client.getFd(), botMessage(client, "Usage: calc <number> <+|-|*|/> <number>"));
-            return;
-        }
-        sendMessageToClient(client.getFd(), botMessage(client, answer));
-    }
-}
+//     int lhs = std::atoi(msg.getParameter(1).c_str());
+//     int rhs = std::atoi(msg.getParameter(3).c_str());
+//     std::string op = msg.getParameter(2);
+
+//     std::stringstream ss;
+
+//     if (op == "+")
+//         ss << lhs + rhs;
+//     else if (op == "-")
+//         ss << lhs - rhs;
+//     else if (op == "*")
+//         ss << lhs * rhs;
+//     else if (op == "/")
+//     {
+//         if (rhs == 0)
+//         {
+//             result = "Error: division by zero.";
+//             return true;
+//         }
+//         ss << lhs / rhs;
+//     }
+//     else
+//     {
+//         result = "Unknown operator.";
+//         return true;
+//     }
+
+//     result = ss.str();
+//     return true;
+// }
