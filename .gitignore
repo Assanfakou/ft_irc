@@ -45,6 +45,7 @@ test
 run
 file
 ircserv
+Bot
 
 # Build directories
 build/
