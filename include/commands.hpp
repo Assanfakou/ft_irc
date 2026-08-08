@@ -11,3 +11,4 @@ int roll();
 std::string joke();
 std::string fact();
 std::string quote();
+void sendToServer(int socketfd, std::string &nickname, std::string &command);

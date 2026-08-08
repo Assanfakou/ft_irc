@@ -147,14 +147,22 @@ void Server::despatchMessage(Client &client, const Message &msg)
         listChanels(client, msg);
     else if (msg.getCommand() == "CAP")
         return;
-    // else if (msg.getCommand() == "L7AJ")
-    //     bot(msg, client);
+    else if (msg.getCommand() == "L7AJ")
+    {
+        std::cout << "here you got the bot\r\n" ;
+        Client *clinet = getClientByNickname(msg.getParameter(0));
+        if (!client)
+            return ;
+        
+        bot(msg, client);
+        return ;
+    }
     else
     {
-        if (msg.getCommand().substr(0, 4) == "l7aj")
-        {
-            this->sendMessageToClient(client.)
-        }
+        // if (msg.getCommand().substr(0, 4) == "l7aj")
+        // {
+        //     this->sendMessageToClient(client.)
+        // }
         this->sendMessageToClient(client.getFd(), unknownCommand(*this));
         return;
     }
