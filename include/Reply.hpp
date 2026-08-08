@@ -78,7 +78,7 @@ std::string noTopic(const Server &server, const Client &client, const Message &m
 std::string topicReply(const Server &server, const Client &client, const Channel &channel);
 
 /* bot */
-std::string botMessage(const Client &client, const std::string &text);
+std::string botMessage(const std::string &text);
 
 
 std::string wrongPassword(const Server &server);

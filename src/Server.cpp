@@ -147,8 +147,8 @@ void Server::despatchMessage(Client &client, const Message &msg)
         listChanels(client, msg);
     else if (msg.getCommand() == "CAP")
         return;
-    else if (msg.getCommand() == "L7AJ")
-        bot(msg, client);
+    // else if (msg.getCommand() == "L7AJ")
+    //     bot(msg, client);
     else
     {
         this->sendMessageToClient(client.getFd(), unknownCommand(*this));
