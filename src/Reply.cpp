@@ -351,12 +351,14 @@ std::string topicReply(const Server &server, const Client &client, const Channel
         + channel.getTopic()
         + "\r\n";
 }
+
 std::string botMessage(const std::string &text)
 {
     return ":l7aj!bot@localhost PRIVMSG :"
         + text
         + "\r\n";
 }
+
 std::string entringMessage(Server &server)
 {
     std::string notice;

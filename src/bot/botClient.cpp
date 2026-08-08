@@ -20,17 +20,17 @@ void botJoinCHannel(int socketfd, const std::string &channelName)
     send(socketfd, msg.c_str(), msg.size(), 0);
 }
 
-void sendToServer(int socketfd, std::string &nickname, const std::string &command)
+void sendToServer(int socketfd, std::string &msg)
 {
-    std::string msg = "l7aj " + nickname + " " + command + "\r\n";
-    std::cout << IRC_GREEN  << "command before : " << msg << IRC_RESET; 
     send(socketfd, msg.c_str(), msg.size(), 0);
-
 }
 
 void parseBotMessage(Message &msg, int socketfd)
 {
-    std::cout << IRC_GREEN << msg.getParameter(1) << IRC_RESET;
+    size_t pos = msg.getCommand().find('!');
+
+    std::string nickname = msg.getCommand().substr(1, pos - 1);
+    // std::cout << IRC_GREEN << msg.getParameter(1) << IRC_RESET;
     if (msg.getParameter(0) == "INVITE")
     {
         botJoinCHannel(socketfd, msg.getParameter(2));
@@ -38,45 +38,54 @@ void parseBotMessage(Message &msg, int socketfd)
     }
     if (msg.getParameter(2) == "!help\r\n")
     {
-        size_t pos = msg.getCommand().find('!');
-        // size_t posC = msg.getCommand().find("\r\n");
-
-        std::string nickname = msg.getCommand().substr(1, pos - 1);
-        // std::string command = msg.getParameter(2).substr(0, posC - 1);
-        std::cout << IRC_RED << "nick : " << nickname  << "Command : " << msg.getParameter(2) << "\n" << IRC_RESET;
-        sendToServer(socketfd, nickname, msg.getParameter(2));
+        std::string msg = "privmsg " + nickname + " " + ":" + help();
+        sendToServer(socketfd, msg);
         return ;
     }
     if (msg.getParameter(2) == "!coin\r\n") 
     {
-       sendBot(socketfd, botMessage("This is your Shot ; " + coin()));
+        std::string msg = "privmsg " + nickname + " " + ":this is your shot :" + coin();
+        sendToServer(socketfd, msg);
        return ;
     }
     if (msg.getParameter(2) == "!roll\r\n")
     {
-        sendBot(socketfd, botMessage("This is your shot : " + convertintToString(roll())));
+        std::string msg = "privmsg " + nickname + " " + ":this is your shot :" + convertintToString(roll()) + "\r\n";
+        sendToServer(socketfd, msg);
         return ;
     }
     if (msg.getParameter(2) == "!time\r\n")
     {
-        sendBot(socketfd, botMessage(sendCurrentTime()));
+        std::string msg = "privmsg " + nickname + " " + ":" + sendCurrentTime() + "\r\n";
+        sendToServer(socketfd, msg);
         return ;
     }
     if (msg.getParameter(2) == "!quote\r\n")
     {
-        sendBot(socketfd, botMessage("Quote : " + quote()));
+        std::string msg = "privmsg " + nickname + " " + ":Quote : " + quote() + "\r\n";
+        sendToServer(socketfd, msg);
         return ;
     }
     if (msg.getParameter(2) == "!fact\r\n")
     {
-        sendBot(socketfd, botMessage("Fact : " + fact()));
+        std::string msg = "privmsg " + nickname + " " + ":fact : " + fact() + "\r\n";
+        sendToServer(socketfd, msg);
         return ;
     }
     if (msg.getParameter(2) == "!joke\r\n")
     {
-        sendBot(socketfd,botMessage("Joke : " + joke()));
+        std::string msg = "privmsg " + nickname + " " + ":joke : " + joke() + "\r\n";
+        sendToServer(socketfd, msg);
         return ;
     }
+    std::cout << msg.getParameter(2).substr(0, 5) << std::endl;
+    if (msg.getParameter(2).substr(0, 5) == "!calc")
+    {
+        std::string msg = "privmsg " + nickname + " " + "clac here\r\n";
+        sendToServer(socketfd, msg);
+        return ;
+    }
+    
     return ;
 }
 
